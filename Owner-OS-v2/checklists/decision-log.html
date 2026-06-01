@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Log</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #f39c12;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 8px;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #f39c12;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn {
+            background: #f39c12;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .decisions-list {
+            margin-top: 40px;
+        }
+        .decision-card {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f39c12;
+            border-radius: 8px;
+        }
+        .decision-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .decision-meta {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .decision-content {
+            line-height: 1.6;
+        }
+        .decision-content strong {
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Decision Log</h1>
+        <p style="color: #7f8c8d; margin-bottom: 30px;">บันทึกการตัดสินใจสำคัญทุกครั้ง</p>
+
+        <form id="decisionForm">
+            <div class="form-group">
+                <label for="decisionId">Decision ID</label>
+                <input type="text" id="decisionId" placeholder="DEC-001" required>
+            </div>
+
+            <div class="form-group">
+                <label for="date">วันที่</label>
+                <input type="date" id="date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="task">งาน/โปรเจกต์</label>
+                <input type="text" id="task" placeholder="เช่น สร้างระบบ POS" required>
+            </div>
+
+            <div class="form-group">
+                <label for="decision">การตัดสินใจ</label>
+                <textarea id="decision" placeholder="เลือกทำอะไร?" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="rationale">เหตุผล</label>
+                <textarea id="rationale" placeholder="ทำไมถึงเลือกทางนี้?" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="tradeoffs">Tradeoffs (ข้อแลกเปลี่ยน)</label>
+                <textarea id="tradeoffs" placeholder="ข้อดี/ข้อเสีย ของการตัดสินใจนี้"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="risks">ความเสี่ยงที่ยอมรับ</label>
+                <textarea id="risks" placeholder="ยอมรับความเสี่ยงอะไรบ้าง?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="alternatives">ทางเลือกอื่นที่พิจารณา</label>
+                <textarea id="alternatives" placeholder="มีทางเลือกอื่นอะไรบ้าง? ทำไมไม่เลือก?"></textarea>
+            </div>
+
+            <button type="submit" class="btn">💾 บันทึก Decision</button>
+            <button type="button" class="btn btn-secondary" onclick="clearForm()">🔄 Clear</button>
+            <button type="button" class="btn btn-secondary" onclick="exportAll()">📄 Export All</button>
+        </form>
+
+        <div class="decisions-list">
+            <h2>📋 Decisions ที่บันทึกไว้</h2>
+            <div id="decisionsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let decisions = JSON.parse(localStorage.getItem('decisions') || '[]');
+
+        document.getElementById('decisionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const decision = {
+                id: document.getElementById('decisionId').value,
+                date: document.getElementById('date').value,
+                task: document.getElementById('task').value,
+                decision: document.getElementById('decision').value,
+                rationale: document.getElementById('rationale').value,
+                tradeoffs: document.getElementById('tradeoffs').value,
+                risks: document.getElementById('risks').value,
+                alternatives: document.getElementById('alternatives').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            decisions.push(decision);
+            localStorage.setItem('decisions', JSON.stringify(decisions));
+            
+            alert('✅ บันทึก Decision แล้ว!');
+            clearForm();
+            renderDecisions();
+        });
+
+        function clearForm() {
+            document.getElementById('decisionForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+        }
+
+        function renderDecisions() {
+            const container = document.getElementById('decisionsList');
+            if (decisions.length === 0) {
+                container.innerHTML = '<p style="color: #7f8c8d;">ยังไม่มี decision ที่บันทึกไว้</p>';
+                return;
+            }
+            
+            container.innerHTML = decisions.map(d => `
+                <div class="decision-card">
+                    <h3>${d.id} — ${d.task}</h3>
+                    <div class="decision-meta">วันที่: ${d.date}</div>
+                    <div class="decision-content">
+                        <p><strong>การตัดสินใจ:</strong> ${d.decision}</p>
+                        <p><strong>เหตุผล:</strong> ${d.rationale}</p>
+                        ${d.tradeoffs ? `<p><strong>Tradeoffs:</strong> ${d.tradeoffs}</p>` : ''}
+                        ${d.risks ? `<p><strong>ความเสี่ยง:</strong> ${d.risks}</p>` : ''}
+                        ${d.alternatives ? `<p><strong>ทางเลือกอื่น:</strong> ${d.alternatives}</p>` : ''}
+                    </div>
+                </div>
+            `).reverse().join('');
+        }
+
+        function exportAll() {
+            if (decisions.length === 0) {
+                alert('ยังไม่มี decision ที่จะ export');
+                return;
+            }
+            
+            let text = '# Decision Log\n\n';
+            decisions.forEach(d => {
+                text += `## ${d.id} — ${d.task}\n\n`;
+                text += `**วันที่:** ${d.date}\n\n`;
+                text += `**การตัดสินใจ:**\n${d.decision}\n\n`;
+                text += `**เหตุผล:**\n${d.rationale}\n\n`;
+                if (d.tradeoffs) text += `**Tradeoffs:**\n${d.tradeoffs}\n\n`;
+                if (d.risks) text += `**ความเสี่ยง:**\n${d.risks}\n\n`;
+                if (d.alternatives) text += `**ทางเลือกอื่น:**\n${d.alternatives}\n\n`;
+                text += '---\n\n';
+            });
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'decision-log.txt';
+            a.click();
+        }
+
+        // Initialize
+        document.getElementById('date').valueAsDate = new Date();
+        renderDecisions();
+    </script>
+</body>
+</html>

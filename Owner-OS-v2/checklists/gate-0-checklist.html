@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate 0 — Task Intake Checklist</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .checklist input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        .question {
+            background: #e8f4f8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .question h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            margin-top: 10px;
+        }
+        .output-section {
+            background: #fff3cd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .progress {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: #4caf50;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚪 Gate 0 — Task Intake (รับงาน)</h1>
+        <p><strong>เป้าหมาย:</strong> เข้าใจงานที่ได้รับอย่างแท้จริง ก่อนเริ่มทำอะไร</p>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+
+        <h2>❓ คำถามที่ต้องถาม</h2>
+
+        <div class="question">
+            <h3>1. "งานนี้คืออะไร?"</h3>
+            <p><strong>ทำไมต้องถาม:</strong> ถ้าไม่เข้าใจงาน จะทำผิดทิศทาง</p>
+            <textarea id="q1" placeholder="เขียนคำตอบที่นี่..."></textarea>
+        </div>
+
+        <div class="question">
+            <h3>2. "ใครเป็น user?"</h3>
+            <p><strong>ทำไมต้องถาม:</strong> User ต่างกัน = requirement ต่างกัน</p>
+            <textarea id="q2" placeholder="เขียนคำตอบที่นี่..."></textarea>
+        </div>
+
+        <div class="question">
+            <h3>3. "ขอบเขตงานอยู่ตรงไหน?"</h3>
+            <p><strong>ทำไมต้องถาม:</strong> ถ้าไม่กำหนดขอบเขต งานจะบานปลาย</p>
+            <textarea id="q3" placeholder="✅ อยู่ใน scope: ...\n❌ ไม่อยู่ใน scope: ..."></textarea>
+        </div>
+
+        <div class="question">
+            <h3>4. "งานนี้ urgent จริงหรือแค่รู้สึก urgent?"</h3>
+            <p><strong>ทำไมต้องถาม:</strong> ความ urgent ที่เกิดจากอารมณ์จะทำให้ข้ามขั้นตอนสำคัญ</p>
+            <textarea id="q4" placeholder="Urgent จริง / Urgent ปลอม เพราะ..."></textarea>
+        </div>
+
+        <div class="question">
+            <h3>5. "ข้อมูลอะไรที่ยังขาด?"</h3>
+            <p><strong>ทำไมต้องถาม:</strong> ถ้าข้อมูลไม่ครบ จะทำไม่ได้หรือทำผิด</p>
+            <textarea id="q5" placeholder="ข้อมูลที่ยังขาด: ..."></textarea>
+        </div>
+
+        <h2>✅ Output ที่ต้องได้</h2>
+        
+        <div class="output-section">
+            <h3>Task Description</h3>
+            <textarea id="taskDesc" placeholder="งานคืออะไร (1-2 ประโยค)"></textarea>
+        </div>
+
+        <div class="output-section">
+            <h3>User</h3>
+            <textarea id="user" placeholder="ใครเป็น user"></textarea>
+        </div>
+
+        <div class="output-section">
+            <h3>Scope</h3>
+            <textarea id="scope" placeholder="✅ อยู่ใน scope:\n- ...\n\n❌ ไม่อยู่ใน scope:\n- ..."></textarea>
+        </div>
+
+        <div class="output-section">
+            <h3>Success Criteria</h3>
+            <textarea id="successCriteria" placeholder="สำเร็จเมื่อไร (วัดได้)"></textarea>
+        </div>
+
+        <div class="output-section">
+            <h3>Priority & Deadline</h3>
+            <textarea id="priority" placeholder="Priority: High/Medium/Low\nDeadline: ..."></textarea>
+        </div>
+
+        <div class="output-section">
+            <h3>Owner Escalation</h3>
+            <textarea id="escalation" placeholder="ต้อง escalate หรือไม่: Yes/No\nเพราะ: ..."></textarea>
+        </div>
+
+        <h2>📋 Final Checklist</h2>
+        <ul class="checklist">
+            <li><input type="checkbox" onchange="updateProgress()"> เข้าใจงานที่ได้รับ</li>
+            <li><input type="checkbox" onchange="updateProgress()"> รู้ว่า user คือใคร</li>
+            <li><input type="checkbox" onchange="updateProgress()"> กำหนดขอบเขตชัดเจน</li>
+            <li><input type="checkbox" onchange="updateProgress()"> มี success criteria ที่วัดได้</li>
+            <li><input type="checkbox" onchange="updateProgress()"> รู้ว่า urgent จริงหรือไม่</li>
+            <li><input type="checkbox" onchange="updateProgress()"> ระบุข้อมูลที่ยังขาด</li>
+            <li><input type="checkbox" onchange="updateProgress()"> ตรวจสอบ Owner Escalation</li>
+        </ul>
+
+        <button class="btn" onclick="saveData()">💾 บันทึกข้อมูล</button>
+        <button class="btn" onclick="exportData()">📄 Export เป็น Text</button>
+    </div>
+
+    <script>
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+            const checked = document.querySelectorAll('.checklist input[type="checkbox"]:checked').length;
+            const total = checkboxes.length;
+            const percentage = Math.round((checked / total) * 100);
+            
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+        }
+
+        function saveData() {
+            const data = {
+                q1: document.getElementById('q1').value,
+                q2: document.getElementById('q2').value,
+                q3: document.getElementById('q3').value,
+                q4: document.getElementById('q4').value,
+                q5: document.getElementById('q5').value,
+                taskDesc: document.getElementById('taskDesc').value,
+                user: document.getElementById('user').value,
+                scope: document.getElementById('scope').value,
+                successCriteria: document.getElementById('successCriteria').value,
+                priority: document.getElementById('priority').value,
+                escalation: document.getElementById('escalation').value,
+            };
+            
+            localStorage.setItem('gate0_data', JSON.stringify(data));
+            alert('✅ บันทึกข้อมูลแล้ว!');
+        }
+
+        function exportData() {
+            const data = {
+                q1: document.getElementById('q1').value,
+                q2: document.getElementById('q2').value,
+                q3: document.getElementById('q3').value,
+                q4: document.getElementById('q4').value,
+                q5: document.getElementById('q5').value,
+                taskDesc: document.getElementById('taskDesc').value,
+                user: document.getElementById('user').value,
+                scope: document.getElementById('scope').value,
+                successCriteria: document.getElementById('successCriteria').value,
+                priority: document.getElementById('priority').value,
+                escalation: document.getElementById('escalation').value,
+            };
+            
+            let text = '# Gate 0 — Task Intake\n\n';
+            text += '## คำถาม\n\n';
+            text += '1. งานนี้คืออะไร?\n' + data.q1 + '\n\n';
+            text += '2. ใครเป็น user?\n' + data.q2 + '\n\n';
+            text += '3. ขอบเขตงานอยู่ตรงไหน?\n' + data.q3 + '\n\n';
+            text += '4. งานนี้ urgent จริงหรือไม่?\n' + data.q4 + '\n\n';
+            text += '5. ข้อมูลอะไรที่ยังขาด?\n' + data.q5 + '\n\n';
+            text += '## Output\n\n';
+            text += 'Task Description:\n' + data.taskDesc + '\n\n';
+            text += 'User:\n' + data.user + '\n\n';
+            text += 'Scope:\n' + data.scope + '\n\n';
+            text += 'Success Criteria:\n' + data.successCriteria + '\n\n';
+            text += 'Priority & Deadline:\n' + data.priority + '\n\n';
+            text += 'Owner Escalation:\n' + data.escalation + '\n\n';
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gate-0-output.txt';
+            a.click();
+        }
+
+        // Load saved data
+        window.onload = function() {
+            const saved = localStorage.getItem('gate0_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('q1').value = data.q1 || '';
+                document.getElementById('q2').value = data.q2 || '';
+                document.getElementById('q3').value = data.q3 || '';
+                document.getElementById('q4').value = data.q4 || '';
+                document.getElementById('q5').value = data.q5 || '';
+                document.getElementById('taskDesc').value = data.taskDesc || '';
+                document.getElementById('user').value = data.user || '';
+                document.getElementById('scope').value = data.scope || '';
+                document.getElementById('successCriteria').value = data.successCriteria || '';
+                document.getElementById('priority').value = data.priority || '';
+                document.getElementById('escalation').value = data.escalation || '';
+            }
+        };
+    </script>
+</body>
+</html>
