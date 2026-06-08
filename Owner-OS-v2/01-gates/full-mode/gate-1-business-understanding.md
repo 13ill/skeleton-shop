@@ -2,6 +2,8 @@
 
 > ทำไมต้องทำ? สร้าง value อะไร?
 
+**4W Framework:** Gate นี้ตอบคำถาม **WHY** (ทำไม) — คำถามที่สำคัญที่สุด ต้องตอบก่อนเสมอ — ดู `02-protocols/4w-framework.md`
+
 ---
 
 ## 🎯 วัตถุประสงค์
@@ -23,11 +25,17 @@
 - User ประสบปัญหาอะไร?
 - ตอนนี้แก้ยังไง?
 
-### 3. "Success criteria คืออะไร?"
+### 3. "Success criteria คืออะไร?" (บังคับมี KPI)
 - สำเร็จเมื่อไร? (วัดได้)
-- KPI คืออะไร?
+- KPI คืออะไร? **(ต้องเป็น SMART: มี baseline + target + deadline)**
+- ดู template: `04-templates/kpi-template.md`
 
-### 4. "Revenue model คืออะไร?"
+### 4. "Business Impact คืออะไร?"
+- ประเมิน 5 มิติ: Revenue, Cost, Customer, Risk, Strategic
+- คำนวณ ROI
+- ดู: `06-references/business-impact-analysis.md`
+
+### 5. "Revenue model คืออะไร?"
 - สร้างรายได้ยังไง?
 - ROI คืออะไร?
 
@@ -37,16 +45,18 @@
 
 - Business Value Statement
 - User Pain Points
-- Success Criteria (วัดได้)
+- **KPI ที่วัดได้ (SMART) — บังคับมี** (baseline + target + deadline)
+- **Business Impact Statement** (Revenue/Cost/Customer/Risk/Strategic + ROI)
 - Revenue Model (ถ้ามี)
 
 ---
 
 ## 📋 Checklist
 
-- [ ] เข้าใจ business value
+- [ ] เข้าใจ business value (ตอบ WHY ได้)
 - [ ] เข้าใจ user pain points
-- [ ] มี success criteria ที่วัดได้
+- [ ] **มี KPI ที่วัดได้ (SMART) — บังคับ**
+- [ ] **มี Business Impact Statement + ROI**
 - [ ] เข้าใจ revenue model
 
 ---

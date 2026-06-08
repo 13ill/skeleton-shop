@@ -210,7 +210,7 @@ AI ต้องทำอัตโนมัติ:
 2. ✅ เขียน decision log (ถ้ามี decision สำคัญ)
 3. ✅ เขียน lesson log
 4. ✅ ย้าย logs/wip/[task-id].md → logs/completed/
-5. ✅ อัปเดต architecture docs (ถ้ามีการเปลี่ยนแปลง)
+5. ✅ สร้าง/อัปเดต architecture docs (ถ้ายังไม่มี→สร้าง, มี→อัปเดต) + module docs ต่อ module
 6. ✅ สรุปงาน
 ```
 

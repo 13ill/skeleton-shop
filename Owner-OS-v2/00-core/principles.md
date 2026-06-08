@@ -1,4 +1,4 @@
-# หลักคิด 10 ข้อ ของ AI-Native Operator
+# หลักคิด 12 ข้อ ของ AI-Native Operator
 
 > หลักการตัดสินใจและทำงานแบบ Business Owner
 
@@ -333,7 +333,68 @@ Success criteria ต้องวัดได้ ไม่ใช่คลุม�
 
 ---
 
-## 📊 สรุป 10 หลักคิด
+## 1️⃣1️⃣ Problem-First (นิยามปัญหาก่อนหา Solution)
+
+### ความหมาย
+ห้ามรีบตัดสิน solution ก่อนเข้าใจปัญหาจริง ต้องตอบ WHY ก่อน HOW เสมอ
+
+### ทำไมสำคัญ?
+- Solution-first = แก้ปัญหาผิด
+- แก้ปัญหาผิด = เสียเวลาเปล่า
+- ปัญหาที่นิยามดี = แก้ไปแล้วครึ่งหนึ่ง
+
+### ตัวอย่าง
+```
+❌ Solution-First:
+User: "ทำปุ่ม export Excel"
+Dev: เขียนโค้ดทันที
+จริงๆ: ลูกค้าแค่อยากดูยอดขายรวม → ทำ dashboard ดีกว่า
+
+✅ Problem-First:
+User: "ทำปุ่ม export Excel"
+Dev: "export ไปทำอะไรต่อ?"
+User: "ดูยอดขายรวมแต่ละเดือน"
+Dev: "งั้นทำ dashboard เลยดีกว่า ไม่ต้องเปิด Excel"
+```
+
+### วิธีใช้
+- ใช้ 4W Framework: ตอบ WHY → WHAT → HOW → WHEN
+- ถาม "ทำไม" 5 ครั้ง (5 Whys) จนเจอ root cause
+- แยก symptom กับ root cause
+- ดู `06-references/problem-definition.md`
+
+---
+
+## 1️⃣2️⃣ Business Impact First (มอง Business Impact มากกว่า Technical Detail)
+
+### ความหมาย
+ตัดสินใจบนพื้นฐาน business value ไม่ใช่แค่ความสวยงามของโค้ด
+
+### ทำไมสำคัญ?
+- โค้ดสวยแต่ไม่สร้าง value = ล้มเหลวทางธุรกิจ
+- Technical ต้องรับใช้ business ไม่ใช่กลับกัน
+- เวลาจำกัด ต้องทำสิ่งที่คุ้มค่าที่สุด
+
+### ตัวอย่าง
+```
+❌ Technical-First:
+"ใช้ microservices เพราะ scale ได้ดี clean"
+จริงๆ: user แค่ 100 คน ไม่ต้อง scale → เสียเวลา 2 เดือนเปล่า
+
+✅ Business-First:
+"user 100 คน ใช้ monolith ง่ายๆ พอ
+ประหยัด 2 เดือน เอาไปทำ feature ที่ขายได้"
+```
+
+### วิธีใช้
+- ประเมิน 5 มิติ: Revenue, Cost, Customer, Risk, Strategic
+- คำนวณ ROI ก่อนทำ
+- ใช้ Decision Matrix (Quick Win / Project / Fill-in / Money Pit)
+- ดู `06-references/business-impact-analysis.md`
+
+---
+
+## 📊 สรุป 12 หลักคิด
 
 1. **Think Before Act** — คิดก่อนทำ
 2. **System Thinking** — คิดเชิงระบบ
@@ -345,6 +406,8 @@ Success criteria ต้องวัดได้ ไม่ใช่คลุม�
 8. **Leverage** — ใช้ประโยชน์จาก AI
 9. **Owner Mindset** — คิดเหมือนเจ้าของ
 10. **Measurable** — วัดผลได้
+11. **Problem-First** — นิยามปัญหาก่อนหา solution
+12. **Business Impact First** — มอง business impact มากกว่า technical detail
 
 ---
 

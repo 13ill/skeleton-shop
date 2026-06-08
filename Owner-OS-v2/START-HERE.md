@@ -87,10 +87,13 @@ AI ควรจะ:
 คุณ: "ทำระบบ Stock"
 
 AI:
-1. รัน Gate 0-5 (ถาม วิเคราะห์ ออกแบบ)
-2. ได้ requirement ครบ
-3. สร้าง execution plan
-4. ถาม: "พร้อมเขียนโค้ดไหม?"
+1. สร้าง PRD (Product Requirements Document) ⭐
+2. แบ่ง phases: MVP → Enhancement → Scale ⭐
+3. รัน Gate 0-5 (ถาม วิเคราะห์ ออกแบบ)
+4. ได้ requirement ครบ
+5. สร้าง execution plan
+6. ถาม: "พร้อมเขียนโค้ดไหม?"
+7. อัปเดต progress อัตโนมัติทุกครั้งที่ผ่าน gate ⭐
 ```
 
 ### เมื่อหยุดงานชั่วคราว
@@ -165,6 +168,10 @@ Owner-OS-v2/
 │   └── weekly-review.md
 │
 ├── 📁 04-templates/              ← Copy ไปใช้
+│   ├── prd-template.md           ⭐ (PRD - Product Requirements)
+│   ├── phase-tracker.md          ⭐ (ติดตาม phase/feature)
+│   ├── progress-update-setup-prompt.md ⭐ (deploy progress ไป project อื่น)
+│   ├── kpi-template.md           ⭐ (KPI ที่วัดได้)
 │   ├── decision-log.md
 │   ├── lesson-log.md
 │   ├── investigation-log.md
@@ -189,6 +196,8 @@ Owner-OS-v2/
 ├── 📁 07-automation/             ← AI ทำอัตโนมัติ
 │   ├── auto-session-start.md
 │   ├── auto-log-system.md
+│   ├── auto-phase-update.md      ⭐ (อัปเดต PRD/Phase อัตโนมัติ)
+│   ├── progress-update-workflow.md ⭐ (อัปเดตความคืบหน้า + architecture)
 │   ├── wip-tracker.md
 │   ├── session-resume.md
 │   ├── context-checkpoint.md

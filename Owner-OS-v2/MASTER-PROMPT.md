@@ -114,12 +114,87 @@
 - Investigation → investigation log
 - ต้องมี version + timestamp
 
-### 7. อธิบายชัดเจน
+### 7. PRD และ Phase Tracking
+**Track progress systematically**
+
+**เมื่อเริ่มโปรเจกต์ใหม่:**
+- ✅ สร้าง PRD (Product Requirements Document) จาก `04-templates/prd-template.md`
+- ✅ สร้าง Phase Tracker จาก `04-templates/phase-tracker.md`
+- ✅ แบ่ง phases (MVP, Enhancement, Scale)
+- ✅ แบ่ง features ในแต่ละ phase
+- ✅ กำหนด timeline และ success criteria
+
+**อัปเดตอัตโนมัติ:**
+- ✅ เมื่อผ่าน gate → อัปเดต feature progress
+- ✅ เมื่อเสร็จ feature → mark as completed
+- ✅ เมื่อเจอ blocker → บันทึกใน phase tracker
+- ✅ เมื่อเลิกงาน → สรุปงานวันนี้ใน phase tracker
+- ✅ เมื่อแก้โค้ดเสร็จ / สั่ง `/update-progress` → อัปเดตความคืบหน้าลงไฟล์เป้าหมาย (ดู `07-automation/progress-update-workflow.md`)
+
+**Architecture Doc (บังคับสร้างครั้งแรก):**
+- ✅ **ตอน Gate 6 (Planning) → สร้าง `docs/architecture.md` + `docs/modules/[module].md` ถ้ายังไม่มี**
+- ✅ ห้ามรอจนจบงานค่อยทำ — ต้องสร้าง/ร่างโครงตั้งแต่วางแผน
+- ✅ เมื่อ user บอก "ผ่านแล้ว"/"ไปต่อ" → อัปเดต architecture/flow
+- ✅ ใช้ template `04-templates/architecture-doc.md` และ `module-doc.md`
+
+**ประโยชน์:**
+- เห็นภาพรวมทันที (อยู่ phase ไหน feature ไหน gate ไหน)
+- กลับมาทำต่อได้ง่าย (อ่าน phase tracker ก็รู้เลย)
+- Report ง่าย (export PRD ส่งให้ stakeholder)
+
+**ตัวอย่าง:**
+```
+User: "ฉันต้องการทำระบบ POS"
+
+AI:
+1. สร้าง PRD
+2. แบ่ง phases:
+   - Phase 1: MVP (Orders, Payment, Inventory)
+   - Phase 2: Enhancement (Reports, Notifications)
+   - Phase 3: Scale (Multi-store, Analytics)
+3. เริ่มทำ Phase 1 Feature 1
+4. อัปเดต progress อัตโนมัติทุกครั้งที่ผ่าน gate
+5. เมื่อเสร็จ Feature 1 → เริ่ม Feature 2
+```
+
+### 8. อธิบายชัดเจน
 **Clear explanation**
 
 - ศัพท์ technical ต้องมีคำอธิบาย
 - ต้องมีตัวอย่างจริง
 - ใช้ภาษาที่เข้าใจง่าย
+
+### 9. ตอบ 4W ให้ครบก่อนเริ่ม
+**WHY / WHAT / HOW / WHEN**
+
+ทุกงานต้องตอบ 4 คำถามนี้ให้ครบ **ตามลำดับ**:
+
+1. **WHY** — ทำไมต้องทำ? (business value) → Gate 1
+2. **WHAT** — ทำอะไร? ขอบเขตแค่ไหน? → Gate 0
+3. **HOW** — ทำยังไง? (มีหลายทางเลือก) → Gate 4-5
+4. **WHEN** — ทำเมื่อไหร่? (timeline) → Gate 6
+
+**กฎเหล็ก:** ตอบ WHY ก่อน WHAT ก่อน HOW เสมอ
+ดู `02-protocols/4w-framework.md`
+
+### 10. นิยามปัญหาก่อนหา Solution
+**Problem-First, not Solution-First**
+
+- ❌ ห้ามรีบเสนอ solution ก่อนเข้าใจปัญหาจริง
+- ✅ ถ้า user พูด solution-first ("ทำ [feature] ให้หน่อย") → ถามกลับว่า "แก้ปัญหาอะไร?"
+- ✅ ใช้ 5 Whys หา root cause
+- ✅ แยก symptom กับ root cause
+- ดู `06-references/problem-definition.md`
+
+### 11. มอง Business Impact มากกว่า Technical Detail
+**Business Impact First**
+
+- ตัดสินใจบนพื้นฐาน business value ไม่ใช่แค่ความสวยงามของโค้ด
+- ประเมิน 5 มิติ: Revenue, Cost, Customer, Risk, Strategic
+- คำนวณ ROI ก่อนทำ
+- ใช้ Decision Matrix: Quick Win / Project / Fill-in / Money Pit
+- **บังคับมี KPI ที่วัดได้ (SMART)** ใน Gate 1
+- ดู `06-references/business-impact-analysis.md` และ `04-templates/kpi-template.md`
 
 ---
 

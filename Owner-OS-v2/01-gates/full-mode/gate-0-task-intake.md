@@ -4,6 +4,10 @@
 
 **เป้าหมาย:** ป้องกันการ "กระโดดเข้าไปเขียนโค้ดทันที" โดยไม่เข้าใจงานจริงๆ
 
+**4W Framework:** Gate นี้ตอบคำถาม **WHAT** (ทำอะไร) — ดู `02-protocols/4w-framework.md`
+
+**⚠️ Problem-First:** ถ้า request เป็นแบบ solution-first ("ทำ [feature] ให้หน่อย") ต้องถามกลับเพื่อนิยามปัญหาก่อน — ดู `06-references/problem-definition.md`
+
 ---
 
 ## 🎯 วัตถุประสงค์
