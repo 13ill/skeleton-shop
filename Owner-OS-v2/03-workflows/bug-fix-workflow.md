@@ -29,7 +29,7 @@
 
 ### Phase 1: Investigation
 
-- [ ] **Gate 0:** รับ bug report + AI Model Selection
+- [ ] **Gate 0:** รับ bug report + AI Model Selection + Progress Log
   - อาการคืออะไร?
   - Reproduce ได้ไหม?
   - Priority เท่าไหร่?
@@ -39,6 +39,7 @@
     3. ด่วนแค่ไหน? (ด่วนมาก/ด่วน/ไม่ด่วน)
     4. สำคัญแค่ไหนต่อธุรกิจ? (Critical/Important/Normal)
   - **AI เลือก Mode และ Model ตามคำตอบ** (หรือ user สามารถ override)
+  - **บันทึก Progress Log:** "Gate 0 รับ bug report เสร็จ - เลือก Mode: [mode], Model: [model]"
 
 - [ ] **Gate 1:** Business Impact + Business Coach Analysis
   - กระทบ user แค่ไหน?
@@ -71,10 +72,11 @@
   - แบ่งงานเป็น tasks
   - ประเมินเวลา
 
-- [ ] **Gate 7:** Execution
+- [ ] **Gate 7:** Execution + Progress Log
   - แก้ bug
   - เขียน regression tests
   - เขียน documentation
+  - **บันทึก Progress Log:** "Gate 7 แก้ bug เสร็จ"
 
 ### Phase 3: Verification
 
@@ -83,10 +85,26 @@
   - มี side effects ไหม?
   - Tests ผ่านหรือไม่?
 
-- [ ] **Gate 9:** Learning
+- [ ] **Gate 9:** Learning + Progress Log
   - ทำไมถึงเกิด bug?
   - จะป้องกันยังไงครั้งหน้า?
   - บันทึก lesson log
+  - **บันทึก Progress Log:** "Review เสร็จ - ส่งงานรอ User ยืนยัน"
+
+### Phase 4: User Confirmation
+
+- [ ] **User Confirmation**
+  - ส่งงานพร้อมผลการตรวจสอบให้ User
+  - **บันทึก Progress Log:** "ส่งงานรอ User ยืนยัน"
+  - รอ User ยืนยันหรือขอแก้ไข
+
+**ถ้า User ยืนยัน:**
+- บันทึก Progress Log: "User ยืนยันงาน - เสร็จสมบูรณ์"
+- สิ้นสุด workflow
+
+**ถ้า User ขอแก้ไข:**
+- บันทึก Progress Log: "User ขอแก้ไข - กลับไป Gate 7"
+- กลับไป Gate 7 แก้ไข
 
 ---
 

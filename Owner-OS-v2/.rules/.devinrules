@@ -282,6 +282,7 @@ AI ต้องเลือก mode อัตโนมัติ:
   - **test-writer:** เขียน unit tests, integration tests
   - **researcher:** หาข้อมูล, best practices, libraries
   - **reviewer:** Review code, security audit
+  - **code-reviewer (SWE-1.6):** Reverse engineer, ตรวจสอบโค้ดแต่ละส่วน, ตรวจสอบ flow สมบูรณ์หรือยัง ก่อนส่งงาน
 
 ### Workflow แบบสั่งครั้งเดียว
 
@@ -300,32 +301,66 @@ Meta-Tower (AI ฉลาดที่สุด):
       {"id": "T001", "desc": "สร้าง database schema", "agent": "code-gen", "model": "fast"},
       {"id": "T002", "desc": "สร้าง API endpoints", "agent": "code-gen", "model": "fast"},
       {"id": "T003", "desc": "เขียน tests", "agent": "test-writer", "model": "fast"},
-      {"id": "T004", "desc": "Review code", "agent": "reviewer", "model": "medium"}
+      {"id": "T004", "desc": "Review code", "agent": "reviewer", "model": "medium"},
+      {"id": "T005", "desc": "Code Review ด้วย SWE-1.6", "agent": "code-reviewer", "model": "swe-1.6"}
     ]
   }
+→ บันทึก Progress Log: "เริ่มงาน - สร้าง execution plan เสร็จ"
 
 Execution Tower (AI กลาง):
 [Gate 6-7]
 → รับ execution plan จาก Meta-Tower
+→ บันทึก Progress Log: "เริ่ม Gate 6-7 - วางแผนและลงมือทำ"
 → Delegate T001 ให้ code-gen agent (AI เร็ว)
 → รอ T001 เสร็จ
+→ บันทึก Progress Log: "T001 สร้าง database schema เสร็จ"
 → Delegate T002 ให้ code-gen agent (AI เร็ว)
 → รอ T002 เสร็จ
+→ บันทึก Progress Log: "T002 สร้าง API endpoints เสร็จ"
 → Delegate T003 ให้ test-writer agent (AI เร็ว)
 → รอ T003 เสร็จ
+→ บันทึก Progress Log: "T003 เขียน tests เสร็จ"
 → Delegate T004 ให้ reviewer agent (AI กลาง)
 → รอ T004 เสร็จ
+→ บันทึก Progress Log: "T004 Review code เสร็จ"
 → รวม code ทั้งหมด
 → Test + Fix
+→ บันทึก Progress Log: "รวม code และ test เสร็จ - รอ Code Review ด้วย SWE-1.6"
 → ส่งกลับไปให้ Meta-Tower
 
 Meta-Tower (AI ฉลาดที่สุด):
 [Gate 8-9]
+→ บันทึก Progress Log: "เริ่ม Gate 8-9 - Review และ Learning"
 → Review code quality
 → Review architecture compliance
 → เขียน decision log
 → เขียน lesson log
-→ ส่งให้ User
+→ บันทึก Progress Log: "Review เสร็จ - รอ Code Review ด้วย SWE-1.6"
+
+Code Reviewer (SWE-1.6):
+→ Reverse engineer โค้ดทั้งหมด
+→ ตรวจสอบโค้ดแต่ละส่วนว่าสามารถทำงานได้จริงไหม
+→ ตรวจสอบ flow สมบูรณ์หรือยัง
+→ ตรวจสอบ edge cases
+→ สรุปผลการตรวจสอบ
+→ บันทึก Progress Log: "Code Review ด้วย SWE-1.6 เสร็จ - ส่งงานรอตรวจ"
+
+Meta-Tower (AI ฉลาดที่สุด):
+→ รวมผลการตรวจสอบจาก SWE-1.6
+→ ส่งงานพร้อมผลการตรวจสอบให้ User
+→ บันทึก Progress Log: "ส่งงานรอ User ยืนยัน"
+
+User:
+→ ตรวจสอบงาน
+→ ยืนยันหรือขอแก้ไข
+
+ถ้า User ยืนยัน:
+→ Meta-Tower บันทึก Progress Log: "User ยืนยันงาน - เสร็จสมบูรณ์"
+→ สิ้นสุด workflow
+
+ถ้า User ขอแก้ไข:
+→ Meta-Tower บันทึก Progress Log: "User ขอแก้ไข - กลับไป Gate 6-7"
+→ กลับไป Gate 6-7 แก้ไข
 ```
 
 ### การเลือก AI Model ตาม Tier
@@ -335,6 +370,7 @@ Meta-Tower (AI ฉลาดที่สุด):
 | Meta-Tower | Strategic Decision | Claude 3.5 Sonnet / GPT-4o | ต้องการ deep reasoning, business analysis |
 | Execution Tower | Tactical Execution | Claude 3.5 Sonnet / GPT-4o | ต้องการ accuracy + speed |
 | Specialist Agents | Specific Tasks | Claude 3 Haiku / GPT-4o-mini | งานเฉพาะทาง ไม่ซับซ้อน |
+| Code Reviewer | Code Verification | SWE-1.6 | Reverse engineer, ตรวจสอบ flow, edge cases ก่อนส่งงาน |
 
 ### เมื่อใช้ Tower Control
 
@@ -348,6 +384,83 @@ Meta-Tower (AI ฉลาดที่สุด):
 - Quick Mode (งานเล็ก)
 - Hotfix Mode (bug ด่วน)
 - งานง่าย (คุ้นเคย)
+
+---
+
+## 📊 Progress Log System
+
+### หลักการ
+
+**ทุกครั้งที่ทำงานเสร็จแต่ละ step ต้องบันทึก Progress Log**
+
+### รูปแบบ Progress Log
+
+```json
+{
+  "timestamp": "2026-06-12T21:30:00",
+  "task_id": "T001",
+  "stage": "Gate 6-7",
+  "status": "completed",
+  "message": "T001 สร้าง database schema เสร็จ",
+  "next_step": "Delegate T002 ให้ code-gen agent",
+  "waiting_for": "user_confirmation"
+}
+```
+
+### สถานะ Progress Log
+
+| Status | ความหมาย | ตัวอย่าง |
+|---|---|---|
+| `in_progress` | กำลังทำงาน | "กำลังสร้าง database schema" |
+| `completed` | เสร็จสิ้น | "T001 สร้าง database schema เสร็จ" |
+| `waiting_for_user` | รอ User ยืนยัน | "ส่งงานรอ User ยืนยัน" |
+| `waiting_for_review` | รอ Review | "รอ Code Review ด้วย SWE-1.6" |
+| `failed` | ล้มเหลว | "T001 ล้มเหลว - ต้องแก้ไข" |
+| `finalized` | เสร็จสมบูรณ์ | "User ยืนยันงาน - เสร็จสมบูรณ์" |
+
+### วิธีบันทึก Progress Log
+
+**ใน Tower Control Mode:**
+- ทุก step ใน workflow ต้องบันทึก Progress Log
+- บันทึกทุกครั้งที่เสร็จ task ย่อย
+- บันทึกเมื่อส่งงานรอ User ยืนยัน
+- บันทึกเมื่อ User ยืนยันหรือขอแก้ไข
+
+**ใน Quick/Hotfix Mode:**
+- บันทึกเมื่อเริ่มงาน
+- บันทึกเมื่อเสร็จงาน
+- บันทึกเมื่อส่งงานรอ User ยืนยัน
+
+### ตำแหน่งเก็บ Progress Log
+
+```
+doing-projects/
+└── project-name/
+    └── logs/
+        ├── progress-log.json      # Progress log ทั้งหมด
+        ├── progress-log.md        # Progress log แบบอ่านง่าย
+        └── wip/                   # Work in progress
+            └── [task-id].md       # Checkpoint แต่ละ task
+```
+
+### ตัวอย่าง Progress Log แบบอ่านง่าย
+
+```markdown
+# Progress Log - ระบบ POS
+
+## 2026-06-12 21:30:00
+- ✅ เริ่มงาน - สร้าง execution plan เสร็จ
+- ✅ เริ่ม Gate 6-7 - วางแผนและลงมือทำ
+- ✅ T001 สร้าง database schema เสร็จ
+- ✅ T002 สร้าง API endpoints เสร็จ
+- ✅ T003 เขียน tests เสร็จ
+- ✅ T004 Review code เสร็จ
+- ✅ รวม code และ test เสร็จ - รอ Code Review ด้วย SWE-1.6
+- ✅ เริ่ม Gate 8-9 - Review และ Learning
+- ✅ Review เสร็จ - รอ Code Review ด้วย SWE-1.6
+- ✅ Code Review ด้วย SWE-1.6 เสร็จ - ส่งงานรอตรวจ
+- ⏳ ส่งงานรอ User ยืนยัน
+```
 
 ---
 

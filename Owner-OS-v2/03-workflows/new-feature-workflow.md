@@ -8,7 +8,7 @@
 
 ### Phase 1: Discovery (Gate 0-3)
 
-- [ ] **Gate 0:** รับ feature request + AI Model Selection
+- [ ] **Gate 0:** รับ feature request + AI Model Selection + Progress Log
   - เข้าใจว่า feature คืออะไร
   - รู้ว่า user คือใคร
   - กำหนดขอบเขต
@@ -19,6 +19,7 @@
     3. ด่วนแค่ไหน? (ด่วนมาก/ด่วน/ไม่ด่วน)
     4. สำคัญแค่ไหนต่อธุรกิจ? (Critical/Important/Normal)
   - **AI เลือก Mode และ Model ตามคำตอบ** (หรือ user สามารถ override)
+  - **บันทึก Progress Log:** "Gate 0 รับ feature request เสร็จ - เลือก Mode: [mode], Model: [model]"
 
 - [ ] **Gate 1:** ทำความเข้าใจธุรกิจ + Business Coach Analysis
   - ทำไมต้องมี feature นี้?
@@ -62,10 +63,11 @@
   - กำหนด priority
   - **สร้าง architecture doc + module doc ครั้งแรก (ถ้ายังไม่มี)** ⭐
 
-- [ ] **Gate 7:** ลงมือทำ
+- [ ] **Gate 7:** ลงมือทำ + Progress Log
   - เขียนโค้ด
   - เขียน tests
   - เขียน documentation
+  - **บันทึก Progress Log:** "Gate 7 ลงมือทำเสร็จ"
 
 ### Phase 4: Quality Assurance (Gate 8-9)
 
@@ -79,10 +81,26 @@
   - อัปเดต architecture docs
   - อัปเดต dependency map
 
-- [ ] **Gate 9:** Learning
+- [ ] **Gate 9:** Learning + Progress Log
   - เรียนรู้อะไร?
   - Skill ไหนที่พัฒนา?
   - บันทึก lesson log
+  - **บันทึก Progress Log:** "Review เสร็จ - ส่งงานรอ User ยืนยัน"
+
+### Phase 5: User Confirmation
+
+- [ ] **User Confirmation**
+  - ส่งงานพร้อมผลการตรวจสอบให้ User
+  - **บันทึก Progress Log:** "ส่งงานรอ User ยืนยัน"
+  - รอ User ยืนยันหรือขอแก้ไข
+
+**ถ้า User ยืนยัน:**
+- บันทึก Progress Log: "User ยืนยันงาน - เสร็จสมบูรณ์"
+- สิ้นสุด workflow
+
+**ถ้า User ขอแก้ไข:**
+- บันทึก Progress Log: "User ขอแก้ไข - กลับไป Gate 6-7"
+- กลับไป Gate 6-7 แก้ไข
 
 ---
 
