@@ -29,10 +29,16 @@
 
 ### Phase 1: Investigation
 
-- [ ] **Gate 0:** รับ bug report
+- [ ] **Gate 0:** รับ bug report + AI Model Selection
   - อาการคืออะไร?
   - Reproduce ได้ไหม?
   - Priority เท่าไหร่?
+  - **คำถามเพื่อเลือก AI Model:**
+    1. งานนี้ใหญ่แค่ไหน? (เล็ก/กลาง/ใหญ่)
+    2. ซับซ้อนแค่ไหน? (ง่าย/ปานกลาง/ซับซ้อน)
+    3. ด่วนแค่ไหน? (ด่วนมาก/ด่วน/ไม่ด่วน)
+    4. สำคัญแค่ไหนต่อธุรกิจ? (Critical/Important/Normal)
+  - **AI เลือก Mode และ Model ตามคำตอบ** (หรือ user สามารถ override)
 
 - [ ] **Gate 1:** Business Impact + Business Coach Analysis
   - กระทบ user แค่ไหน?

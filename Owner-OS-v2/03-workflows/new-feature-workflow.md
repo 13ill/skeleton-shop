@@ -8,11 +8,17 @@
 
 ### Phase 1: Discovery (Gate 0-3)
 
-- [ ] **Gate 0:** รับ feature request
+- [ ] **Gate 0:** รับ feature request + AI Model Selection
   - เข้าใจว่า feature คืออะไร
   - รู้ว่า user คือใคร
   - กำหนดขอบเขต
   - เช็ค Owner Escalation
+  - **คำถามเพื่อเลือก AI Model:**
+    1. งานนี้ใหญ่แค่ไหน? (เล็ก/กลาง/ใหญ่)
+    2. ซับซ้อนแค่ไหน? (ง่าย/ปานกลาง/ซับซ้อน)
+    3. ด่วนแค่ไหน? (ด่วนมาก/ด่วน/ไม่ด่วน)
+    4. สำคัญแค่ไหนต่อธุรกิจ? (Critical/Important/Normal)
+  - **AI เลือก Mode และ Model ตามคำตอบ** (หรือ user สามารถ override)
 
 - [ ] **Gate 1:** ทำความเข้าใจธุรกิจ + Business Coach Analysis
   - ทำไมต้องมี feature นี้?
