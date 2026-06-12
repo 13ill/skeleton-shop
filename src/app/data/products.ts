@@ -5,7 +5,7 @@ const categoryMap: Record<string, string> = {
   "ring": "แหวน",
   "necklace": "สร้อยคอ", 
   "bracelet": "สร้อยข้อมือ",
-  "all": "ทั้งหมด"
+  "all": "ทั้งหมด "
 };
 
 export const products = productsData.map(product => ({
