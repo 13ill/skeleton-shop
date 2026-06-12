@@ -1,2 +1,0 @@
-Decision ID,Date,Task,Decision,Rationale,Tradeoffs,Accepted Risks,Alternatives Considered
-DEC-001,2026-06-01,ตัวอย่าง: เลือก database,เลือกใช้ PostgreSQL,เพราะข้อมูลมี relation ชัดเจน และต้องการ ACID,"ข้อดี: ACID, Relational, Proven | ข้อเสีย: ช้ากว่า NoSQL, Scale ยากกว่า",ยอมรับว่า scale ยากกว่า NoSQL,"MongoDB (flexible schema แต่ไม่มี ACID), MySQL (ใกล้เคียง PostgreSQL แต่ feature น้อยกว่า)"

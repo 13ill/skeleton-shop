@@ -1,7 +1,0 @@
-# Ignore folder ของ project ย่อยทั้งหมด
-project-*/
-
-# แต่เก็บไฟล์ config ของ operational system
-!.gitignore
-!create-project.sh
-!README.md
