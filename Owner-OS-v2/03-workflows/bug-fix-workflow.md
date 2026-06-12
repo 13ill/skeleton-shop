@@ -34,9 +34,13 @@
   - Reproduce ได้ไหม?
   - Priority เท่าไหร่?
 
-- [ ] **Gate 1:** Business Impact
+- [ ] **Gate 1:** Business Impact + Business Coach Analysis
   - กระทบ user แค่ไหน?
   - กระทบ revenue ไหม?
+  - **ROI:** แก้ bug นี้คุ้มค่าต่อการทำไหม? เทียบกับทรัพยากรที่ใช้
+  - **UX:** มีผลต่อประสบการณ์ผู้ใช้อย่างไร? ผู้ใช้จะรู้สึกอย่างไรเมื่อแก้แล้ว?
+  - **Business Impact:** ถ้าไม่แก้จะเกิดอะไร? แก้แล้วจะได้อะไร?
+  - **Risk:** ถ้าแก้ผิดจะเกิดอะไร? มี mitigation plan ไหม?
 
 - [ ] **Gate 2:** System Investigation
   - Bug อยู่ที่ module ไหน?
