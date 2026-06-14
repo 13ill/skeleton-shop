@@ -124,6 +124,8 @@ PORT=3000
 - [x] Frontend เชื่อมต่อกับ backend API ผ่าน VITE_API_BASE_URL
 
 ### 🔄 เฟส 3 — Admin Panel + Auth + CRUD (กำลังทำ)
+
+#### Backend API (เสร็จแล้ว)
 - [x] ออกแบบ schema: `User` model ใน Prisma (id, email, password, name, role)
 - [x] ติดตั้ง bcryptjs และ jsonwebtoken
 - [x] สร้าง auth middleware สำหรับ JWT verification
@@ -131,7 +133,20 @@ PORT=3000
 - [x] API: POST /auth/login (เข้าสู่ระบบ)
 - [x] API: CRUD สินค้า (POST, PUT, DELETE)
 - [x] ทดสอบ Backend API (Auth + CRUD) - ผ่านทั้งหมด
-- [ ] หน้า admin: login, จัดการสินค้า, อัปโหลดรูป, ตั้งค่าร้าน
+
+#### Admin Panel UI (ลำดับขั้นตอน)
+- [ ] สร้างโครงสร้าง `src/app/admin/`
+- [ ] สร้าง Auth context/store สำหรับจัดการ token
+- [ ] สร้าง Login page (`/admin/login`)
+- [ ] สร้าง Dashboard page (`/admin`)
+- [ ] สร้าง Products list page (`/admin/products`)
+- [ ] สร้าง Add/Edit Product form (`/admin/products/new`, `/admin/products/:id/edit`)
+- [ ] สร้าง Upload image functionality
+- [ ] สร้าง Protected route wrapper (ตรวจสอบ auth)
+- [ ] เชื่อมต่อ Frontend กับ Backend API
+- [ ] ทดสอบ Admin Panel UI
+
+#### ระบบเสริม
 - [ ] สลับ `dataSource` ของ frontend จาก static JSON → API
 - [ ] feature flag ตามแพ็คเกจ (showcase/ecommerce)
 
