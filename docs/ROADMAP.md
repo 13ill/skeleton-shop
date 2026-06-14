@@ -135,14 +135,14 @@ PORT=3000
 - [x] ทดสอบ Backend API (Auth + CRUD) - ผ่านทั้งหมด
 
 #### Admin Panel UI (ลำดับขั้นตอน)
-- [ ] สร้างโครงสร้าง `src/app/admin/`
-- [ ] สร้าง Auth context/store สำหรับจัดการ token
-- [ ] สร้าง Login page (`/admin/login`)
-- [ ] สร้าง Dashboard page (`/admin`)
+- [x] สร้างโครงสร้าง `src/app/admin/`
+- [x] สร้าง Auth context/store สำหรับจัดการ token
+- [x] สร้าง Login page (`/admin/login`)
+- [x] สร้าง Dashboard page (`/admin`)
+- [x] สร้าง Protected route wrapper (ตรวจสอบ auth)
 - [ ] สร้าง Products list page (`/admin/products`)
 - [ ] สร้าง Add/Edit Product form (`/admin/products/new`, `/admin/products/:id/edit`)
 - [ ] สร้าง Upload image functionality
-- [ ] สร้าง Protected route wrapper (ตรวจสอบ auth)
 - [ ] เชื่อมต่อ Frontend กับ Backend API
 - [ ] ทดสอบ Admin Panel UI
 
