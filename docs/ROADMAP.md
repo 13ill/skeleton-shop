@@ -129,7 +129,8 @@ PORT=3000
 - [x] สร้าง auth middleware สำหรับ JWT verification
 - [x] API: POST /auth/register (ลงทะเบียน)
 - [x] API: POST /auth/login (เข้าสู่ระบบ)
-- [ ] API: CRUD สินค้า (POST, PUT, DELETE)
+- [x] API: CRUD สินค้า (POST, PUT, DELETE)
+- [x] ทดสอบ Backend API (Auth + CRUD) - ผ่านทั้งหมด
 - [ ] หน้า admin: login, จัดการสินค้า, อัปโหลดรูป, ตั้งค่าร้าน
 - [ ] สลับ `dataSource` ของ frontend จาก static JSON → API
 - [ ] feature flag ตามแพ็คเกจ (showcase/ecommerce)
