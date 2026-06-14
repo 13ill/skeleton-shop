@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useAuth } from './authContext';
+import { ImageUpload } from './ImageUpload';
 import type { ProductWithImages } from '../../types/product';
 
 export function ProductForm() {
@@ -54,7 +55,7 @@ export function ProductForm() {
         fullDescription: product.fullDescription,
         material: product.material || '',
         specifications: JSON.stringify(product.specifications || {}, null, 2),
-        images: JSON.stringify(product.images || [], null, 2),
+        images: JSON.stringify(product.images || []),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch product');
@@ -259,20 +260,15 @@ export function ProductForm() {
           />
         </div>
 
-        <div>
-          <label htmlFor="images" className="block text-sm font-medium text-gray-700 mb-1">
-            Images (JSON array)
-          </label>
-          <textarea
-            id="images"
-            name="images"
-            value={formData.images}
-            onChange={handleChange}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e] font-mono text-sm"
-            placeholder='["/path/to/image1.jpg", "/path/to/image2.jpg"]'
-          />
-        </div>
+        <ImageUpload
+          initialImages={formData.images ? JSON.parse(formData.images) : []}
+          onImagesChange={(newImages) => {
+            setFormData({
+              ...formData,
+              images: JSON.stringify(newImages),
+            });
+          }}
+        />
 
         <div className="flex gap-4">
           <button

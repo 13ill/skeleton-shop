@@ -2,13 +2,50 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+import { dotenv from 'dotenv';
 import { hashPassword, verifyPassword, generateToken, verifyToken } from './auth';
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
+import { join } from 'path';
 
 dotenv.config();
 
 const prisma = new PrismaClient();
 const app = new Hono();
+
+// Ensure uploads directory exists
+const uploadsDir = join(process.cwd(), 'uploads');
+if (!existsSync(uploadsDir)) {
+  mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files from uploads directory
+app.get('/uploads/:filename', (c) => {
+  const filename = c.req.param('filename');
+  const filepath = join(uploadsDir, filename);
+
+  if (!existsSync(filepath)) {
+    return c.json({ error: 'File not found' }, 404);
+  }
+
+  const file = readFileSync(filepath);
+  const ext = filename.split('.').pop();
+  const mimeTypes: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+  };
+
+  c.header('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+  return c.body(file);
+});
+
+// Ensure uploads directory exists
+const uploadsDir = join(process.cwd(), 'uploads');
+if (!existsSync(uploadsDir)) {
+  mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Auth middleware
 const authMiddleware = async (c: any, next: any) => {
@@ -33,6 +70,7 @@ app.use('/*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
 // Health check
@@ -227,6 +265,36 @@ app.delete('/products/:id', authMiddleware, async (c) => {
   } catch (error) {
     console.error('Error deleting product:', error);
     return c.json({ error: 'Failed to delete product' }, 500);
+  }
+});
+
+// Upload image (requires auth) - accepts base64 encoded image
+app.post('/upload', authMiddleware, async (c) => {
+  try {
+    const { filename, data } = await c.req.json();
+
+    if (!filename || !data) {
+      return c.json({ error: 'Filename and data are required' }, 400);
+    }
+
+    // Decode base64
+    const buffer = Buffer.from(data, 'base64');
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const ext = filename.split('.').pop();
+    const uniqueFilename = `${timestamp}.${ext}`;
+    const filepath = join(uploadsDir, uniqueFilename);
+
+    // Save file
+    writeFileSync(filepath, buffer);
+
+    // Return file URL
+    const fileUrl = `/uploads/${uniqueFilename}`;
+    return c.json({ url: fileUrl });
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    return c.json({ error: 'Failed to upload file' }, 500);
   }
 });
 

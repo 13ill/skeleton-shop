@@ -8,3 +8,5 @@ dist
 .idea
 
 .env.production
+
+backend/uploads
