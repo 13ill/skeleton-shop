@@ -10,7 +10,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "seed": "tsx src/seed.ts",
-    "test": "powershell -ExecutionPolicy Bypass -File test-api.ps1"
+    "test": "node test-api.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
