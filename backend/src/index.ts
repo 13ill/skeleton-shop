@@ -3,11 +3,30 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import { hashPassword, verifyPassword, generateToken, verifyToken } from './auth';
 
 dotenv.config();
 
 const prisma = new PrismaClient();
 const app = new Hono();
+
+// Auth middleware
+const authMiddleware = async (c: any, next: any) => {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const token = authHeader.substring(7);
+  const decoded = verifyToken(token);
+  if (!decoded) {
+    return c.json({ error: 'Invalid token' }, 401);
+  }
+
+  c.set('userId', decoded.userId);
+  c.set('email', decoded.email);
+  await next();
+};
 
 // CORS middleware
 app.use('/*', cors({
@@ -19,6 +38,80 @@ app.use('/*', cors({
 // Health check
 app.get('/', (c) => {
   return c.json({ status: 'ok', message: 'Jump-1 API is running' });
+});
+
+// Auth: Register
+app.post('/auth/register', async (c) => {
+  try {
+    const { email, password, name } = await c.req.json();
+
+    if (!email || !password) {
+      return c.json({ error: 'Email and password are required' }, 400);
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return c.json({ error: 'User already exists' }, 400);
+    }
+
+    const hashedPassword = await hashPassword(password);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: name || email,
+      },
+    });
+
+    const token = generateToken(user.id, user.email);
+    return c.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return c.json({ error: 'Failed to register user' }, 500);
+  }
+});
+
+// Auth: Login
+app.post('/auth/login', async (c) => {
+  try {
+    const { email, password } = await c.req.json();
+
+    if (!email || !password) {
+      return c.json({ error: 'Email and password are required' }, 400);
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return c.json({ error: 'Invalid credentials' }, 401);
+    }
+
+    const isValid = await verifyPassword(password, user.password);
+    if (!isValid) {
+      return c.json({ error: 'Invalid credentials' }, 401);
+    }
+
+    const token = generateToken(user.id, user.email);
+    return c.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    return c.json({ error: 'Failed to login' }, 500);
+  }
 });
 
 // Get all products

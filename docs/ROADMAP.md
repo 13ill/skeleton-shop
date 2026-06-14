@@ -123,7 +123,13 @@ PORT=3000
 - [x] Backend server ทำงานบน port 3001
 - [x] Frontend เชื่อมต่อกับ backend API ผ่าน VITE_API_BASE_URL
 
-### ⏭️ เฟส 3 — Admin Panel + เชื่อม Frontend เข้า API
+### 🔄 เฟส 3 — Admin Panel + Auth + CRUD (กำลังทำ)
+- [x] ออกแบบ schema: `User` model ใน Prisma (id, email, password, name, role)
+- [x] ติดตั้ง bcryptjs และ jsonwebtoken
+- [x] สร้าง auth middleware สำหรับ JWT verification
+- [x] API: POST /auth/register (ลงทะเบียน)
+- [x] API: POST /auth/login (เข้าสู่ระบบ)
+- [ ] API: CRUD สินค้า (POST, PUT, DELETE)
 - [ ] หน้า admin: login, จัดการสินค้า, อัปโหลดรูป, ตั้งค่าร้าน
 - [ ] สลับ `dataSource` ของ frontend จาก static JSON → API
 - [ ] feature flag ตามแพ็คเกจ (showcase/ecommerce)
