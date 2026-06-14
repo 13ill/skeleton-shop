@@ -13,6 +13,7 @@ export function ProductDetail() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const thumbnailScrollRef = useRef<HTMLDivElement>(null);
 
+  // Load product
   useEffect(() => {
     const loadProduct = async () => {
       if (!id) return;
@@ -29,23 +30,7 @@ export function ProductDetail() {
     loadProduct();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="text-center text-gray-500">กำลังโหลด...</div>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <p className="text-center text-gray-500">ไม่พบสินค้า</p>
-      </div>
-    );
-  }
-
-  const images = product.images || [];
+  const images = product?.images || [];
   const hasMultipleImages = images.length > 1;
 
   const goToPrevious = () => {
@@ -110,6 +95,22 @@ export function ProductDetail() {
       document.body.style.overflow = "unset";
     };
   }, [isLightboxOpen, images.length]);
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="text-center text-gray-500">กำลังโหลด...</div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <p className="text-center text-gray-500">ไม่พบสินค้า</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
