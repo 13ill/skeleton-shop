@@ -1,11 +1,30 @@
 import { useParams, Link } from "react-router";
 import { products } from "../data/products";
-import { ArrowLeft } from "lucide-react";
-import { motion } from "motion/react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { useState, useEffect } from "react";
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: number | null;
+  description: string;
+  fullDescription?: string;
+  material?: string;
+  materials?: string[];
+  specifications?: {
+    size?: string;
+    weight?: string;
+  };
+  image: string;
+  images: string[];
+}
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const product = products.find((p) => p.id === id);
+  const product = products.find((p) => p.id === id) as Product | undefined;
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   if (!product) {
     return (
@@ -14,6 +33,35 @@ export function ProductDetail() {
       </div>
     );
   }
+
+  const images = product.images || [product.image];
+  const hasMultipleImages = images.length > 1;
+
+  const goToPrevious = () => {
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const goToImage = (index: number) => {
+    setCurrentIndex(index);
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        goToPrevious();
+      } else if (e.key === "ArrowRight") {
+        goToNext();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [images.length]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -26,19 +74,85 @@ export function ProductDetail() {
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Image Gallery */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative overflow-hidden bg-gray-50 aspect-[3/4]"
+          className="space-y-4"
         >
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
+          {/* Main Image */}
+          <div className="relative overflow-hidden bg-gray-50 aspect-[3/4] rounded-lg">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentIndex}
+                src={images[currentIndex]}
+                alt={`${product.name} - Image ${currentIndex + 1}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full h-full object-cover"
+              />
+            </AnimatePresence>
+
+            {/* Navigation Arrows */}
+            {hasMultipleImages && (
+              <>
+                <button
+                  onClick={goToPrevious}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={goToNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+
+            {/* Image Counter */}
+            {hasMultipleImages && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                {currentIndex + 1} / {images.length}
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnail Gallery - Horizontal Scroll */}
+          {hasMultipleImages && (
+            <div className="relative group">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide scroll-smooth snap-x snap-mandatory">
+                {images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToImage(index)}
+                    className={`relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 overflow-hidden rounded-lg border-2 transition-all snap-start ${index === currentIndex
+                      ? "border-[#c8a96e] scale-105"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.name} - Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {index === currentIndex && (
+                      <div className="absolute inset-0 bg-[#c8a96e]/20" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </motion.div>
 
+        {/* Product Info */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -56,7 +170,7 @@ export function ProductDetail() {
 
           {product.price && (
             <p className="text-2xl text-gray-900">
-              ฿{product.price.toLocaleString()}
+              ฿{product.price!.toLocaleString()}
             </p>
           )}
 
@@ -77,6 +191,17 @@ export function ProductDetail() {
                 </h3>
                 <p className="text-gray-700">
                   {product.material}
+                </p>
+              </div>
+            )}
+
+            {product.specifications && (
+              <div>
+                <h3 className="text-sm tracking-wider uppercase text-gray-500 mb-2">
+                  สเปค
+                </h3>
+                <p className="text-gray-700">
+                  {product.specifications.size}
                 </p>
               </div>
             )}
