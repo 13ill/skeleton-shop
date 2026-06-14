@@ -8,12 +8,21 @@ body {
   font-family: "Sarabun", sans-serif;
 }
 
-/* Hide scrollbar for horizontal scroll containers */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Custom scrollbar styling for horizontal scroll */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c8a96e;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #b8a060;
 }

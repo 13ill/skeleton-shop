@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router";
 import { products } from "../data/products";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface Product {
   id: string;
@@ -25,6 +25,7 @@ export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const product = products.find((p) => p.id === id) as Product | undefined;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const thumbnailScrollRef = useRef<HTMLDivElement>(null);
 
   if (!product) {
     return (
@@ -47,6 +48,16 @@ export function ProductDetail() {
 
   const goToImage = (index: number) => {
     setCurrentIndex(index);
+  };
+
+  const scrollThumbnails = (direction: 'left' | 'right') => {
+    if (thumbnailScrollRef.current) {
+      const scrollAmount = 200; // Adjust based on thumbnail width + gap
+      thumbnailScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Keyboard navigation
@@ -124,10 +135,23 @@ export function ProductDetail() {
             )}
           </div>
 
-          {/* Thumbnail Gallery - Horizontal Scroll */}
+          {/* Thumbnail Gallery - Horizontal Scroll with Arrow Buttons */}
           {hasMultipleImages && (
             <div className="relative group">
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide scroll-smooth snap-x snap-mandatory">
+              {/* Left Arrow Button */}
+              <button
+                onClick={() => scrollThumbnails('left')}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+                aria-label="Scroll thumbnails left"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {/* Thumbnail Scroll Container */}
+              <div
+                ref={thumbnailScrollRef}
+                className="flex gap-3 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory custom-scrollbar"
+              >
                 {images.map((image, index) => (
                   <button
                     key={index}
@@ -148,6 +172,15 @@ export function ProductDetail() {
                   </button>
                 ))}
               </div>
+
+              {/* Right Arrow Button */}
+              <button
+                onClick={() => scrollThumbnails('right')}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
+                aria-label="Scroll thumbnails right"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           )}
         </motion.div>
