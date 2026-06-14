@@ -4,6 +4,14 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, useRef } from "react";
 
+// แปลน category เป็นภาษาไทย
+const categoryMap: Record<string, string> = {
+  "ring": "แหวน",
+  "necklace": "สร้อยคอ",
+  "bracelet": "สร้อยข้อมือ",
+  "earring": "ต่างหู"
+};
+
 interface Product {
   id: string;
   name: string;
@@ -194,7 +202,7 @@ export function ProductDetail() {
         >
           <div className="space-y-2">
             <p className="text-xs tracking-wider uppercase text-gray-500">
-              {product.category}
+              {categoryMap[product.category] || product.category}
             </p>
             <h1 className="text-3xl tracking-wide">
               {product.name}
