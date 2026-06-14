@@ -1,41 +1,48 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
-import { products } from "../data/products";
+import { getAllProducts, getProductsByCategory } from "../../services/productService";
+import { categoryMap, type Category, type ProductWithImages } from "../../types/product";
 import { motion } from "motion/react";
 
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number | null;
-  description: string;
-  fullDescription?: string;
-  material?: string;
-  materials?: string[];
-  specifications?: {
-    size?: string;
-    weight?: string;
-  };
-  image: string;
-  images: string[];
-}
-
-// แปลน category เป็นภาษาไทย
-const categoryMap: Record<string, string> = {
-  "ring": "แหวน",
-  "necklace": "สร้อยคอ",
-  "bracelet": "สร้อยข้อมือ",
-  "earring": "ต่างหู",
-  "all": "ทั้งหมด"
-};
-
-const categories = ["All", "Ring", "Necklace", "Bracelet", "Earring"];
-
 export function Home() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<Category>("all");
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [products, setProducts] = useState<ProductWithImages[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const itemsPerPage = 10;
+
+  // Load products
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const data = await getAllProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
+
+  // Load products by category when category changes
+  useEffect(() => {
+    const loadProductsByCategory = async () => {
+      setLoading(true);
+      try {
+        const data = await getProductsByCategory(selectedCategory);
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to load products by category:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProductsByCategory();
+  }, [selectedCategory]);
 
   useEffect(() => {
     const handleCategoryChange = (event: CustomEvent) => {
@@ -61,21 +68,24 @@ export function Home() {
     setCurrentPage(1);
   }, [selectedCategory]);
 
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((product) => product.category === selectedCategory.toLowerCase());
-
   // Pagination logic
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+  const paginatedProducts = products.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="text-center text-gray-500">กำลังโหลด...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -93,7 +103,7 @@ export function Home() {
             >
               <div className="relative overflow-hidden bg-gray-50 aspect-[3/4] mb-4">
                 <img
-                  src={product.image}
+                  src={product.images[0] || '/placeholder.jpg'}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -101,7 +111,7 @@ export function Home() {
 
               <div className="space-y-2">
                 <p className="text-xs tracking-wider uppercase text-gray-500">
-                  {categoryMap[product.category] || product.category}
+                  {categoryMap[product.category as Category] || product.category}
                 </p>
                 <h3 className="text-base tracking-wide group-hover:text-gray-600 transition-colors">
                   {product.name}
@@ -121,7 +131,7 @@ export function Home() {
       {totalPages > 1 && (
         <div className="mt-12 flex flex-col items-center gap-4">
           <p className="text-sm text-gray-500">
-            แสดง {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} จาก {filteredProducts.length} รายการ
+            แสดง {startIndex + 1}-{Math.min(endIndex, products.length)} จาก {products.length} รายการ
           </p>
 
           <div className="flex items-center gap-2">
@@ -140,8 +150,8 @@ export function Home() {
                 key={page}
                 onClick={() => handlePageChange(page)}
                 className={`px-4 py-2 rounded-lg border transition-colors ${currentPage === page
-                    ? "border-[#c8a96e] bg-[#c8a96e] text-white"
-                    : "border-gray-200 hover:border-gray-300"
+                  ? "border-[#c8a96e] bg-[#c8a96e] text-white"
+                  : "border-gray-200 hover:border-gray-300"
                   }`}
               >
                 {page}

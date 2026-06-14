@@ -1,42 +1,35 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
-import { products } from "../data/products";
+import { getCategoryCounts } from "../../services/productService";
+import { categoryMap, type Category } from "../../types/product";
 
-const categoryMap: Record<string, string> = {
-  "All": "ทั้งหมด",
-  "Ring": "แหวน",
-  "Necklace": "สร้อยคอ",
-  "Bracelet": "สร้อยข้อมือ",
-  "Earring": "ต่างหู"
-};
-
-const categories = ["All", "Ring", "Necklace", "Bracelet", "Earring"];
+const categories: Category[] = ["all", "ring", "necklace", "bracelet", "earring"];
 
 export function Header() {
-  const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const [categoryCounts, setCategoryCounts] = useState<Record<Category, number>>({
+    all: 0,
+    ring: 0,
+    necklace: 0,
+    bracelet: 0,
+    earring: 0,
+    pendant: 0,
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Count products per category
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {
-      "All": products.length,
-      "Ring": 0,
-      "Necklace": 0,
-      "Bracelet": 0,
-      "Earring": 0
+  // Load category counts
+  useEffect(() => {
+    const loadCounts = async () => {
+      try {
+        const counts = await getCategoryCounts();
+        setCategoryCounts(counts);
+      } catch (error) {
+        console.error("Failed to load category counts:", error);
+      }
     };
-
-    products.forEach((product) => {
-      const category = product.category;
-      if (category === "ring") counts.Ring++;
-      else if (category === "necklace") counts.Necklace++;
-      else if (category === "bracelet") counts.Bracelet++;
-      else if (category === "earring") counts.Earring++;
-    });
-
-    return counts;
-  }, [products]);
+    loadCounts();
+  }, []);
 
   // Update active category from navigation state
   useEffect(() => {
@@ -45,7 +38,7 @@ export function Header() {
     }
   }, [location.state]);
 
-  const handleCategoryClick = (category: string) => {
+  const handleCategoryClick = (category: Category) => {
     setActiveCategory(category);
 
     // Navigate to home with category state
@@ -70,11 +63,11 @@ export function Header() {
               key={category}
               onClick={() => handleCategoryClick(category)}
               className={`uppercase transition-colors hover:text-gray-900 ${activeCategory === category
-                  ? "text-gray-900 border-b border-gray-900 pb-1"
-                  : "text-gray-500"
+                ? "text-gray-900 border-b border-gray-900 pb-1"
+                : "text-gray-500"
                 }`}
             >
-              {categoryMap[category]} ({categoryCounts[category]})
+              {categoryMap[category]} ({categoryCounts[category] || 0})
             </button>
           ))}
         </nav>
