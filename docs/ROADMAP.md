@@ -141,6 +141,9 @@ PORT=3000
 - [x] สร้าง Dashboard page (`/admin`)
 - [x] สร้าง Protected route wrapper (ตรวจสอบ auth)
 - [x] สร้าง Products list page (`/admin/products`)
+- [x] เพิ่ม category filter ใน Products list
+- [x] เพิ่ม sorting (date, name, price) ใน Products list
+- [x] เพิ่ม pagination (10 items/page) ใน Products list
 - [x] สร้าง Add/Edit Product form (`/admin/products/new`, `/admin/products/:id/edit`)
 - [x] เชื่อมต่อ Frontend กับ Backend API
 - [ ] สร้าง Upload image functionality
