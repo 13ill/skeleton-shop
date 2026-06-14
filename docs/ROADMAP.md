@@ -140,11 +140,11 @@ PORT=3000
 - [x] สร้าง Login page (`/admin/login`)
 - [x] สร้าง Dashboard page (`/admin`)
 - [x] สร้าง Protected route wrapper (ตรวจสอบ auth)
-- [ ] สร้าง Products list page (`/admin/products`)
-- [ ] สร้าง Add/Edit Product form (`/admin/products/new`, `/admin/products/:id/edit`)
+- [x] สร้าง Products list page (`/admin/products`)
+- [x] สร้าง Add/Edit Product form (`/admin/products/new`, `/admin/products/:id/edit`)
+- [x] เชื่อมต่อ Frontend กับ Backend API
 - [ ] สร้าง Upload image functionality
-- [ ] เชื่อมต่อ Frontend กับ Backend API
-- [ ] ทดสอบ Admin Panel UI
+- [ ] ทดสอบ Admin Panel UI (พร้อมทดสอบ - รอผู้ใช้)
 
 #### ระบบเสริม
 - [ ] สลับ `dataSource` ของ frontend จาก static JSON → API
