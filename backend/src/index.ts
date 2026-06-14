@@ -159,6 +159,77 @@ app.get('/products/category/:category', async (c) => {
   }
 });
 
+// Create product (requires auth)
+app.post('/products', authMiddleware, async (c) => {
+  try {
+    const { id, name, category, price, description, fullDescription, material, materials, specifications, images } = await c.req.json();
+
+    if (!id || !name || !category) {
+      return c.json({ error: 'ID, name, and category are required' }, 400);
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        id,
+        name,
+        category,
+        price: price || null,
+        description,
+        fullDescription: fullDescription || description,
+        material,
+        specifications: specifications || null,
+        images: images || [],
+      },
+    });
+
+    return c.json(product);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return c.json({ error: 'Failed to create product' }, 500);
+  }
+});
+
+// Update product (requires auth)
+app.put('/products/:id', authMiddleware, async (c) => {
+  const id = c.req.param('id');
+  try {
+    const { name, category, price, description, fullDescription, material, materials, specifications, images } = await c.req.json();
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: {
+        ...(name && { name }),
+        ...(category && { category }),
+        ...(price !== undefined && { price }),
+        ...(description && { description }),
+        ...(fullDescription && { fullDescription }),
+        ...(material && { material }),
+        ...(specifications && { specifications }),
+        ...(images && { images }),
+      },
+    });
+
+    return c.json(product);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return c.json({ error: 'Failed to update product' }, 500);
+  }
+});
+
+// Delete product (requires auth)
+app.delete('/products/:id', authMiddleware, async (c) => {
+  const id = c.req.param('id');
+  try {
+    await prisma.product.delete({
+      where: { id },
+    });
+    return c.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    return c.json({ error: 'Failed to delete product' }, 500);
+  }
+});
+
 const port = parseInt(process.env.PORT || '3001');
 console.log(`Server is running on port ${port}`);
 
