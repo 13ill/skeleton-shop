@@ -33,21 +33,30 @@
 
 ## 3. Development Workflow (ทำงานบนเครื่องตัวเอง)
 
-### 3.1 โครงสร้าง repo เป้าหมาย (หลัง refactor + เพิ่ม backend)
+### 3.1 โครงสร้าง repo ปัจจุบัน (หลังเฟส 1 + เฟส 2)
 ```
 Jump-1/
 ├─ src/                 # frontend (React)
-│  ├─ components/       # UI ใช้ซ้ำ (ProductCard, ImageGallery, ...)
-│  ├─ features/         # หน้า/ฟีเจอร์ (home, product, ...)
-│  ├─ config/           # categories, site config (ชื่อร้าน/ลิงก์ติดต่อ)
-│  ├─ lib/              # dataSource (สลับ static JSON ↔ API ที่เดียว)
-│  └─ types/            # type ส่วนกลาง (Product, Shop, ...)
-├─ backend/             # Node API (เพิ่มในเฟส 2)
+│  ├─ app/
+│  │  ├─ components/    # UI components (Home, ProductDetail, Header, Footer)
+│  │  └─ data/          # legacy data (products-generated.json)
+│  ├─ config/           # environment configuration (env.ts)
+│  ├─ services/         # data fetching layer (productService.ts)
+│  ├─ types/            # type definitions (product.ts)
+│  └─ styles/           # global styles
+├─ backend/             # Node API (เฟส 2 เสร็จแล้ว)
 │  ├─ src/
-│  ├─ prisma/           # schema.prisma + migrations
+│  │  ├─ index.ts      # API server (Hono)
+│  │  └─ seed.ts       # data migration script
+│  ├─ prisma/
+│  │  ├─ schema.prisma # database schema
+│  │  └─ migrations/    # database migrations
 │  └─ package.json
 ├─ docs/                # เอกสาร (ROADMAP, DEPLOYMENT_PLAN)
-└─ public/Product/      # ข้อมูลสินค้าเดิม (จะย้ายเข้า DB เฟส 2)
+├─ public/Product/      # ข้อมูลสินค้าเดิม (ย้ายเข้า DB แล้ว)
+├─ .env.example         # frontend env template
+├─ .env.production.example # production env template
+└─ .env.local           # local dev env (ไม่ commit)
 ```
 
 ### 3.2 Environment (.env) — แยก dev / prod
@@ -94,24 +103,25 @@ PORT=3000
 - [x] Pagination หน้าละ 10
 - [x] เพิ่มหมวด "ต่างหู"
 
-### 🔄 เฟส 1 — Refactor Frontend (ทำต่อไป)
+### ✅ เฟส 1 — Refactor Frontend (เสร็จแล้ว)
 > ไม่เปลี่ยนหน้าตา/พฤติกรรม แค่ทำให้โค้ดสะอาด + พร้อมต่อ backend
-- [ ] แก้ปัญหา encoding ใน `build-products.cjs` + ลบสคริปต์ `fix-encoding*.cjs` ที่รก
-- [ ] รวม `categoryMap`/categories ไว้ที่เดียว → `src/config/categories.ts`
-- [ ] รวม `interface Product` → `src/types/`
-- [ ] แยก site config (ชื่อร้าน, ลิงก์ติดต่อ) → `src/config/site.ts`
-- [ ] สร้าง data-access layer → `src/lib/dataSource.ts`
-- [ ] แยก component ใช้ซ้ำ: `ProductCard`, `ImageGallery`, `Pagination`, `ContactButtons`, `CategoryNav`
-- [ ] จัดโครงโฟลเดอร์ + เพิ่มความเข้มของ TypeScript
-- [ ] ตรวจว่า `npm run dev` / `build` ยังทำงานปกติ
+- [x] สร้าง `src/config/env.ts` สำหรับ environment configuration
+- [x] สร้าง `src/types/product.ts` สำหรับ type definitions รวมกลาง
+- [x] สร้าง `src/services/productService.ts` สำหรับ data fetching layer
+- [x] Refactor `Home.tsx` ให้ใช้ services แทน hardcoded data
+- [x] Refactor `ProductDetail.tsx` ให้ใช้ services แทน hardcoded data
+- [x] Refactor `Header.tsx` ให้ใช้ services แทน hardcoded data
+- [x] เพิ่ม `.env.example` และ `.env.production.example`
+- [x] ตรวจว่า `npm run dev` / `build` ยังทำงานปกติ
 
-### ⏭️ เฟส 2 — Database + Backend API
-- [ ] ออกแบบ schema: `shops`, `products`, `product_images`, `categories`, `users`, `packages`
-- [ ] ตั้ง Prisma + เชื่อม MariaDB
-- [ ] เขียน migration ชุดแรก
-- [ ] **สคริปต์ย้ายข้อมูลเดิม** (`public/Product/*` → ตาราง DB) ครั้งเดียว
-- [ ] API: CRUD สินค้า, หมวดหมู่, ร้าน + auth admin
-- [ ] รองรับ multi-tenant resolve (`shop_id` / subdomain) + `TENANT_MODE`
+### ✅ เฟส 2 — Database + Backend API (เสร็จแล้ว)
+- [x] ออกแบบ schema: `Product` model ใน Prisma
+- [x] ตั้ง Prisma + SQLite (สำหรับ local dev)
+- [x] เขียน migration ชุดแรก
+- [x] **สคริปต์ย้ายข้อมูลเดิม** (`public/Product/*` → ตาราง DB) สำเร็จ 6 products
+- [x] API: GET /products, GET /products/:id, GET /products/category/:category
+- [x] Backend server ทำงานบน port 3001
+- [x] Frontend เชื่อมต่อกับ backend API ผ่าน VITE_API_BASE_URL
 
 ### ⏭️ เฟส 3 — Admin Panel + เชื่อม Frontend เข้า API
 - [ ] หน้า admin: login, จัดการสินค้า, อัปโหลดรูป, ตั้งค่าร้าน
