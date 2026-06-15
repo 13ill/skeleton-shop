@@ -22,10 +22,26 @@ model User {
   @@map("users")
 }
 
+model Category {
+  id        String   @id @default(cuid())
+  name      String   // "แหวน", "สร้อยคอ"
+  slug      String   @unique // "ring", "necklace"
+  priority  Int      @default(0) // 1, 2, 3, 4, 5 (ลำดับความสำคัญ)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+
+  @@map("categories")
+}
+
 model Product {
   id              String   @id
   name            String
-  category        String
+  category        String   // Keep for backward compatibility
+  categoryId      String?  // New: link to Category
+  globalOrder     Int?     // New: ลำดับการแสดงผลทั่วไป (สำหรับ interleaved)
+  categoryOrder   Int?     // New: ลำดับการแสดงผลในหมวดหมู่ (สำหรับ grouped)
   price           Int?
   description     String
   fullDescription String
@@ -34,6 +50,8 @@ model Product {
   images          Json     // Store as JSON array
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  categoryRelation Category? @relation(fields: [categoryId], references: [id])
 
   @@map("products")
 }

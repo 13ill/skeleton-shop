@@ -66,17 +66,40 @@ async function main() {
   await prisma.product.deleteMany();
   console.log('Cleared existing products');
 
+  // Get categories from database
+  const categories = await prisma.category.findMany();
+  const categoryMap = new Map(categories.map(c => [c.slug, c.id]));
+  console.log(`Found ${categories.length} categories`);
+
   // Load products from JSON
   const products = loadProductsFromJson();
   console.log(`Found ${products.length} products from JSON files`);
 
-  // Insert products
+  // Insert products with order fields
+  let globalOrder = 1;
+  const categoryOrderMap = new Map<string, number>();
+
   for (const product of products) {
     try {
+      const categoryId = categoryMap.get(product.category);
+      
+      // Calculate category order
+      if (!categoryOrderMap.has(product.category)) {
+        categoryOrderMap.set(product.category, 1);
+      }
+      const categoryOrder = categoryOrderMap.get(product.category)!;
+      categoryOrderMap.set(product.category, categoryOrder + 1);
+
       await prisma.product.create({
-        data: product,
+        data: {
+          ...product,
+          categoryId,
+          globalOrder,
+          categoryOrder,
+        },
       });
-      console.log(`Created product: ${product.id}`);
+      console.log(`Created product: ${product.id} (globalOrder: ${globalOrder}, categoryOrder: ${categoryOrder})`);
+      globalOrder++;
     } catch (error) {
       console.error(`Failed to create product ${product.id}:`, error);
     }

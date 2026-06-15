@@ -146,19 +146,6 @@ app.post('/auth/login', async (c) => {
   }
 });
 
-// Get all products
-app.get('/products', async (c) => {
-  try {
-    const products = await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    return c.json(products);
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    return c.json({ error: 'Failed to fetch products' }, 500);
-  }
-});
-
 // Get product by ID
 app.get('/products/:id', async (c) => {
   const id = c.req.param('id');
@@ -259,6 +246,164 @@ app.delete('/products/:id', authMiddleware, async (c) => {
   } catch (error) {
     console.error('Error deleting product:', error);
     return c.json({ error: 'Failed to delete product' }, 500);
+  }
+});
+
+// Get all categories (ordered by priority)
+app.get('/categories', async (c) => {
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: { priority: 'asc' },
+    });
+    return c.json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return c.json({ error: 'Failed to fetch categories' }, 500);
+  }
+});
+
+// Create category (requires auth)
+app.post('/categories', authMiddleware, async (c) => {
+  try {
+    const { name, slug, priority } = await c.req.json();
+
+    if (!name || !slug) {
+      return c.json({ error: 'Name and slug are required' }, 400);
+    }
+
+    const category = await prisma.category.create({
+      data: {
+        name,
+        slug,
+        priority: priority || 0,
+      },
+    });
+
+    return c.json(category);
+  } catch (error) {
+    console.error('Error creating category:', error);
+    return c.json({ error: 'Failed to create category' }, 500);
+  }
+});
+
+// Update category priority (requires auth)
+app.put('/categories/:id/priority', authMiddleware, async (c) => {
+  const id = c.req.param('id');
+  try {
+    const { priority } = await c.req.json();
+
+    const category = await prisma.category.update({
+      where: { id },
+      data: { priority },
+    });
+
+    return c.json(category);
+  } catch (error) {
+    console.error('Error updating category priority:', error);
+    return c.json({ error: 'Failed to update category priority' }, 500);
+  }
+});
+
+// Update product global order (requires auth)
+app.put('/products/:id/globalOrder', authMiddleware, async (c) => {
+  const id = c.req.param('id');
+  try {
+    const { globalOrder } = await c.req.json();
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: { globalOrder },
+    });
+
+    return c.json(product);
+  } catch (error) {
+    console.error('Error updating product global order:', error);
+    return c.json({ error: 'Failed to update product global order' }, 500);
+  }
+});
+
+// Update product category order (requires auth)
+app.put('/products/:id/categoryOrder', authMiddleware, async (c) => {
+  const id = c.req.param('id');
+  try {
+    const { categoryOrder } = await c.req.json();
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: { categoryOrder },
+    });
+
+    return c.json(product);
+  } catch (error) {
+    console.error('Error updating product category order:', error);
+    return c.json({ error: 'Failed to update product category order' }, 500);
+  }
+});
+
+// Get products with mode (interleaved or grouped)
+app.get('/products', async (c) => {
+  try {
+    const mode = c.req.query('mode') || 'grouped';
+
+    if (mode === 'interleaved') {
+      // Interleaved mode: ring1, necklace1, earring1, ring2, necklace2...
+      const categories = await prisma.category.findMany({
+        orderBy: { priority: 'asc' },
+      });
+
+      const products = await prisma.product.findMany({
+        orderBy: { globalOrder: 'asc' },
+      });
+
+      // Interleave products based on category priority
+      const interleaved: any[] = [];
+      const categoryBuckets = new Map<string, any[]>();
+
+      // Group products by category
+      for (const product of products) {
+        const category = categories.find(c => c.id === product.categoryId);
+        if (category) {
+          if (!categoryBuckets.has(category.id)) {
+            categoryBuckets.set(category.id, []);
+          }
+          categoryBuckets.get(category.id)!.push(product);
+        }
+      }
+
+      // Interleave
+      let hasProducts = true;
+      while (hasProducts) {
+        hasProducts = false;
+        for (const category of categories) {
+          const bucket = categoryBuckets.get(category.id);
+          if (bucket && bucket.length > 0) {
+            interleaved.push(bucket.shift()!);
+            hasProducts = true;
+          }
+        }
+      }
+
+      return c.json(interleaved);
+    } else {
+      // Grouped mode: ring1, ring2, ring3..., necklace1, necklace2...
+      const categories = await prisma.category.findMany({
+        orderBy: { priority: 'asc' },
+      });
+
+      const grouped: any[] = [];
+      for (const category of categories) {
+        const products = await prisma.product.findMany({
+          where: { categoryId: category.id },
+          orderBy: { categoryOrder: 'asc' },
+        });
+        grouped.push(...products);
+      }
+
+      return c.json(grouped);
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return c.json({ error: 'Failed to fetch products' }, 500);
   }
 });
 
