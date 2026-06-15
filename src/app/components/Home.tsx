@@ -3,14 +3,16 @@ import { Link, useLocation } from "react-router";
 import { getAllProducts, getProductsByCategory, getProductsWithMode } from "../../services/productService";
 import { categoryMap, type Category, type ProductWithImages } from "../../types/product";
 import { motion } from "motion/react";
+import { useSiteSettings } from "../context/SiteSettingsContext";
 
 export function Home() {
   const [displayMode, setDisplayMode] = useState<'interleaved' | 'grouped'>('interleaved');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [products, setProducts] = useState<ProductWithImages[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const itemsPerPage = 10;
+  const itemsPerPage = 12;
   const location = useLocation();
+  const { siteSettings } = useSiteSettings();
 
   // Get current category from URL
   const getCurrentCategory = (): Category => {
@@ -66,121 +68,249 @@ export function Home() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="text-center text-gray-500">กำลังโหลด...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-swarovski-purple border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">กำลังโหลด...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      {/* Display Mode Toggle */}
-      <div className="mb-6 flex justify-end gap-2">
-        <button
-          onClick={() => setDisplayMode('interleaved')}
-          className={`px-4 py-2 rounded-md transition-colors ${displayMode === 'interleaved'
-            ? 'bg-[#c8a96e] text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-        >
-          สลับหมวดหมู่
-        </button>
-        <button
-          onClick={() => setDisplayMode('grouped')}
-          className={`px-4 py-2 rounded-md transition-colors ${displayMode === 'grouped'
-            ? 'bg-[#c8a96e] text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-        >
-          แยกหมวดหมู่
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {paginatedProducts.map((product, index) => (
+    <div>
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-swarovski-gray to-white py-20 md:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            key={product.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
           >
-            <Link
-              to={`/product/${product.id}`}
-              className="group block"
+            <h1
+              className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
-              <div className="relative overflow-hidden bg-gray-50 aspect-[3/4] mb-4">
-                <img
-                  src={product.images[0]?.startsWith('/uploads') || product.images[0]?.startsWith('/Product')
-                    ? `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`
-                    : product.images[0] || '/placeholder.svg'}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder.svg';
-                  }}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs tracking-wider uppercase text-gray-500">
-                  {categoryMap[product.category as Category] || product.category}
-                </p>
-                <h3 className="text-base tracking-wide group-hover:text-gray-600 transition-colors">
-                  {product.name}
-                </h3>
-                {product.price && product.price > 0 && (
-                  <p className="text-sm text-gray-900">
-                    ฿{product.price!.toLocaleString()}
-                  </p>
-                )}
-              </div>
+              เครื่องประดับที่สะท้อน
+              <span className="block text-swarovski-purple mt-2">ความเป็นคุณ</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+              {siteSettings.tagline || "เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ"}
+            </p>
+            <Link
+              to="/"
+              className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-purple transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              ดูสินค้าทั้งหมด
             </Link>
           </motion.div>
-        ))}
-      </div>
+        </div>
+      </section>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="mt-12 flex flex-col items-center gap-4">
-          <p className="text-sm text-gray-500">
-            แสดง {startIndex + 1}-{Math.min(endIndex, products.length)} จาก {products.length} รายการ
-          </p>
-
-          <div className="flex items-center gap-2">
-            {/* Previous Button */}
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              ก่อนหน้า
-            </button>
-
-            {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+      {/* Categories Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2
+            className="text-2xl font-bold mb-8 text-center"
+            style={{ fontFamily: 'Montserrat, sans-serif' }}
+          >
+            หมวดหมู่สินค้า
+          </h2>
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            {['all', 'ring', 'necklace', 'bracelet', 'earring'].map((cat) => (
               <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded-lg border transition-colors ${currentPage === page
-                  ? "border-[#c8a96e] bg-[#c8a96e] text-white"
-                  : "border-gray-200 hover:border-gray-300"
+                key={cat}
+                onClick={() => {
+                  const params = new URLSearchParams(location.search);
+                  if (cat === 'all') {
+                    params.delete('category');
+                  } else {
+                    params.set('category', cat);
+                  }
+                  window.location.href = `/?${params.toString()}`;
+                }}
+                className={`flex-shrink-0 px-6 py-3 rounded-full font-medium transition-all duration-300 ${selectedCategory === cat
+                    ? 'bg-swarovski-purple text-white shadow-md'
+                    : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
                   }`}
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                {page}
+                {cat === 'all' ? 'ทั้งหมด' : categoryMap[cat as Category]}
               </button>
             ))}
-
-            {/* Next Button */}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              ถัดไป
-            </button>
           </div>
         </div>
-      )}
+      </section>
+
+      {/* Products Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-8">
+            <h2
+              className="text-2xl font-bold"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              {selectedCategory === 'all' ? 'สินค้าทั้งหมด' : categoryMap[selectedCategory]}
+            </h2>
+
+            {/* Display Mode Toggle */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setDisplayMode('interleaved')}
+                className={`px-4 py-2 rounded-lg transition-all duration-300 ${displayMode === 'interleaved'
+                    ? 'bg-swarovski-purple text-white shadow-md'
+                    : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
+                  }`}
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                สลับหมวดหมู่
+              </button>
+              <button
+                onClick={() => setDisplayMode('grouped')}
+                className={`px-4 py-2 rounded-lg transition-all duration-300 ${displayMode === 'grouped'
+                    ? 'bg-swarovski-purple text-white shadow-md'
+                    : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
+                  }`}
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                แยกหมวดหมู่
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {paginatedProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+              >
+                <Link
+                  to={`/product/${product.id}`}
+                  className="group block"
+                >
+                  <div className="relative overflow-hidden bg-swarovski-gray aspect-[3/4] mb-4 rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300">
+                    <img
+                      src={product.images[0]?.startsWith('/uploads') || product.images[0]?.startsWith('/Product')
+                        ? `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`
+                        : product.images[0] || '/placeholder.svg'}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder.svg';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-xs tracking-wider uppercase text-gray-500 font-medium">
+                      {categoryMap[product.category as Category] || product.category}
+                    </p>
+                    <h3
+                      className="text-base font-semibold tracking-wide group-hover:text-swarovski-purple transition-colors"
+                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    >
+                      {product.name}
+                    </h3>
+                    {product.price && product.price > 0 && (
+                      <p className="text-sm font-bold text-swarovski-black">
+                        ฿{product.price!.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex flex-col items-center gap-4">
+              <p className="text-sm text-gray-500">
+                แสดง {startIndex + 1}-{Math.min(endIndex, products.length)} จาก {products.length} รายการ
+              </p>
+
+              <div className="flex items-center gap-2">
+                {/* Previous Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  ก่อนหน้า
+                </button>
+
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 rounded-lg border transition-all duration-300 ${currentPage === page
+                        ? "border-swarovski-purple bg-swarovski-purple text-white shadow-md"
+                        : "border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple"
+                      }`}
+                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                {/* Next Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  ถัดไป
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-16 bg-swarovski-purple">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <h2
+              className="text-3xl font-bold mb-4 text-white"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              รับข่าวสารและโปรโมชั่นพิเศษ
+            </h2>
+            <p className="text-white/80 mb-8 max-w-xl mx-auto">
+              สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input
+                type="email"
+                placeholder="อีเมลของคุณ"
+                className="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              />
+              <button
+                className="px-6 py-3 bg-swarovski-gold text-white font-semibold rounded-lg hover:bg-swarovski-gold-light transition-all duration-300"
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                สมัคร
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }
