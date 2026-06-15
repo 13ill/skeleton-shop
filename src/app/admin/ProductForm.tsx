@@ -256,7 +256,7 @@ export function ProductForm() {
 
         <SpecificationsEditor
           value={formData.specifications}
-          onChange={(value) => setFormData({ ...formData, specifications: value })}
+          onChange={(value: string) => setFormData({ ...formData, specifications: value })}
         />
 
         <ImageUpload
