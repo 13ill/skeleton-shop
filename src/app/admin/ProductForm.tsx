@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useAuth } from './authContext';
 import { ImageUpload } from './ImageUpload';
-import { SpecificationsEditor } from './SpecificationsEditor';
 import { env } from '../../config/env';
 import type { ProductWithImages } from '../../types/product';
+
+// Import SpecificationsEditor
+import { SpecificationsEditor } from './SpecificationsEditor';
 
 export function ProductForm() {
   const { id } = useParams<{ id?: string }>();
