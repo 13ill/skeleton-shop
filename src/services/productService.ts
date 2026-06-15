@@ -123,6 +123,31 @@ export async function getProductsByCategory(category: Category): Promise<Product
   return allProducts.filter(p => p.category === category);
 }
 
+// Get products with display mode
+export async function getProductsWithMode(mode: 'interleaved' | 'grouped'): Promise<ProductWithImages[]> {
+  // If API is configured, use it
+  if (env.API_BASE_URL) {
+    try {
+      const response = await fetch(`${env.API_BASE_URL}/products?mode=${mode}`);
+      if (!response.ok) throw new Error('Failed to fetch products');
+      return await response.json();
+    } catch (error) {
+      console.error('API fetch failed, falling back to static:', error);
+    }
+  }
+
+  // Fallback to static JSON (no interleaved support)
+  const allProducts = await getAllProducts();
+  
+  if (mode === 'grouped') {
+    return allProducts;
+  }
+  
+  // For interleaved mode with static data, just return all products
+  // (true interleaved requires database)
+  return allProducts;
+}
+
 // Get product counts by category
 export async function getCategoryCounts(): Promise<Record<Category, number>> {
   const allProducts = await getAllProducts();

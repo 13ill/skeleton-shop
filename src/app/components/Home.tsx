@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
-import { getAllProducts, getProductsByCategory } from "../../services/productService";
+import { getAllProducts, getProductsByCategory, getProductsWithMode } from "../../services/productService";
 import { categoryMap, type Category, type ProductWithImages } from "../../types/product";
 import { motion } from "motion/react";
 
 export function Home() {
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  const [displayMode, setDisplayMode] = useState<'interleaved' | 'grouped'>('interleaved');
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [products, setProducts] = useState<ProductWithImages[]>([]);
@@ -17,8 +18,14 @@ export function Home() {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        const data = await getAllProducts();
-        setProducts(data);
+        // Use display mode when showing all products
+        if (selectedCategory === 'all') {
+          const data = await getProductsWithMode(displayMode);
+          setProducts(data);
+        } else {
+          const data = await getProductsByCategory(selectedCategory);
+          setProducts(data);
+        }
       } catch (error) {
         console.error("Failed to load products:", error);
       } finally {
@@ -26,7 +33,7 @@ export function Home() {
       }
     };
     loadProducts();
-  }, []);
+  }, [selectedCategory, displayMode]);
 
   // Load products by category when category changes
   useEffect(() => {
@@ -63,10 +70,10 @@ export function Home() {
     }
   }, [location.state]);
 
-  // Reset page when category changes
+  // Reset page when category or display mode changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
+  }, [selectedCategory, displayMode]);
 
   // Pagination logic
   const totalPages = Math.ceil(products.length / itemsPerPage);
@@ -89,6 +96,28 @@ export function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
+      {/* Display Mode Toggle */}
+      <div className="mb-6 flex justify-end gap-2">
+        <button
+          onClick={() => setDisplayMode('interleaved')}
+          className={`px-4 py-2 rounded-md transition-colors ${displayMode === 'interleaved'
+              ? 'bg-[#c8a96e] text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          สลับหมวดหมู่
+        </button>
+        <button
+          onClick={() => setDisplayMode('grouped')}
+          className={`px-4 py-2 rounded-md transition-colors ${displayMode === 'grouped'
+              ? 'bg-[#c8a96e] text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          แยกหมวดหมู่
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {paginatedProducts.map((product, index) => (
           <motion.div

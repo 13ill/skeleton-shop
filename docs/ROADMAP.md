@@ -149,30 +149,29 @@ PORT=3000
 - [x] สร้าง Upload image functionality (API + frontend)
 
 #### Display Order Management (ลำดับขั้นตอนใหม่)
-- [ ] Phase 1: Database Schema
-  - [ ] เพิ่ม Category model (id, name, slug, priority, isActive)
-  - [ ] เพิ่ม categoryId, globalOrder, categoryOrder ใน Product model
-  - [ ] Migration
-  - [ ] Seed categories (แหวน, สร้อยคอ, สร้อยข้อมือ, ต่างหู, จี้)
-  - [ ] Update product seed ให้มี globalOrder และ categoryOrder
-- [ ] Phase 2: Backend API
-  - [ ] GET /categories (ดึงหมวดหมู่ตาม priority)
-  - [ ] POST /categories (เพิ่มหมวดหมู่)
-  - [ ] PUT /categories/:id/priority (อัปเดต priority)
-  - [ ] PUT /products/:id/globalOrder (อัปเดตลำดับทั่วไป)
-  - [ ] PUT /products/:id/categoryOrder (อัปเดตลำดับในหมวดหมู่)
-  - [ ] GET /products?mode=interleaved (ดึงสินค้าแบบ interleaved)
-  - [ ] GET /products?mode=grouped (ดึงสินค้าแบบ grouped)
-- [ ] Phase 3: Frontend - Admin Dashboard
-  - [ ] CategoryPriority component (ซ้าย - priority numbers)
-  - [ ] GlobalProductOrder component (ขวา - drag & drop)
-  - [ ] Toggle Button: Interleaved / Grouped
-  - [ ] Preview Button (ดูหน้าลูกค้าจริง)
-  - [ ] Save Order Button
-- [ ] Phase 4: Frontend - Customer View
-  - [ ] Home page → แสดงสินค้าแบบ interleaved (default)
-  - [ ] Category page → แสดงสินค้าแบบ grouped
-  - [ ] Toggle Button: Interleaved / Grouped (ให้ลูกค้าเลือกได้)
+- [x] Phase 1: Database Schema
+  - [x] เพิ่ม Category model (id, name, slug, priority, isActive)
+  - [x] เพิ่ม categoryId, globalOrder, categoryOrder ใน Product model
+  - [x] Migration
+  - [x] Seed categories (แหวน, สร้อยคอ, สร้อยข้อมือ, ต่างหู, จี้)
+  - [x] Update product seed ให้มี globalOrder และ categoryOrder
+- [x] Phase 2: Backend API
+  - [x] GET /categories (ดึงหมวดหมู่ตาม priority)
+  - [x] POST /categories (เพิ่มหมวดหมู่)
+  - [x] PUT /categories/:id/priority (อัปเดต priority)
+  - [x] PUT /products/:id/globalOrder (อัปเดตลำดับทั่วไป)
+  - [x] PUT /products/:id/categoryOrder (อัปเดตลำดับในหมวดหมู่)
+  - [x] GET /products?mode=interleaved (ดึงสินค้าแบบ interleaved)
+  - [x] GET /products?mode=grouped (ดึงสินค้าแบบ grouped)
+- [x] Phase 3: Frontend - Admin Dashboard
+  - [x] CategoryPriority component (ซ้าย - priority numbers)
+  - [x] GlobalProductOrder component (ขวา - drag & drop)
+  - [x] Toggle Button: Interleaved / Grouped
+  - [x] Preview Button (ดูหน้าลูกค้าจริง)
+  - [x] Save Order Button
+- [x] Phase 4: Frontend - Customer View
+  - [x] Home page → แสดงสินค้าแบบ interleaved (default)
+  - [x] Toggle Button: Interleaved / Grouped (ให้ลูกค้าเลือกได้)
 
 #### ระบบเสริม
 - [ ] สลับ `dataSource` ของ frontend จาก static JSON → API
