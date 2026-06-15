@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { env } from "../../config/env";
 
 interface SiteSettings {
   brandName: string;
@@ -32,7 +33,7 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchSiteSettings = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/public/site-settings`);
+        const response = await fetch(`${env.API_BASE_URL}/public/site-settings`);
         if (!response.ok) {
           throw new Error('Failed to fetch site settings');
         }

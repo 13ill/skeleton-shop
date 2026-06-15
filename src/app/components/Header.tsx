@@ -21,6 +21,11 @@ export function Header() {
 
   // Get current category from URL or product detail
   const getCurrentCategory = async (): Promise<Category> => {
+    // If on contact page, return null to indicate no category selected
+    if (location.pathname === '/contact') {
+      return 'none' as Category;
+    }
+
     // If on product detail page, get category from product
     if (location.pathname.startsWith('/product/')) {
       const productId = location.pathname.split('/')[2];
@@ -79,6 +84,12 @@ export function Header() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleContactClick = () => {
+    navigate('/contact');
+  };
+
+  const isContactPage = location.pathname === '/contact';
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -91,7 +102,7 @@ export function Header() {
             <button
               key={category}
               onClick={() => handleCategoryClick(category)}
-              className={`uppercase transition-colors hover:text-gray-900 ${activeCategory === category
+              className={`uppercase transition-colors hover:text-gray-900 ${!isContactPage && activeCategory === category
                 ? "text-gray-900 border-b border-gray-900 pb-1"
                 : "text-gray-500"
                 }`}
@@ -99,12 +110,15 @@ export function Header() {
               {categoryMap[category]} ({categoryCounts[category] || 0})
             </button>
           ))}
-          <Link
-            to="/contact"
-            className="uppercase transition-colors hover:text-gray-900 text-gray-500"
+          <button
+            onClick={handleContactClick}
+            className={`uppercase transition-colors hover:text-gray-900 ${isContactPage
+              ? "text-gray-900 border-b border-gray-900 pb-1"
+              : "text-gray-500"
+              }`}
           >
             ติดต่อเรา
-          </Link>
+          </button>
         </nav>
       </div>
     </header>
