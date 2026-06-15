@@ -48,6 +48,8 @@ export function ProductForm() {
       }
 
       const product: ProductWithImages = await response.json();
+      console.log('Fetched product:', product);
+      console.log('Product images:', product.images);
       setFormData({
         id: product.id,
         name: product.name,
@@ -260,13 +262,19 @@ export function ProductForm() {
         />
 
         <ImageUpload
-          initialImages={formData.images ? JSON.parse(formData.images) : []}
-          onImagesChange={(newImages) => {
-            setFormData({
-              ...formData,
-              images: JSON.stringify(newImages),
-            });
-          }}
+          initialImages={() => {
+            try {
+              return formData.images ? JSON.parse(formData.images) : [];
+            } catch {
+              return [];
+            }
+          }()}
+        onImagesChange={(newImages) => {
+          setFormData({
+            ...formData,
+            images: JSON.stringify(newImages),
+          });
+        }}
         />
 
         <div className="flex gap-4">
