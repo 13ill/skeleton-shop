@@ -47,6 +47,8 @@
 
 ### Phase 6: UX Improvements
 - [x] Fix images blink/flicker during drag and drop
+- [x] Improve specifications editor (UI instead of JSON)
+- [x] Enhance image upload (remove button always visible, drag to reorder)
 - [ ] Add visual feedback for drag and drop
 - [ ] Improve error handling with retry mechanism
 - [ ] Add loading states for drag and drop operations
@@ -79,12 +81,22 @@
    - Priority: HIGH
    - Status: ✅ FIXED
 
-2. **No visual feedback for drag and drop**
+2. ~~**Specifications (JSON) not user-friendly**~~
+   - Cause: Users have to read/write JSON manually
+   - Priority: HIGH
+   - Status: ✅ FIXED
+
+3. ~~**Image upload lacks editing features**~~
+   - Cause: Remove button only on hover, no reordering
+   - Priority: HIGH
+   - Status: ✅ FIXED
+
+4. **No visual feedback for drag and drop**
    - Cause: Only "Saving..." text shown
    - Priority: MEDIUM
    - Status: Pending
 
-3. **No retry mechanism for network failures**
+5. **No retry mechanism for network failures**
    - Cause: Basic error handling only
    - Priority: LOW
    - Status: Pending
