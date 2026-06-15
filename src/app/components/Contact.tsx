@@ -101,8 +101,17 @@ export function Contact() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-swarovski-purple to-swarovski-black py-20 md:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        className="relative py-20 md:py-32"
+        style={{
+          backgroundImage: siteSettings.contactBackgroundImage ? `url(${siteSettings.contactBackgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundColor: !siteSettings.contactBackgroundImage ? 'linear-gradient(to right, #6b4c9a, #000000)' : undefined,
+          border: siteSettings.contactShowBorder ? `4px solid ${siteSettings.contactBorderColor}` : 'none',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
