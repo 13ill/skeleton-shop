@@ -2,7 +2,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { PrismaClient } from '@prisma/client';
-import { dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { hashPassword, verifyPassword, generateToken, verifyToken } from './auth';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
@@ -40,12 +40,6 @@ app.get('/uploads/:filename', (c) => {
   c.header('Content-Type', mimeTypes[ext] || 'application/octet-stream');
   return c.body(file);
 });
-
-// Ensure uploads directory exists
-const uploadsDir = join(process.cwd(), 'uploads');
-if (!existsSync(uploadsDir)) {
-  mkdirSync(uploadsDir, { recursive: true });
-}
 
 // Auth middleware
 const authMiddleware = async (c: any, next: any) => {
