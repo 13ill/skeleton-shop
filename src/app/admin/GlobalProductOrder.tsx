@@ -17,10 +17,11 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   const navigate = useNavigate();
 
   // Track previous values to prevent unnecessary fetches
-  const prevCategoryIdRef = useRef(categoryId);
-  const prevDisplayModeRef = useRef(displayMode);
+  const prevCategoryIdRef = useRef<string | undefined>(undefined);
+  const prevDisplayModeRef = useRef<'interleaved' | 'grouped' | undefined>(undefined);
   const categoryIdRef = useRef(categoryId);
   const displayModeRef = useRef(displayMode);
+  const isInitialMountRef = useRef(true);
 
   // Update refs when props change
   useEffect(() => {
@@ -31,6 +32,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   const fetchProducts = useCallback(async () => {
     if (!token) return;
 
+    console.log('[GlobalProductOrder] Fetching products...', { categoryId: categoryIdRef.current, displayMode: displayModeRef.current });
     setLoading(true);
     try {
       const mode = displayModeRef.current === 'interleaved' ? 'interleaved' : 'grouped';
@@ -45,12 +47,14 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
       }
 
       const data = await response.json();
+      console.log('[GlobalProductOrder] Fetched products:', data.length);
 
       // Filter by category if selected
       const filteredProducts = categoryIdRef.current
         ? data.filter((p: ProductWithImages) => p.categoryId === categoryIdRef.current)
         : data;
 
+      console.log('[GlobalProductOrder] Filtered products:', filteredProducts.length);
       setProducts(filteredProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -60,8 +64,24 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   }, [token]);
 
   useEffect(() => {
+    // Always fetch on initial mount
+    if (isInitialMountRef.current) {
+      console.log('[GlobalProductOrder] Initial mount, fetching products');
+      fetchProducts();
+      isInitialMountRef.current = false;
+      prevCategoryIdRef.current = categoryId;
+      prevDisplayModeRef.current = displayMode;
+      return;
+    }
+
     // Only fetch if categoryId or displayMode actually changed
     if (prevCategoryIdRef.current !== categoryId || prevDisplayModeRef.current !== displayMode) {
+      console.log('[GlobalProductOrder] Props changed, fetching products', {
+        prevCategoryId: prevCategoryIdRef.current,
+        newCategoryId: categoryId,
+        prevDisplayMode: prevDisplayModeRef.current,
+        newDisplayMode: displayMode
+      });
       fetchProducts();
       prevCategoryIdRef.current = categoryId;
       prevDisplayModeRef.current = displayMode;
@@ -83,6 +103,8 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
 
     if (draggedIndex === null || draggedIndex === dropIndex) return;
 
+    console.log('[GlobalProductOrder] Drag and drop:', { from: draggedIndex, to: dropIndex });
+
     const newProducts = [...products];
     const draggedItem = newProducts[draggedIndex];
     newProducts.splice(draggedIndex, 1);
@@ -95,10 +117,13 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     const startIndex = Math.min(draggedIndex, dropIndex);
     const endIndex = Math.max(draggedIndex, dropIndex);
 
+    console.log('[GlobalProductOrder] Updating order for items:', startIndex, 'to', endIndex);
+
     setSaving(true);
     try {
       const endpoint = displayMode === 'interleaved' ? 'globalOrder' : 'categoryOrder';
       for (let i = startIndex; i <= endIndex; i++) {
+        console.log('[GlobalProductOrder] Updating order:', newProducts[i].id, endpoint, i + 1);
         await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${newProducts[i].id}/${endpoint}`, {
           method: 'PUT',
           headers: {
@@ -108,6 +133,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
           body: JSON.stringify({ [endpoint]: i + 1 }),
         });
       }
+      console.log('[GlobalProductOrder] Order update completed');
     } catch (error) {
       console.error('Error updating order:', error);
       alert('Failed to update order');
