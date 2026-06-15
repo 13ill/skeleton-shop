@@ -19,7 +19,8 @@ const ProductItem = memo(({
   onDragOver,
   onDrop,
   onEdit,
-  onDelete
+  onDelete,
+  draggable
 }: {
   product: ProductWithImages;
   index: number;
@@ -29,14 +30,15 @@ const ProductItem = memo(({
   onDrop: (e: React.DragEvent, index: number) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  draggable: boolean;
 }) => {
   return (
     <div
-      draggable
-      onDragStart={(e) => onDragStart(e, index)}
-      onDragOver={onDragOver}
-      onDrop={(e) => onDrop(e, index)}
-      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all cursor-move ${isDragging
+      draggable={draggable}
+      onDragStart={draggable ? (e) => onDragStart(e, index) : undefined}
+      onDragOver={draggable ? onDragOver : undefined}
+      onDrop={draggable ? (e) => onDrop(e, index) : undefined}
+      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${draggable ? 'cursor-move' : 'cursor-default'} ${isDragging
         ? 'border-[#c8a96e] bg-[#c8a96e]/10 shadow-lg opacity-75 scale-105'
         : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
         }`}
@@ -288,6 +290,20 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
           : 'Grouped mode: ring1, ring2, ring3..., necklace1, necklace2...'}
       </p>
 
+      {!categoryId && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded mb-4">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span className="font-medium">Drag & drop disabled</span>
+          </div>
+          <p className="text-sm mt-1">
+            Please select a specific category to reorder products. Global ordering is managed via category priority.
+          </p>
+        </div>
+      )}
+
       {products.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           No products found. Click "Add Product" to create one.
@@ -305,6 +321,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
               onDrop={handleDrop}
               onEdit={(id) => navigate(`/admin/products/${id}/edit`)}
               onDelete={handleDelete}
+              draggable={!!categoryId}
             />
           ))}
         </div>
