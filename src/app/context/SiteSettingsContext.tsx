@@ -12,17 +12,22 @@ interface SiteSettings {
   heroSubtitle: string | null;
   heroButtonText: string | null;
   heroBackgroundImage: string | null;
-  heroOverlayColor: string | null;
+  heroTextStrokeColor: string | null;
+  heroTextStrokeWidth: number | null;
   heroBorderColor: string | null;
   heroShowBorder: boolean;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
   newsletterBackgroundImage: string | null;
+  newsletterTextStrokeColor: string | null;
+  newsletterTextStrokeWidth: number | null;
   newsletterBorderColor: string | null;
   newsletterShowBorder: boolean;
   contactPageTitle: string | null;
   contactPageDescription: string | null;
   contactBackgroundImage: string | null;
+  contactTextStrokeColor: string | null;
+  contactTextStrokeWidth: number | null;
   contactBorderColor: string | null;
   contactShowBorder: boolean;
 }
@@ -45,17 +50,22 @@ const defaultSettings: SiteSettings = {
   heroSubtitle: null,
   heroButtonText: null,
   heroBackgroundImage: null,
-  heroOverlayColor: null,
+  heroTextStrokeColor: null,
+  heroTextStrokeWidth: null,
   heroBorderColor: null,
   heroShowBorder: false,
   newsletterTitle: null,
   newsletterDescription: null,
   newsletterBackgroundImage: null,
+  newsletterTextStrokeColor: null,
+  newsletterTextStrokeWidth: null,
   newsletterBorderColor: null,
   newsletterShowBorder: false,
   contactPageTitle: null,
   contactPageDescription: null,
   contactBackgroundImage: null,
+  contactTextStrokeColor: null,
+  contactTextStrokeWidth: null,
   contactBorderColor: null,
   contactShowBorder: false,
 };

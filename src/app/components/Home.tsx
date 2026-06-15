@@ -89,12 +89,6 @@ export function Home() {
           border: siteSettings.heroShowBorder ? `4px solid ${siteSettings.heroBorderColor}` : 'none',
         }}
       >
-        {/* Overlay */}
-        <div
-          className="absolute inset-0"
-          style={{ backgroundColor: siteSettings.heroOverlayColor || 'rgba(0, 0, 0, 0.4)' }}
-        />
-
         {/* Fallback gradient if no image */}
         {!siteSettings.heroBackgroundImage && (
           <div className="absolute inset-0 bg-gradient-to-br from-swarovski-gray to-white" />
@@ -111,7 +105,10 @@ export function Home() {
               className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight"
               style={{
                 fontFamily: 'Montserrat, sans-serif',
-                color: siteSettings.heroBackgroundImage ? 'white' : 'inherit'
+                color: siteSettings.heroBackgroundImage ? 'white' : 'inherit',
+                WebkitTextStroke: siteSettings.heroBackgroundImage
+                  ? `${siteSettings.heroTextStrokeWidth || 2}px ${siteSettings.heroTextStrokeColor || '#ffffff'}`
+                  : 'none',
               }}
             >
               {siteSettings.heroTitle || 'เครื่องประดับที่สะท้อน'}
@@ -122,6 +119,11 @@ export function Home() {
             <p
               className={`text-lg sm:text-xl mb-8 max-w-2xl mx-auto ${siteSettings.heroBackgroundImage ? 'text-white/80' : 'text-gray-600'
                 }`}
+              style={{
+                WebkitTextStroke: siteSettings.heroBackgroundImage
+                  ? `${siteSettings.heroTextStrokeWidth || 2}px ${siteSettings.heroTextStrokeColor || '#ffffff'}`
+                  : 'none',
+              }}
             >
               {siteSettings.heroSubtitle?.split('\n')[1] || siteSettings.tagline || "เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ"}
             </p>
@@ -325,11 +327,19 @@ export function Home() {
           >
             <h2
               className="text-3xl font-bold mb-4 text-white"
-              style={{ fontFamily: 'Montserrat, sans-serif' }}
+              style={{
+                fontFamily: 'Montserrat, sans-serif',
+                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+              }}
             >
               {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
             </h2>
-            <p className="text-white/80 mb-8 max-w-xl mx-auto">
+            <p
+              className="text-white/80 mb-8 max-w-xl mx-auto"
+              style={{
+                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+              }}
+            >
               {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">

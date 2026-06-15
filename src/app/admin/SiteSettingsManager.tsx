@@ -15,17 +15,22 @@ interface SiteSettings {
   heroSubtitle: string | null;
   heroButtonText: string | null;
   heroBackgroundImage: string | null;
-  heroOverlayColor: string | null;
+  heroTextStrokeColor: string | null;
+  heroTextStrokeWidth: number | null;
   heroBorderColor: string | null;
   heroShowBorder: boolean;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
   newsletterBackgroundImage: string | null;
+  newsletterTextStrokeColor: string | null;
+  newsletterTextStrokeWidth: number | null;
   newsletterBorderColor: string | null;
   newsletterShowBorder: boolean;
   contactPageTitle: string | null;
   contactPageDescription: string | null;
   contactBackgroundImage: string | null;
+  contactTextStrokeColor: string | null;
+  contactTextStrokeWidth: number | null;
   contactBorderColor: string | null;
   contactShowBorder: boolean;
 }
@@ -44,17 +49,22 @@ export function SiteSettingsManager() {
     heroSubtitle: '',
     heroButtonText: '',
     heroBackgroundImage: null,
-    heroOverlayColor: 'rgba(0, 0, 0, 0.4)',
+    heroTextStrokeColor: '#ffffff',
+    heroTextStrokeWidth: 2,
     heroBorderColor: '#6b4c9a',
     heroShowBorder: false,
     newsletterTitle: '',
     newsletterDescription: '',
     newsletterBackgroundImage: null,
+    newsletterTextStrokeColor: '#ffffff',
+    newsletterTextStrokeWidth: 2,
     newsletterBorderColor: '#d4af37',
     newsletterShowBorder: false,
     contactPageTitle: '',
     contactPageDescription: '',
     contactBackgroundImage: null,
+    contactTextStrokeColor: '#ffffff',
+    contactTextStrokeWidth: 2,
     contactBorderColor: '#6b4c9a',
     contactShowBorder: false,
   });
@@ -260,6 +270,56 @@ export function SiteSettingsManager() {
     </div>
   );
 
+  const TextStrokeControlSection = ({
+    strokeColor,
+    strokeWidth,
+    onStrokeColorChange,
+    onStrokeWidthChange
+  }: {
+    strokeColor: string | null;
+    strokeWidth: number | null;
+    onStrokeColorChange: (color: string) => void;
+    onStrokeWidthChange: (width: number) => void;
+  }) => (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Text Stroke Color
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={strokeColor || '#ffffff'}
+            onChange={(e) => onStrokeColorChange(e.target.value)}
+            placeholder="#ffffff"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+          />
+          <input
+            type="color"
+            value={strokeColor || '#ffffff'}
+            onChange={(e) => onStrokeColorChange(e.target.value)}
+            className="w-12 h-10 rounded cursor-pointer"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Text Stroke Width (px)
+        </label>
+        <input
+          type="number"
+          value={strokeWidth || 2}
+          onChange={(e) => onStrokeWidthChange(parseInt(e.target.value) || 2)}
+          min="0"
+          max="10"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+        />
+        <p className="text-xs text-gray-500 mt-1">Recommended: 1-3px</p>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return <div className="text-gray-500">Loading...</div>;
   }
@@ -447,33 +507,12 @@ export function SiteSettingsManager() {
               onRemove={() => handleRemoveImage('heroBackgroundImage')}
             />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Hero Overlay Color (RGBA)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={settings.heroOverlayColor || 'rgba(0, 0, 0, 0.4)'}
-                  onChange={(e) => setSettings({ ...settings, heroOverlayColor: e.target.value })}
-                  placeholder="rgba(0, 0, 0, 0.4)"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
-                />
-                <input
-                  type="color"
-                  value={settings.heroOverlayColor?.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)?.slice(1).join(',') || '000000'}
-                  onChange={(e) => {
-                    const hex = e.target.value;
-                    const r = parseInt(hex.slice(1, 3), 16);
-                    const g = parseInt(hex.slice(3, 5), 16);
-                    const b = parseInt(hex.slice(5, 7), 16);
-                    setSettings({ ...settings, heroOverlayColor: `rgba(${r}, ${g}, ${b}, 0.4)` });
-                  }}
-                  className="w-12 h-10 rounded cursor-pointer"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Format: rgba(r, g, b, a) e.g., rgba(0, 0, 0, 0.4)</p>
-            </div>
+            <TextStrokeControlSection
+              strokeColor={settings.heroTextStrokeColor}
+              strokeWidth={settings.heroTextStrokeWidth}
+              onStrokeColorChange={(color) => setSettings({ ...settings, heroTextStrokeColor: color })}
+              onStrokeWidthChange={(width) => setSettings({ ...settings, heroTextStrokeWidth: width })}
+            />
 
             <BorderControlSection
               borderColor={settings.heroBorderColor}
@@ -494,13 +533,26 @@ export function SiteSettingsManager() {
                   border: settings.heroShowBorder ? `4px solid ${settings.heroBorderColor}` : 'none',
                 }}
               >
-                <div
-                  className="absolute inset-0"
-                  style={{ backgroundColor: settings.heroOverlayColor || 'rgba(0, 0, 0, 0.4)' }}
-                />
                 <div className="relative z-10">
-                  <h3 className="text-2xl font-bold mb-2 text-white">{settings.heroTitle || 'เครื่องประดับที่สะท้อนความเป็นคุณ'}</h3>
-                  <p className="text-white/80 mb-4">{settings.heroSubtitle || 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ'}</p>
+                  <h3
+                    className="text-2xl font-bold mb-2"
+                    style={{
+                      fontFamily: 'Montserrat, sans-serif',
+                      WebkitTextStroke: `${settings.heroTextStrokeWidth || 2}px ${settings.heroTextStrokeColor || '#ffffff'}`,
+                      color: settings.heroBackgroundImage ? 'white' : 'inherit',
+                    }}
+                  >
+                    {settings.heroTitle || 'เครื่องประดับที่สะท้อนความเป็นคุณ'}
+                  </h3>
+                  <p
+                    className="mb-4"
+                    style={{
+                      WebkitTextStroke: `${settings.heroTextStrokeWidth || 2}px ${settings.heroTextStrokeColor || '#ffffff'}`,
+                      color: settings.heroBackgroundImage ? 'white' : 'inherit',
+                    }}
+                  >
+                    {settings.heroSubtitle || 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ'}
+                  </p>
                   {settings.heroButtonText && (
                     <button className="px-6 py-3 bg-swarovski-black text-white rounded-lg">
                       {settings.heroButtonText}
@@ -548,6 +600,13 @@ export function SiteSettingsManager() {
               onRemove={() => handleRemoveImage('newsletterBackgroundImage')}
             />
 
+            <TextStrokeControlSection
+              strokeColor={settings.newsletterTextStrokeColor}
+              strokeWidth={settings.newsletterTextStrokeWidth}
+              onStrokeColorChange={(color) => setSettings({ ...settings, newsletterTextStrokeColor: color })}
+              onStrokeWidthChange={(width) => setSettings({ ...settings, newsletterTextStrokeWidth: width })}
+            />
+
             <BorderControlSection
               borderColor={settings.newsletterBorderColor}
               showBorder={settings.newsletterShowBorder}
@@ -569,8 +628,23 @@ export function SiteSettingsManager() {
                 }}
               >
                 <div className="relative z-10">
-                  <h3 className="text-2xl font-bold mb-2 text-white">{settings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}</h3>
-                  <p className="text-white/80 mb-4">{settings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}</p>
+                  <h3
+                    className="text-2xl font-bold mb-2 text-white"
+                    style={{
+                      fontFamily: 'Montserrat, sans-serif',
+                      WebkitTextStroke: `${settings.newsletterTextStrokeWidth || 2}px ${settings.newsletterTextStrokeColor || '#ffffff'}`,
+                    }}
+                  >
+                    {settings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
+                  </h3>
+                  <p
+                    className="text-white/80 mb-4"
+                    style={{
+                      WebkitTextStroke: `${settings.newsletterTextStrokeWidth || 2}px ${settings.newsletterTextStrokeColor || '#ffffff'}`,
+                    }}
+                  >
+                    {settings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -613,6 +687,13 @@ export function SiteSettingsManager() {
               onRemove={() => handleRemoveImage('contactBackgroundImage')}
             />
 
+            <TextStrokeControlSection
+              strokeColor={settings.contactTextStrokeColor}
+              strokeWidth={settings.contactTextStrokeWidth}
+              onStrokeColorChange={(color) => setSettings({ ...settings, contactTextStrokeColor: color })}
+              onStrokeWidthChange={(width) => setSettings({ ...settings, contactTextStrokeWidth: width })}
+            />
+
             <BorderControlSection
               borderColor={settings.contactBorderColor}
               showBorder={settings.contactShowBorder}
@@ -634,8 +715,23 @@ export function SiteSettingsManager() {
                 }}
               >
                 <div className="relative z-10">
-                  <h3 className="text-2xl font-bold mb-2 text-white">{settings.contactPageTitle || 'ติดต่อเรา'}</h3>
-                  <p className="text-white/80">{settings.contactPageDescription || 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง'}</p>
+                  <h3
+                    className="text-2xl font-bold mb-2 text-white"
+                    style={{
+                      fontFamily: 'Montserrat, sans-serif',
+                      WebkitTextStroke: `${settings.contactTextStrokeWidth || 2}px ${settings.contactTextStrokeColor || '#ffffff'}`,
+                    }}
+                  >
+                    {settings.contactPageTitle || 'ติดต่อเรา'}
+                  </h3>
+                  <p
+                    className="text-white/80"
+                    style={{
+                      WebkitTextStroke: `${settings.contactTextStrokeWidth || 2}px ${settings.contactTextStrokeColor || '#ffffff'}`,
+                    }}
+                  >
+                    {settings.contactPageDescription || 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง'}
+                  </p>
                 </div>
               </div>
             </div>

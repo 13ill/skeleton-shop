@@ -19,6 +19,8 @@ interface SiteSettings {
   newsletterTitle: string | null;
   newsletterDescription: string | null;
   newsletterBackgroundImage: string | null;
+  newsletterTextStrokeColor: string | null;
+  newsletterTextStrokeWidth: number | null;
   newsletterBorderColor: string | null;
   newsletterShowBorder: boolean;
 }
@@ -45,6 +47,8 @@ export function Footer() {
     newsletterTitle: null,
     newsletterDescription: null,
     newsletterBackgroundImage: null,
+    newsletterTextStrokeColor: null,
+    newsletterTextStrokeWidth: null,
     newsletterBorderColor: null,
     newsletterShowBorder: false,
   });
@@ -333,11 +337,19 @@ export function Footer() {
             <div className="max-w-2xl mx-auto relative z-10">
               <h3
                 className="text-xl font-bold mb-2 text-center"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
+                style={{
+                  fontFamily: 'Montserrat, sans-serif',
+                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                }}
               >
                 {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
               </h3>
-              <p className="text-gray-300 text-sm text-center mb-6">
+              <p
+                className="text-gray-300 text-sm text-center mb-6"
+                style={{
+                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                }}
+              >
                 {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
               </p>
               <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4">
