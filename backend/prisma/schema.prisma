@@ -81,7 +81,8 @@ model SiteSettings {
   heroSubtitle    String?
   heroButtonText  String?
   heroBackgroundImage String?
-  heroOverlayColor String?
+  heroTextStrokeColor String?
+  heroTextStrokeWidth Int @default(2)
   heroBorderColor String?
   heroShowBorder Boolean @default(false)
   
@@ -89,6 +90,8 @@ model SiteSettings {
   newsletterTitle       String?
   newsletterDescription String?
   newsletterBackgroundImage String?
+  newsletterTextStrokeColor String?
+  newsletterTextStrokeWidth Int @default(2)
   newsletterBorderColor String?
   newsletterShowBorder Boolean @default(false)
   
@@ -96,6 +99,8 @@ model SiteSettings {
   contactPageTitle       String?
   contactPageDescription String?
   contactBackgroundImage String?
+  contactTextStrokeColor String?
+  contactTextStrokeWidth Int @default(2)
   contactBorderColor String?
   contactShowBorder Boolean @default(false)
   
