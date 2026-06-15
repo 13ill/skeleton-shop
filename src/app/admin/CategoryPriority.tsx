@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './authContext';
+import { env } from '../../config/env';
 
 interface Category {
   id: string;
@@ -31,7 +32,7 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
 
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories`, {
+      const response = await fetch(`${env.API_BASE_URL}/categories`, {
         headers: {
           Authorization: `Bearer ${tokenRef.current}`,
         },
@@ -91,7 +92,7 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
         priority: category.priority,
       }));
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories/bulk-priority`, {
+      const response = await fetch(`${env.API_BASE_URL}/categories/bulk-priority`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

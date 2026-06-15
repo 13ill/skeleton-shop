@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from './authContext';
+import { env } from '../../config/env';
 import type { ProductWithImages } from '../../types/product';
 
 interface GlobalProductOrderProps {
@@ -36,7 +37,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     setLoading(true);
     try {
       const mode = displayModeRef.current === 'interleaved' ? 'interleaved' : 'grouped';
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products?mode=${mode}`, {
+      const response = await fetch(`${env.API_BASE_URL}/products?mode=${mode}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -122,7 +123,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
         order: index + 1,
       }));
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/bulk-order`, {
+      const response = await fetch(`${env.API_BASE_URL}/products/bulk-order`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +154,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${id}`, {
+      const response = await fetch(`${env.API_BASE_URL}/products/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -231,7 +232,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
                     src={product.images[0].startsWith('http')
                       ? product.images[0]
                       : product.images[0].startsWith('/uploads')
-                        ? `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`
+                        ? `${env.API_BASE_URL}${product.images[0]}`
                         : product.images[0]}
                     alt={product.name}
                     className="w-full h-full object-cover"
