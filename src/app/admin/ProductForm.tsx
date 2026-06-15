@@ -26,6 +26,15 @@ export function ProductForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [parsedImages, setParsedImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      setParsedImages(formData.images ? JSON.parse(formData.images) : []);
+    } catch {
+      setParsedImages([]);
+    }
+  }, [formData.images]);
 
   useEffect(() => {
     if (isEditing && id) {
@@ -262,19 +271,13 @@ export function ProductForm() {
         />
 
         <ImageUpload
-          initialImages={() => {
-            try {
-              return formData.images ? JSON.parse(formData.images) : [];
-            } catch {
-              return [];
-            }
-          }()}
-        onImagesChange={(newImages) => {
-          setFormData({
-            ...formData,
-            images: JSON.stringify(newImages),
-          });
-        }}
+          initialImages={parsedImages}
+          onImagesChange={(newImages) => {
+            setFormData({
+              ...formData,
+              images: JSON.stringify(newImages),
+            });
+          }}
         />
 
         <div className="flex gap-4">
