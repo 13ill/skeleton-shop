@@ -18,6 +18,16 @@ export function Header() {
   const { siteSettings } = useSiteSettings();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Get current category from URL or product detail
   const getCurrentCategory = async (): Promise<Category> => {
@@ -91,34 +101,50 @@ export function Header() {
   const isContactPage = location.pathname === '/contact';
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <Link to="/" className="block text-center mb-8">
-          <h1 className="text-2xl tracking-[0.3em] uppercase">{siteSettings.brandName}</h1>
-        </Link>
-
-        <nav className="flex justify-center gap-8 text-sm tracking-wider">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => handleCategoryClick(category)}
-              className={`uppercase transition-colors hover:text-gray-900 ${!isContactPage && activeCategory === category
-                ? "text-gray-900 border-b border-gray-900 pb-1"
-                : "text-gray-500"
-                }`}
+    <header
+      className={`sticky top-0 z-50 bg-white transition-all duration-300 ${isScrolled ? 'shadow-md' : 'shadow-sm'
+        }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Logo Section */}
+        <div className="py-6 text-center">
+          <Link to="/" className="inline-block">
+            <h1
+              className="text-3xl sm:text-4xl font-bold tracking-[0.2em] uppercase font-swarovski text-swarovski-black hover:text-swarovski-purple transition-colors duration-300"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
-              {categoryMap[category]} ({categoryCounts[category] || 0})
+              {siteSettings.brandName}
+            </h1>
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="pb-6">
+          <div className="flex justify-center gap-4 sm:gap-8 text-xs sm:text-sm tracking-wider font-medium">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => handleCategoryClick(category)}
+                className={`uppercase transition-all duration-300 hover:text-swarovski-purple ${!isContactPage && activeCategory === category
+                    ? "text-swarovski-black border-b-2 border-swarovski-purple pb-1"
+                    : "text-gray-500"
+                  }`}
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                {categoryMap[category]} ({categoryCounts[category] || 0})
+              </button>
+            ))}
+            <button
+              onClick={handleContactClick}
+              className={`uppercase transition-all duration-300 hover:text-swarovski-purple ${isContactPage
+                  ? "text-swarovski-black border-b-2 border-swarovski-purple pb-1"
+                  : "text-gray-500"
+                }`}
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              ติดต่อเรา
             </button>
-          ))}
-          <button
-            onClick={handleContactClick}
-            className={`uppercase transition-colors hover:text-gray-900 ${isContactPage
-              ? "text-gray-900 border-b border-gray-900 pb-1"
-              : "text-gray-500"
-              }`}
-          >
-            ติดต่อเรา
-          </button>
+          </div>
         </nav>
       </div>
     </header>

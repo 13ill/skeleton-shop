@@ -2,3 +2,52 @@
 @source '../**/*.{js,ts,jsx,tsx}';
 
 @import 'tw-animate-css';
+
+@theme {
+    /* Swarovski Colors */
+    --color-swarovski-black: #000000;
+    --color-swarovski-purple: #6b4c9a;
+    --color-swarovski-purple-light: #8b6cb8;
+    --color-swarovski-gold: #d4af37;
+    --color-swarovski-gold-light: #e8c869;
+    --color-swarovski-gray: #f5f5f5;
+    --color-swarovski-dark: #1a1a1a;
+
+    /* Tiffany Colors */
+    --color-tiffany-blue: #0a5ad6;
+    --color-tiffany-blue-light: #4a8aed;
+    --color-tiffany-gold: #c8a96e;
+
+    /* Cartier Colors */
+    --color-cartier-red: #b91c1c;
+    --color-cartier-red-dark: #991b1b;
+
+    /* Pandora Colors */
+    --color-pandora-pink: #e91e63;
+    --color-pandora-purple: #9c27b0;
+
+    /* Blue Nile Colors */
+    --color-bluenile-blue: #0066cc;
+    --color-bluenile-blue-light: #3388dd;
+
+    /* Font Families */
+    --font-swarovski: 'Montserrat', sans-serif;
+    --font-tiffany: 'Playfair Display', serif;
+    --font-cartier: 'Cormorant Garamond', serif;
+    --font-pandora: 'Poppins', sans-serif;
+    --font-bluenile: 'Roboto', sans-serif;
+
+    /* Spacing */
+    --spacing-section: 6rem;
+    --spacing-section-mobile: 3rem;
+
+    /* Border Radius */
+    --radius-card: 0.5rem;
+    --radius-button: 0.25rem;
+    --radius-pill: 9999px;
+
+    /* Shadows */
+    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 20px rgba(107, 76, 154, 0.3);
+}
