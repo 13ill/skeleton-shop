@@ -113,29 +113,34 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     setProducts(newProducts);
     setDraggedIndex(null);
 
-    // Update order only for the affected items (not all products)
-    const startIndex = Math.min(draggedIndex, dropIndex);
-    const endIndex = Math.max(draggedIndex, dropIndex);
-
-    console.log('[GlobalProductOrder] Updating order for items:', startIndex, 'to', endIndex);
-
+    // Bulk update all orders in one API call
+    console.log('[GlobalProductOrder] Bulk updating all orders');
     setSaving(true);
     try {
-      const endpoint = displayMode === 'interleaved' ? 'globalOrder' : 'categoryOrder';
-      for (let i = startIndex; i <= endIndex; i++) {
-        console.log('[GlobalProductOrder] Updating order:', newProducts[i].id, endpoint, i + 1);
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${newProducts[i].id}/${endpoint}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ [endpoint]: i + 1 }),
-        });
+      const orders = newProducts.map((product, index) => ({
+        id: product.id,
+        order: index + 1,
+      }));
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/bulk-order`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          mode: displayMode,
+          orders,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to bulk update orders');
       }
-      console.log('[GlobalProductOrder] Order update completed');
+
+      console.log('[GlobalProductOrder] Bulk order update completed');
     } catch (error) {
-      console.error('Error updating order:', error);
+      console.error('Error bulk updating order:', error);
       alert('Failed to update order');
       // Revert on error
       setProducts(products);

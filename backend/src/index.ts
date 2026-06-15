@@ -340,6 +340,62 @@ app.put('/products/:id/categoryOrder', authMiddleware, async (c) => {
   }
 });
 
+// Bulk update category priorities (requires auth)
+app.put('/categories/bulk-priority', authMiddleware, async (c) => {
+  try {
+    const { priorities } = await c.req.json();
+
+    if (!Array.isArray(priorities)) {
+      return c.json({ error: 'Priorities array is required' }, 400);
+    }
+
+    // Update all priorities in a transaction
+    const updatedCategories = await prisma.$transaction(
+      priorities.map((priority: { id: string; priority: number }) => {
+        return prisma.category.update({
+          where: { id: priority.id },
+          data: { priority: priority.priority },
+        });
+      })
+    );
+
+    return c.json(updatedCategories);
+  } catch (error) {
+    console.error('Error bulk updating category priorities:', error);
+    return c.json({ error: 'Failed to bulk update category priorities' }, 500);
+  }
+});
+
+// Bulk update product orders (requires auth)
+app.put('/products/bulk-order', authMiddleware, async (c) => {
+  try {
+    const { mode, orders } = await c.req.json();
+
+    if (!mode || !Array.isArray(orders)) {
+      return c.json({ error: 'Mode and orders array are required' }, 400);
+    }
+
+    // Update all orders in a transaction
+    const updatedProducts = await prisma.$transaction(
+      orders.map((order: { id: string; order: number }) => {
+        const data = mode === 'interleaved' 
+          ? { globalOrder: order.order }
+          : { categoryOrder: order.order };
+        
+        return prisma.product.update({
+          where: { id: order.id },
+          data,
+        });
+      })
+    );
+
+    return c.json(updatedProducts);
+  } catch (error) {
+    console.error('Error bulk updating product orders:', error);
+    return c.json({ error: 'Failed to bulk update product orders' }, 500);
+  }
+});
+
 // Get products with mode (interleaved or grouped)
 app.get('/products', async (c) => {
   try {

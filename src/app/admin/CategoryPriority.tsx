@@ -83,26 +83,32 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
     setCategories(updatedCategories);
     setDraggedIndex(null);
 
-    // Save only the affected items to backend
-    const startIndex = Math.min(draggedIndex, dropIndex);
-    const endIndex = Math.max(draggedIndex, dropIndex);
+    // Bulk update all priorities in one API call
+    console.log('[CategoryPriority] Bulk updating all priorities');
+    try {
+      const priorities = updatedCategories.map((category) => ({
+        id: category.id,
+        priority: category.priority,
+      }));
 
-    for (let i = startIndex; i <= endIndex; i++) {
-      try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories/${updatedCategories[i].id}/priority`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ priority: updatedCategories[i].priority }),
-        });
-      } catch (error) {
-        console.error('Error updating category priority:', error);
-        // Revert on error
-        setCategories(categories);
-        break;
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories/bulk-priority`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ priorities }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to bulk update priorities');
       }
+
+      console.log('[CategoryPriority] Bulk priority update completed');
+    } catch (error) {
+      console.error('Error bulk updating category priority:', error);
+      // Revert on error
+      setCategories(categories);
     }
   };
 
