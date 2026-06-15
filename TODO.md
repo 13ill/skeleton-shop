@@ -260,3 +260,26 @@
 - ✅ Can share category-specific URLs (e.g., `/?category=ring`)
 - ✅ Cleaner architecture - URL as single source of truth
 - ✅ Better UX - no context sync issues
+
+### Product Detail Menu Highlight - FIXED ✅ (2026-06-15)
+**Problem:** Menu highlights "ทั้งหมด" (all) on product detail pages instead of the actual product category
+
+**Root Cause:**
+- Header only checked URL search params for category
+- Product detail pages don't have category in URL
+- No logic to fetch product data and extract category
+
+**Solution:**
+- Added logic to detect product detail pages (`/product/:id`)
+- Fetch product data when on product detail page
+- Extract category from product data and highlight corresponding menu item
+- Example: Gem6 (ring) → highlight "แหวน" menu item
+
+**Files Modified:**
+- `src/app/components/Header.tsx` - Added async category detection for product detail pages
+
+**Result:**
+- ✅ Menu highlights correct category on product detail pages
+- ✅ Users can click menu to view other products in same category
+- ✅ Better UX - clear indication of product category
+- ✅ Consistent navigation experience

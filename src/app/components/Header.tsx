@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { getCategoryCounts } from "../../services/productService";
+import { getCategoryCounts, getProductById } from "../../services/productService";
 import { categoryMap, type Category } from "../../types/product";
 
 const categories: Category[] = ["all", "ring", "necklace", "bracelet", "earring"];
@@ -17,18 +17,34 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get current category from URL
-  const getCurrentCategory = (): Category => {
+  // Get current category from URL or product detail
+  const getCurrentCategory = async (): Promise<Category> => {
+    // If on product detail page, get category from product
+    if (location.pathname.startsWith('/product/')) {
+      const productId = location.pathname.split('/')[2];
+      try {
+        const product = await getProductById(productId);
+        return product?.category as Category || 'all';
+      } catch (error) {
+        console.error("Failed to load product for category:", error);
+        return 'all';
+      }
+    }
+
     const params = new URLSearchParams(location.search);
     return (params.get('category') as Category) || 'all';
   };
 
-  const [activeCategory, setActiveCategory] = useState<Category>(getCurrentCategory());
+  const [activeCategory, setActiveCategory] = useState<Category>('all');
 
   // Update active category when URL changes
   useEffect(() => {
-    setActiveCategory(getCurrentCategory());
-  }, [location.search]);
+    const updateCategory = async () => {
+      const category = await getCurrentCategory();
+      setActiveCategory(category);
+    };
+    updateCategory();
+  }, [location.pathname, location.search]);
 
   // Load category counts
   useEffect(() => {
