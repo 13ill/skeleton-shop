@@ -208,6 +208,56 @@ app.post('/products', authMiddleware, async (c) => {
   }
 });
 
+// Reorder product by moving from one position to another (requires auth)
+app.put('/products/reorder', authMiddleware, async (c) => {
+  try {
+    const { mode, fromIndex, toIndex, productId } = await c.req.json();
+
+    if (!mode || fromIndex === undefined || toIndex === undefined || !productId) {
+      return c.json({ error: 'Mode, fromIndex, toIndex, and productId are required' }, 400);
+    }
+
+    // Fetch all products with current order
+    const products = await prisma.product.findMany({
+      orderBy: mode === 'interleaved' ? { globalOrder: 'asc' } : { categoryOrder: 'asc' },
+    });
+
+    // Filter out products without order (null values)
+    const orderedProducts = products.filter(p => 
+      mode === 'interleaved' ? p.globalOrder !== null : p.categoryOrder !== null
+    );
+
+    // Find the product to move
+    const productIndex = orderedProducts.findIndex(p => p.id === productId);
+    if (productIndex === -1) {
+      return c.json({ error: 'Product not found or has no order' }, 404);
+    }
+
+    // Remove from old position and insert at new position
+    const [movedProduct] = orderedProducts.splice(productIndex, 1);
+    orderedProducts.splice(toIndex, 0, movedProduct);
+
+    // Update all orders in a transaction
+    const updatedProducts = await prisma.$transaction(
+      orderedProducts.map((product, index) => {
+        const data = mode === 'interleaved' 
+          ? { globalOrder: index + 1 }
+          : { categoryOrder: index + 1 };
+        
+        return prisma.product.update({
+          where: { id: product.id },
+          data,
+        });
+      })
+    );
+
+    return c.json(updatedProducts);
+  } catch (error) {
+    console.error('Error reordering products:', error);
+    return c.json({ error: 'Failed to reorder products' }, 500);
+  }
+});
+
 // Update product (requires auth)
 app.put('/products/:id', authMiddleware, async (c) => {
   const id = c.req.param('id');
@@ -404,56 +454,6 @@ app.put('/categories/bulk-priority', authMiddleware, async (c) => {
   } catch (error) {
     console.error('Error bulk updating category priorities:', error);
     return c.json({ error: 'Failed to bulk update category priorities' }, 500);
-  }
-});
-
-// Reorder product by moving from one position to another (requires auth)
-app.put('/products/reorder', authMiddleware, async (c) => {
-  try {
-    const { mode, fromIndex, toIndex, productId } = await c.req.json();
-
-    if (!mode || fromIndex === undefined || toIndex === undefined || !productId) {
-      return c.json({ error: 'Mode, fromIndex, toIndex, and productId are required' }, 400);
-    }
-
-    // Fetch all products with current order
-    const products = await prisma.product.findMany({
-      orderBy: mode === 'interleaved' ? { globalOrder: 'asc' } : { categoryOrder: 'asc' },
-    });
-
-    // Filter out products without order (null values)
-    const orderedProducts = products.filter(p => 
-      mode === 'interleaved' ? p.globalOrder !== null : p.categoryOrder !== null
-    );
-
-    // Find the product to move
-    const productIndex = orderedProducts.findIndex(p => p.id === productId);
-    if (productIndex === -1) {
-      return c.json({ error: 'Product not found or has no order' }, 404);
-    }
-
-    // Remove from old position and insert at new position
-    const [movedProduct] = orderedProducts.splice(productIndex, 1);
-    orderedProducts.splice(toIndex, 0, movedProduct);
-
-    // Update all orders in a transaction
-    const updatedProducts = await prisma.$transaction(
-      orderedProducts.map((product, index) => {
-        const data = mode === 'interleaved' 
-          ? { globalOrder: index + 1 }
-          : { categoryOrder: index + 1 };
-        
-        return prisma.product.update({
-          where: { id: product.id },
-          data,
-        });
-      })
-    );
-
-    return c.json(updatedProducts);
-  } catch (error) {
-    console.error('Error reordering products:', error);
-    return c.json({ error: 'Failed to reorder products' }, 500);
   }
 });
 
