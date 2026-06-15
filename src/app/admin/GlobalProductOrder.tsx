@@ -12,6 +12,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   const [products, setProducts] = useState<ProductWithImages[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -36,7 +37,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
       }
 
       const data = await response.json();
-      
+
       // Filter by category if selected
       const filteredProducts = categoryId
         ? data.filter((p: ProductWithImages) => p.categoryId === categoryId)
@@ -50,27 +51,29 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     }
   };
 
-  const handleMoveUp = async (index: number) => {
-    if (index === 0) return;
-
-    const newProducts = [...products];
-    const temp = newProducts[index];
-    newProducts[index] = newProducts[index - 1];
-    newProducts[index - 1] = temp;
-
-    setProducts(newProducts);
-    await updateOrder(newProducts);
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleMoveDown = async (index: number) => {
-    if (index === products.length - 1) return;
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
 
     const newProducts = [...products];
-    const temp = newProducts[index];
-    newProducts[index] = newProducts[index + 1];
-    newProducts[index + 1] = temp;
+    const draggedItem = newProducts[draggedIndex];
+    newProducts.splice(draggedIndex, 1);
+    newProducts.splice(dropIndex, 0, draggedItem);
 
     setProducts(newProducts);
+    setDraggedIndex(null);
+
     await updateOrder(newProducts);
   };
 
@@ -173,7 +176,14 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
           {products.map((product, index) => (
             <div
               key={product.id}
-              className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, index)}
+              className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors cursor-move ${draggedIndex === index
+                  ? 'border-[#c8a96e] bg-[#c8a96e]/10'
+                  : 'border-gray-200 hover:border-gray-300'
+                }`}
             >
               <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold text-gray-600">
                 {index + 1}
@@ -182,9 +192,14 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
               <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                 {product.images && product.images.length > 0 ? (
                   <img
-                    src={`${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`}
+                    src={product.images[0].startsWith('http')
+                      ? product.images[0]
+                      : `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`}
                     alt={product.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/placeholder.jpg';
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
@@ -201,20 +216,6 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
               </div>
 
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleMoveUp(index)}
-                  disabled={index === 0}
-                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  ↑
-                </button>
-                <button
-                  onClick={() => handleMoveDown(index)}
-                  disabled={index === products.length - 1}
-                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  ↓
-                </button>
                 <button
                   onClick={() => navigate(`/admin/products/${product.id}/edit`)}
                   className="px-3 py-1 text-sm text-[#c8a96e] hover:text-[#b0955e]"
