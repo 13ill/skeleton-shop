@@ -700,10 +700,16 @@ app.get('/site-settings', authMiddleware, async (c) => {
           heroSubtitle: 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ',
           heroButtonText: 'ดูสินค้าทั้งหมด',
           heroOverlayColor: 'rgba(0, 0, 0, 0.4)',
+          heroBorderColor: '#6b4c9a',
+          heroShowBorder: false,
           newsletterTitle: 'รับข่าวสารและโปรโมชั่นพิเศษ',
           newsletterDescription: 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด',
+          newsletterBorderColor: '#d4af37',
+          newsletterShowBorder: false,
           contactPageTitle: 'ติดต่อเรา',
           contactPageDescription: 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง',
+          contactBorderColor: '#6b4c9a',
+          contactShowBorder: false,
         },
       });
     }
@@ -729,10 +735,18 @@ app.put('/site-settings', authMiddleware, async (c) => {
       heroButtonText,
       heroBackgroundImage,
       heroOverlayColor,
+      heroBorderColor,
+      heroShowBorder,
       newsletterTitle,
       newsletterDescription,
+      newsletterBackgroundImage,
+      newsletterBorderColor,
+      newsletterShowBorder,
       contactPageTitle,
-      contactPageDescription
+      contactPageDescription,
+      contactBackgroundImage,
+      contactBorderColor,
+      contactShowBorder
     } = await c.req.json();
     
     let settings = await prisma.siteSettings.findFirst();
@@ -752,10 +766,18 @@ app.put('/site-settings', authMiddleware, async (c) => {
           heroButtonText,
           heroBackgroundImage,
           heroOverlayColor,
+          heroBorderColor,
+          heroShowBorder,
           newsletterTitle,
           newsletterDescription,
+          newsletterBackgroundImage,
+          newsletterBorderColor,
+          newsletterShowBorder,
           contactPageTitle,
           contactPageDescription,
+          contactBackgroundImage,
+          contactBorderColor,
+          contactShowBorder,
         },
       });
     } else {
@@ -772,7 +794,21 @@ app.put('/site-settings', authMiddleware, async (c) => {
           heroButtonText,
           heroBackgroundImage,
           heroOverlayColor,
-          heroButtonText,
+          heroBorderColor,
+          heroShowBorder,
+          newsletterTitle,
+          newsletterDescription,
+          newsletterBackgroundImage,
+          newsletterBorderColor,
+          newsletterShowBorder,
+          contactPageTitle,
+          contactPageDescription,
+          contactBackgroundImage,
+          contactBorderColor,
+          contactShowBorder,
+        },
+      });
+    }
           newsletterTitle,
           newsletterDescription,
           contactPageTitle,
@@ -807,10 +843,18 @@ app.get('/public/site-settings', async (c) => {
         heroButtonText: 'ดูสินค้าทั้งหมด',
         heroBackgroundImage: null,
         heroOverlayColor: 'rgba(0, 0, 0, 0.4)',
+        heroBorderColor: '#6b4c9a',
+        heroShowBorder: false,
         newsletterTitle: 'รับข่าวสารและโปรโมชั่นพิเศษ',
         newsletterDescription: 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด',
+        newsletterBackgroundImage: null,
+        newsletterBorderColor: '#d4af37',
+        newsletterShowBorder: false,
         contactPageTitle: 'ติดต่อเรา',
         contactPageDescription: 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง',
+        contactBackgroundImage: null,
+        contactBorderColor: '#6b4c9a',
+        contactShowBorder: false,
       };
     }
     

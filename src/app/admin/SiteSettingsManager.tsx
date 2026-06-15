@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './authContext';
 import { env } from '../../config/env';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface SiteSettings {
   id: string;
@@ -16,10 +16,18 @@ interface SiteSettings {
   heroButtonText: string | null;
   heroBackgroundImage: string | null;
   heroOverlayColor: string | null;
+  heroBorderColor: string | null;
+  heroShowBorder: boolean;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
+  newsletterBackgroundImage: string | null;
+  newsletterBorderColor: string | null;
+  newsletterShowBorder: boolean;
   contactPageTitle: string | null;
   contactPageDescription: string | null;
+  contactBackgroundImage: string | null;
+  contactBorderColor: string | null;
+  contactShowBorder: boolean;
 }
 
 export function SiteSettingsManager() {
@@ -37,16 +45,24 @@ export function SiteSettingsManager() {
     heroButtonText: '',
     heroBackgroundImage: null,
     heroOverlayColor: 'rgba(0, 0, 0, 0.4)',
+    heroBorderColor: '#6b4c9a',
+    heroShowBorder: false,
     newsletterTitle: '',
     newsletterDescription: '',
+    newsletterBackgroundImage: null,
+    newsletterBorderColor: '#d4af37',
+    newsletterShowBorder: false,
     contactPageTitle: '',
     contactPageDescription: '',
+    contactBackgroundImage: null,
+    contactBorderColor: '#6b4c9a',
+    contactShowBorder: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'brand' | 'hero' | 'newsletter' | 'contact'>('brand');
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSettings();
@@ -75,11 +91,11 @@ export function SiteSettingsManager() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploading(true);
+    setUploading(field);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -97,16 +113,16 @@ export function SiteSettingsManager() {
       }
 
       const data = await response.json();
-      setSettings({ ...settings, heroBackgroundImage: data.url });
+      setSettings({ ...settings, [field]: data.url });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
   };
 
-  const handleRemoveImage = () => {
-    setSettings({ ...settings, heroBackgroundImage: null });
+  const handleRemoveImage = (field: string) => {
+    setSettings({ ...settings, [field]: null });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,6 +154,111 @@ export function SiteSettingsManager() {
       setSaving(false);
     }
   };
+
+  const ImageUploadSection = ({
+    label,
+    field,
+    image,
+    onRemove
+  }: {
+    label: string;
+    field: string;
+    image: string | null;
+    onRemove: () => void;
+  }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label}
+      </label>
+      <div className="space-y-4">
+        {image ? (
+          <div className="relative">
+            <img
+              src={image}
+              alt={label}
+              className="w-full h-48 object-cover rounded-lg"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.svg';
+              }}
+            />
+            <button
+              type="button"
+              onClick={onRemove}
+              className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <ImageIcon size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-sm text-gray-500 mb-4">No image uploaded</p>
+          </div>
+        )}
+        <label className="flex items-center justify-center gap-2 px-4 py-2 bg-swarovski-purple text-white rounded-lg hover:bg-swarovski-purple-light transition-colors cursor-pointer">
+          <Upload size={18} />
+          {uploading === field ? 'Uploading...' : 'Upload Image'}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleImageUpload(e, field)}
+            className="hidden"
+            disabled={uploading === field}
+          />
+        </label>
+      </div>
+    </div>
+  );
+
+  const BorderControlSection = ({
+    borderColor,
+    showBorder,
+    onBorderColorChange,
+    onShowBorderChange
+  }: {
+    borderColor: string | null;
+    showBorder: boolean;
+    onBorderColorChange: (color: string) => void;
+    onShowBorderChange: (show: boolean) => void;
+  }) => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-medium text-gray-700">
+          Show Border
+        </label>
+        <button
+          type="button"
+          onClick={() => onShowBorderChange(!showBorder)}
+          className="flex items-center gap-2"
+        >
+          {showBorder ? <ToggleRight size={24} className="text-swarovski-purple" /> : <ToggleLeft size={24} className="text-gray-400" />}
+        </button>
+      </div>
+
+      {showBorder && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Border Color
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={borderColor || '#6b4c9a'}
+              onChange={(e) => onBorderColorChange(e.target.value)}
+              placeholder="#6b4c9a"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+            />
+            <input
+              type="color"
+              value={borderColor || '#6b4c9a'}
+              onChange={(e) => onBorderColorChange(e.target.value)}
+              className="w-12 h-10 rounded cursor-pointer"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   if (loading) {
     return <div className="text-gray-500">Loading...</div>;
@@ -319,50 +440,12 @@ export function SiteSettingsManager() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Hero Background Image
-              </label>
-              <div className="space-y-4">
-                {settings.heroBackgroundImage ? (
-                  <div className="relative">
-                    <img
-                      src={settings.heroBackgroundImage}
-                      alt="Hero Background"
-                      className="w-full h-48 object-cover rounded-lg"
-                      onError={(e) => {
-                        e.currentTarget.src = '/placeholder.svg';
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <ImageIcon size={48} className="mx-auto text-gray-400 mb-4" />
-                    <p className="text-sm text-gray-500 mb-4">No image uploaded</p>
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-swarovski-purple text-white rounded-lg hover:bg-swarovski-purple-light transition-colors cursor-pointer">
-                    <Upload size={18} />
-                    {uploading ? 'Uploading...' : 'Upload Image'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      disabled={uploading}
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
+            <ImageUploadSection
+              label="Hero Background Image"
+              field="heroBackgroundImage"
+              image={settings.heroBackgroundImage}
+              onRemove={() => handleRemoveImage('heroBackgroundImage')}
+            />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -392,6 +475,13 @@ export function SiteSettingsManager() {
               <p className="text-xs text-gray-500 mt-1">Format: rgba(r, g, b, a) e.g., rgba(0, 0, 0, 0.4)</p>
             </div>
 
+            <BorderControlSection
+              borderColor={settings.heroBorderColor}
+              showBorder={settings.heroShowBorder}
+              onBorderColorChange={(color) => setSettings({ ...settings, heroBorderColor: color })}
+              onShowBorderChange={(show) => setSettings({ ...settings, heroShowBorder: show })}
+            />
+
             {/* Preview */}
             <div className="mt-6 p-4 bg-swarovski-gray rounded-lg">
               <p className="text-xs text-gray-500 mb-2">Preview:</p>
@@ -401,6 +491,7 @@ export function SiteSettingsManager() {
                   backgroundImage: settings.heroBackgroundImage ? `url(${settings.heroBackgroundImage})` : 'none',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
+                  border: settings.heroShowBorder ? `4px solid ${settings.heroBorderColor}` : 'none',
                 }}
               >
                 <div
@@ -410,9 +501,11 @@ export function SiteSettingsManager() {
                 <div className="relative z-10">
                   <h3 className="text-2xl font-bold mb-2 text-white">{settings.heroTitle || 'เครื่องประดับที่สะท้อนความเป็นคุณ'}</h3>
                   <p className="text-white/80 mb-4">{settings.heroSubtitle || 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ'}</p>
-                  <button className="px-6 py-3 bg-swarovski-black text-white rounded-lg">
-                    {settings.heroButtonText || 'ดูสินค้าทั้งหมด'}
-                  </button>
+                  {settings.heroButtonText && (
+                    <button className="px-6 py-3 bg-swarovski-black text-white rounded-lg">
+                      {settings.heroButtonText}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -448,12 +541,37 @@ export function SiteSettingsManager() {
               />
             </div>
 
+            <ImageUploadSection
+              label="Newsletter Background Image"
+              field="newsletterBackgroundImage"
+              image={settings.newsletterBackgroundImage}
+              onRemove={() => handleRemoveImage('newsletterBackgroundImage')}
+            />
+
+            <BorderControlSection
+              borderColor={settings.newsletterBorderColor}
+              showBorder={settings.newsletterShowBorder}
+              onBorderColorChange={(color) => setSettings({ ...settings, newsletterBorderColor: color })}
+              onShowBorderChange={(show) => setSettings({ ...settings, newsletterShowBorder: show })}
+            />
+
             {/* Preview */}
-            <div className="mt-6 p-4 bg-swarovski-purple rounded-lg">
-              <p className="text-xs text-white/80 mb-2">Preview:</p>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold mb-2 text-white">{settings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}</h3>
-                <p className="text-white/80 mb-4">{settings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}</p>
+            <div className="mt-6 p-4 bg-swarovski-gray rounded-lg">
+              <p className="text-xs text-gray-500 mb-2">Preview:</p>
+              <div
+                className="text-center p-8 rounded-lg"
+                style={{
+                  backgroundImage: settings.newsletterBackgroundImage ? `url(${settings.newsletterBackgroundImage})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  border: settings.newsletterShowBorder ? `4px solid ${settings.newsletterBorderColor}` : 'none',
+                  backgroundColor: !settings.newsletterBackgroundImage ? '#6b4c9a' : undefined,
+                }}
+              >
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-bold mb-2 text-white">{settings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}</h3>
+                  <p className="text-white/80 mb-4">{settings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -488,12 +606,37 @@ export function SiteSettingsManager() {
               />
             </div>
 
+            <ImageUploadSection
+              label="Contact Page Background Image"
+              field="contactBackgroundImage"
+              image={settings.contactBackgroundImage}
+              onRemove={() => handleRemoveImage('contactBackgroundImage')}
+            />
+
+            <BorderControlSection
+              borderColor={settings.contactBorderColor}
+              showBorder={settings.contactShowBorder}
+              onBorderColorChange={(color) => setSettings({ ...settings, contactBorderColor: color })}
+              onShowBorderChange={(show) => setSettings({ ...settings, contactShowBorder: show })}
+            />
+
             {/* Preview */}
             <div className="mt-6 p-4 bg-swarovski-gray rounded-lg">
               <p className="text-xs text-gray-500 mb-2">Preview:</p>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold mb-2">{settings.contactPageTitle || 'ติดต่อเรา'}</h3>
-                <p className="text-gray-600">{settings.contactPageDescription || 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง'}</p>
+              <div
+                className="text-center p-8 rounded-lg"
+                style={{
+                  backgroundImage: settings.contactBackgroundImage ? `url(${settings.contactBackgroundImage})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  border: settings.contactShowBorder ? `4px solid ${settings.contactBorderColor}` : 'none',
+                  backgroundColor: !settings.contactBackgroundImage ? '#6b4c9a' : undefined,
+                }}
+              >
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-bold mb-2 text-white">{settings.contactPageTitle || 'ติดต่อเรา'}</h3>
+                  <p className="text-white/80">{settings.contactPageDescription || 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง'}</p>
+                </div>
               </div>
             </div>
           </div>

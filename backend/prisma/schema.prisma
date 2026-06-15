@@ -82,14 +82,22 @@ model SiteSettings {
   heroButtonText  String?
   heroBackgroundImage String?
   heroOverlayColor String?
+  heroBorderColor String?
+  heroShowBorder Boolean @default(false)
   
   // Newsletter Section
   newsletterTitle       String?
   newsletterDescription String?
+  newsletterBackgroundImage String?
+  newsletterBorderColor String?
+  newsletterShowBorder Boolean @default(false)
   
   // Contact Page
   contactPageTitle       String?
   contactPageDescription String?
+  contactBackgroundImage String?
+  contactBorderColor String?
+  contactShowBorder Boolean @default(false)
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

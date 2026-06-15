@@ -13,10 +13,18 @@ interface SiteSettings {
   heroButtonText: string | null;
   heroBackgroundImage: string | null;
   heroOverlayColor: string | null;
+  heroBorderColor: string | null;
+  heroShowBorder: boolean;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
+  newsletterBackgroundImage: string | null;
+  newsletterBorderColor: string | null;
+  newsletterShowBorder: boolean;
   contactPageTitle: string | null;
   contactPageDescription: string | null;
+  contactBackgroundImage: string | null;
+  contactBorderColor: string | null;
+  contactShowBorder: boolean;
 }
 
 interface SiteSettingsContextType {
@@ -38,10 +46,18 @@ const defaultSettings: SiteSettings = {
   heroButtonText: null,
   heroBackgroundImage: null,
   heroOverlayColor: null,
+  heroBorderColor: null,
+  heroShowBorder: false,
   newsletterTitle: null,
   newsletterDescription: null,
+  newsletterBackgroundImage: null,
+  newsletterBorderColor: null,
+  newsletterShowBorder: false,
   contactPageTitle: null,
   contactPageDescription: null,
+  contactBackgroundImage: null,
+  contactBorderColor: null,
+  contactShowBorder: false,
 };
 
 export function SiteSettingsProvider({ children }: { children: ReactNode }) {
