@@ -92,18 +92,20 @@ export function Home() {
               className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
-              เครื่องประดับที่สะท้อน
-              <span className="block text-swarovski-purple mt-2">ความเป็นคุณ</span>
+              {siteSettings.heroTitle || 'เครื่องประดับที่สะท้อน'}
+              <span className="block text-swarovski-purple mt-2">
+                {siteSettings.heroSubtitle?.split('\n')[0] || 'ความเป็นคุณ'}
+              </span>
             </h1>
             <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              {siteSettings.tagline || "เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ"}
+              {siteSettings.heroSubtitle?.split('\n')[1] || siteSettings.tagline || "เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ"}
             </p>
             <Link
               to="/"
               className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-purple transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
-              ดูสินค้าทั้งหมด
+              {siteSettings.heroButtonText || 'ดูสินค้าทั้งหมด'}
             </Link>
           </motion.div>
         </div>
@@ -289,10 +291,10 @@ export function Home() {
               className="text-3xl font-bold mb-4 text-white"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
-              รับข่าวสารและโปรโมชั่นพิเศษ
+              {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
             </h2>
             <p className="text-white/80 mb-8 max-w-xl mx-auto">
-              สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด
+              {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
