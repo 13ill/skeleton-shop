@@ -340,6 +340,47 @@ app.put('/products/:id/categoryOrder', authMiddleware, async (c) => {
   }
 });
 
+// Reorder category by moving from one position to another (requires auth)
+app.put('/categories/reorder', authMiddleware, async (c) => {
+  try {
+    const { fromIndex, toIndex, categoryId } = await c.req.json();
+
+    if (fromIndex === undefined || toIndex === undefined || !categoryId) {
+      return c.json({ error: 'fromIndex, toIndex, and categoryId are required' }, 400);
+    }
+
+    // Fetch all categories with current priority
+    const categories = await prisma.category.findMany({
+      orderBy: { priority: 'asc' },
+    });
+
+    // Find the category to move
+    const categoryIndex = categories.findIndex(c => c.id === categoryId);
+    if (categoryIndex === -1) {
+      return c.json({ error: 'Category not found' }, 404);
+    }
+
+    // Remove from old position and insert at new position
+    const [movedCategory] = categories.splice(categoryIndex, 1);
+    categories.splice(toIndex, 0, movedCategory);
+
+    // Update all priorities in a transaction
+    const updatedCategories = await prisma.$transaction(
+      categories.map((category, index) => {
+        return prisma.category.update({
+          where: { id: category.id },
+          data: { priority: index + 1 },
+        });
+      })
+    );
+
+    return c.json(updatedCategories);
+  } catch (error) {
+    console.error('Error reordering categories:', error);
+    return c.json({ error: 'Failed to reorder categories' }, 500);
+  }
+});
+
 // Bulk update category priorities (requires auth)
 app.put('/categories/bulk-priority', authMiddleware, async (c) => {
   try {
@@ -363,6 +404,51 @@ app.put('/categories/bulk-priority', authMiddleware, async (c) => {
   } catch (error) {
     console.error('Error bulk updating category priorities:', error);
     return c.json({ error: 'Failed to bulk update category priorities' }, 500);
+  }
+});
+
+// Reorder product by moving from one position to another (requires auth)
+app.put('/products/reorder', authMiddleware, async (c) => {
+  try {
+    const { mode, fromIndex, toIndex, productId } = await c.req.json();
+
+    if (!mode || fromIndex === undefined || toIndex === undefined || !productId) {
+      return c.json({ error: 'Mode, fromIndex, toIndex, and productId are required' }, 400);
+    }
+
+    // Fetch all products with current order
+    const products = await prisma.product.findMany({
+      orderBy: mode === 'interleaved' ? { globalOrder: 'asc' } : { categoryOrder: 'asc' },
+    });
+
+    // Find the product to move
+    const productIndex = products.findIndex(p => p.id === productId);
+    if (productIndex === -1) {
+      return c.json({ error: 'Product not found' }, 404);
+    }
+
+    // Remove from old position and insert at new position
+    const [movedProduct] = products.splice(productIndex, 1);
+    products.splice(toIndex, 0, movedProduct);
+
+    // Update all orders in a transaction
+    const updatedProducts = await prisma.$transaction(
+      products.map((product, index) => {
+        const data = mode === 'interleaved' 
+          ? { globalOrder: index + 1 }
+          : { categoryOrder: index + 1 };
+        
+        return prisma.product.update({
+          where: { id: product.id },
+          data,
+        });
+      })
+    );
+
+    return c.json(updatedProducts);
+  } catch (error) {
+    console.error('Error reordering products:', error);
+    return c.json({ error: 'Failed to reorder products' }, 500);
   }
 });
 

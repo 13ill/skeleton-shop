@@ -114,16 +114,11 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     setProducts(newProducts);
     setDraggedIndex(null);
 
-    // Bulk update all orders in one API call
-    console.log('[GlobalProductOrder] Bulk updating all orders');
+    // Send only fromIndex, toIndex, and productId to backend
+    console.log('[GlobalProductOrder] Reordering product:', { from: draggedIndex, to: dropIndex, productId: draggedItem.id });
     setSaving(true);
     try {
-      const orders = newProducts.map((product, index) => ({
-        id: product.id,
-        order: index + 1,
-      }));
-
-      const response = await fetch(`${env.API_BASE_URL}/products/bulk-order`, {
+      const response = await fetch(`${env.API_BASE_URL}/products/reorder`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -131,17 +126,19 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
         },
         body: JSON.stringify({
           mode: displayMode,
-          orders,
+          fromIndex: draggedIndex,
+          toIndex: dropIndex,
+          productId: draggedItem.id,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to bulk update orders');
+        throw new Error('Failed to reorder product');
       }
 
-      console.log('[GlobalProductOrder] Bulk order update completed');
+      console.log('[GlobalProductOrder] Reorder completed');
     } catch (error) {
-      console.error('Error bulk updating order:', error);
+      console.error('Error reordering product:', error);
       alert('Failed to update order');
       // Revert on error
       setProducts(products);

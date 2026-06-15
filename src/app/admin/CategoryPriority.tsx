@@ -84,30 +84,29 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
     setCategories(updatedCategories);
     setDraggedIndex(null);
 
-    // Bulk update all priorities in one API call
-    console.log('[CategoryPriority] Bulk updating all priorities');
+    // Send only fromIndex, toIndex, and categoryId to backend
+    console.log('[CategoryPriority] Reordering category:', { from: draggedIndex, to: dropIndex, categoryId: draggedItem.id });
     try {
-      const priorities = updatedCategories.map((category) => ({
-        id: category.id,
-        priority: category.priority,
-      }));
-
-      const response = await fetch(`${env.API_BASE_URL}/categories/bulk-priority`, {
+      const response = await fetch(`${env.API_BASE_URL}/categories/reorder`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ priorities }),
+        body: JSON.stringify({
+          fromIndex: draggedIndex,
+          toIndex: dropIndex,
+          categoryId: draggedItem.id,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to bulk update priorities');
+        throw new Error('Failed to reorder category');
       }
 
-      console.log('[CategoryPriority] Bulk priority update completed');
+      console.log('[CategoryPriority] Reorder completed');
     } catch (error) {
-      console.error('Error bulk updating category priority:', error);
+      console.error('Error reordering category:', error);
       // Revert on error
       setCategories(categories);
     }
