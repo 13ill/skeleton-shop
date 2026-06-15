@@ -809,13 +809,6 @@ app.put('/site-settings', authMiddleware, async (c) => {
         },
       });
     }
-          newsletterTitle,
-          newsletterDescription,
-          contactPageTitle,
-          contactPageDescription,
-        },
-      });
-    }
     
     return c.json(settings);
   } catch (error) {
