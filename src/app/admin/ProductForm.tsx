@@ -72,6 +72,9 @@ export function ProductForm() {
         specifications: JSON.stringify(product.specifications || {}, null, 2),
         images: JSON.stringify(product.images || []),
       });
+
+      // Update parsedImages after formData is updated
+      setParsedImages(product.images || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch product');
     }
