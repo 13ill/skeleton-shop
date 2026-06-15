@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { env } from '../../config/env';
 
 interface ImageUploadProps {
@@ -10,6 +10,11 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
   const [images, setImages] = useState<string[]>(initialImages);
   const [uploading, setUploading] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  // Sync images when initialImages changes
+  useEffect(() => {
+    setImages(initialImages);
+  }, [initialImages]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
