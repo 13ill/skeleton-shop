@@ -101,8 +101,8 @@ export function Home() {
         <button
           onClick={() => setDisplayMode('interleaved')}
           className={`px-4 py-2 rounded-md transition-colors ${displayMode === 'interleaved'
-              ? 'bg-[#c8a96e] text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ? 'bg-[#c8a96e] text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
         >
           สลับหมวดหมู่
@@ -110,8 +110,8 @@ export function Home() {
         <button
           onClick={() => setDisplayMode('grouped')}
           className={`px-4 py-2 rounded-md transition-colors ${displayMode === 'grouped'
-              ? 'bg-[#c8a96e] text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ? 'bg-[#c8a96e] text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
         >
           แยกหมวดหมู่
@@ -132,9 +132,14 @@ export function Home() {
             >
               <div className="relative overflow-hidden bg-gray-50 aspect-[3/4] mb-4">
                 <img
-                  src={product.images[0] || '/placeholder.jpg'}
+                  src={product.images[0]?.startsWith('/uploads')
+                    ? `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`
+                    : product.images[0] || '/placeholder.svg'}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
                 />
               </div>
 

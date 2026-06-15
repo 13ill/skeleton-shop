@@ -181,8 +181,8 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, index)}
               className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors cursor-move ${draggedIndex === index
-                  ? 'border-[#c8a96e] bg-[#c8a96e]/10'
-                  : 'border-gray-200 hover:border-gray-300'
+                ? 'border-[#c8a96e] bg-[#c8a96e]/10'
+                : 'border-gray-200 hover:border-gray-300'
                 }`}
             >
               <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold text-gray-600">
@@ -194,11 +194,13 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
                   <img
                     src={product.images[0].startsWith('http')
                       ? product.images[0]
-                      : `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`}
+                      : product.images[0].startsWith('/uploads')
+                        ? `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`
+                        : product.images[0]}
                     alt={product.name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = '/placeholder.jpg';
+                      e.currentTarget.src = '/placeholder.svg';
                     }}
                   />
                 ) : (
