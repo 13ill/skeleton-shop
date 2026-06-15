@@ -421,19 +421,24 @@ app.put('/products/reorder', authMiddleware, async (c) => {
       orderBy: mode === 'interleaved' ? { globalOrder: 'asc' } : { categoryOrder: 'asc' },
     });
 
+    // Filter out products without order (null values)
+    const orderedProducts = products.filter(p => 
+      mode === 'interleaved' ? p.globalOrder !== null : p.categoryOrder !== null
+    );
+
     // Find the product to move
-    const productIndex = products.findIndex(p => p.id === productId);
+    const productIndex = orderedProducts.findIndex(p => p.id === productId);
     if (productIndex === -1) {
-      return c.json({ error: 'Product not found' }, 404);
+      return c.json({ error: 'Product not found or has no order' }, 404);
     }
 
     // Remove from old position and insert at new position
-    const [movedProduct] = products.splice(productIndex, 1);
-    products.splice(toIndex, 0, movedProduct);
+    const [movedProduct] = orderedProducts.splice(productIndex, 1);
+    orderedProducts.splice(toIndex, 0, movedProduct);
 
     // Update all orders in a transaction
     const updatedProducts = await prisma.$transaction(
-      products.map((product, index) => {
+      orderedProducts.map((product, index) => {
         const data = mode === 'interleaved' 
           ? { globalOrder: index + 1 }
           : { categoryOrder: index + 1 };
