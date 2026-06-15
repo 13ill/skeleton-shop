@@ -85,7 +85,6 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
     setDraggedIndex(null);
 
     // Send only fromIndex, toIndex, and categoryId to backend
-    console.log('[CategoryPriority] Reordering category:', { from: draggedIndex, to: dropIndex, categoryId: draggedItem.id });
     try {
       const response = await fetch(`${env.API_BASE_URL}/categories/reorder`, {
         method: 'PUT',
@@ -103,8 +102,6 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
       if (!response.ok) {
         throw new Error('Failed to reorder category');
       }
-
-      console.log('[CategoryPriority] Reorder completed');
     } catch (error) {
       console.error('Error reordering category:', error);
       // Revert on error

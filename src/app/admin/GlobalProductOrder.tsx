@@ -33,7 +33,6 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   const fetchProducts = useCallback(async () => {
     if (!token) return;
 
-    console.log('[GlobalProductOrder] Fetching products...', { categoryId: categoryIdRef.current, displayMode: displayModeRef.current });
     setLoading(true);
     try {
       const mode = displayModeRef.current === 'interleaved' ? 'interleaved' : 'grouped';
@@ -48,14 +47,12 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
       }
 
       const data = await response.json();
-      console.log('[GlobalProductOrder] Fetched products:', data.length);
 
       // Filter by category if selected
       const filteredProducts = categoryIdRef.current
         ? data.filter((p: ProductWithImages) => p.categoryId === categoryIdRef.current)
         : data;
 
-      console.log('[GlobalProductOrder] Filtered products:', filteredProducts.length);
       setProducts(filteredProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -67,7 +64,6 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   useEffect(() => {
     // Always fetch on initial mount
     if (isInitialMountRef.current) {
-      console.log('[GlobalProductOrder] Initial mount, fetching products');
       fetchProducts();
       isInitialMountRef.current = false;
       prevCategoryIdRef.current = categoryId;
@@ -77,12 +73,6 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
 
     // Only fetch if categoryId or displayMode actually changed
     if (prevCategoryIdRef.current !== categoryId || prevDisplayModeRef.current !== displayMode) {
-      console.log('[GlobalProductOrder] Props changed, fetching products', {
-        prevCategoryId: prevCategoryIdRef.current,
-        newCategoryId: categoryId,
-        prevDisplayMode: prevDisplayModeRef.current,
-        newDisplayMode: displayMode
-      });
       fetchProducts();
       prevCategoryIdRef.current = categoryId;
       prevDisplayModeRef.current = displayMode;
@@ -104,8 +94,6 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
 
     if (draggedIndex === null || draggedIndex === dropIndex) return;
 
-    console.log('[GlobalProductOrder] Drag and drop:', { from: draggedIndex, to: dropIndex });
-
     const newProducts = [...products];
     const draggedItem = newProducts[draggedIndex];
     newProducts.splice(draggedIndex, 1);
@@ -115,7 +103,6 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     setDraggedIndex(null);
 
     // Send only fromIndex, toIndex, and productId to backend
-    console.log('[GlobalProductOrder] Reordering product:', { from: draggedIndex, to: dropIndex, productId: draggedItem.id });
     setSaving(true);
     try {
       const response = await fetch(`${env.API_BASE_URL}/products/reorder`, {
@@ -135,8 +122,6 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
       if (!response.ok) {
         throw new Error('Failed to reorder product');
       }
-
-      console.log('[GlobalProductOrder] Reorder completed');
     } catch (error) {
       console.error('Error reordering product:', error);
       alert('Failed to update order');
