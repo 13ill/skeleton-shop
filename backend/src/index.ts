@@ -696,6 +696,13 @@ app.get('/site-settings', authMiddleware, async (c) => {
           tagline: 'เครื่องประดับเพชรพลอยคุณภาพสูง',
           address: '123 ถนนสุขุมวิท ซอย 11\nแขวคลองตียเหนือ เขตวัฒณา\nกรุงเทพมหานคร 10110',
           openingHours: 'จันร์ - เสาร์  10:00 - 19:00 น.',
+          heroTitle: 'เครื่องประดับที่สะท้อนความเป็นคุณ',
+          heroSubtitle: 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ',
+          heroButtonText: 'ดูสินค้าทั้งหมด',
+          newsletterTitle: 'รับข่าวสารและโปรโมชั่นพิเศษ',
+          newsletterDescription: 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด',
+          contactPageTitle: 'ติดต่อเรา',
+          contactPageDescription: 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง',
         },
       });
     }
@@ -709,7 +716,21 @@ app.get('/site-settings', authMiddleware, async (c) => {
 
 app.put('/site-settings', authMiddleware, async (c) => {
   try {
-    const { brandName, tagline, address, openingHours, phone, email } = await c.req.json();
+    const { 
+      brandName, 
+      tagline, 
+      address, 
+      openingHours, 
+      phone, 
+      email,
+      heroTitle,
+      heroSubtitle,
+      heroButtonText,
+      newsletterTitle,
+      newsletterDescription,
+      contactPageTitle,
+      contactPageDescription
+    } = await c.req.json();
     
     let settings = await prisma.siteSettings.findFirst();
     
@@ -723,6 +744,13 @@ app.put('/site-settings', authMiddleware, async (c) => {
           openingHours,
           phone,
           email,
+          heroTitle,
+          heroSubtitle,
+          heroButtonText,
+          newsletterTitle,
+          newsletterDescription,
+          contactPageTitle,
+          contactPageDescription,
         },
       });
     } else {
@@ -734,6 +762,13 @@ app.put('/site-settings', authMiddleware, async (c) => {
           openingHours,
           phone,
           email,
+          heroTitle,
+          heroSubtitle,
+          heroButtonText,
+          newsletterTitle,
+          newsletterDescription,
+          contactPageTitle,
+          contactPageDescription,
         },
       });
     }
@@ -759,6 +794,13 @@ app.get('/public/site-settings', async (c) => {
         openingHours: 'จันร์ - เสาร์  10:00 - 19:00 น.',
         phone: '',
         email: '',
+        heroTitle: 'เครื่องประดับที่สะท้อนความเป็นคุณ',
+        heroSubtitle: 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ',
+        heroButtonText: 'ดูสินค้าทั้งหมด',
+        newsletterTitle: 'รับข่าวสารและโปรโมชั่นพิเศษ',
+        newsletterDescription: 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด',
+        contactPageTitle: 'ติดต่อเรา',
+        contactPageDescription: 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง',
       };
     }
     

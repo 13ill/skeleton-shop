@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { env } from '../../config/env';
+import { MapPin, Mail, Phone, MessageCircle, Send } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 
 interface SocialLink {
   id: string;
@@ -15,15 +18,17 @@ interface SiteSettings {
   openingHours: string | null;
   phone: string | null;
   email: string | null;
+  contactPageTitle: string | null;
+  contactPageDescription: string | null;
 }
 
-const PLATFORM_INFO: Record<string, { label: string; icon: string; color: string }> = {
-  line: { label: 'LINE', icon: '💬', color: 'bg-green-500' },
-  facebook: { label: 'Facebook', icon: '📘', color: 'bg-blue-600' },
-  instagram: { label: 'Instagram', icon: '📷', color: 'bg-pink-600' },
-  phone: { label: 'Phone', icon: '📞', color: 'bg-gray-600' },
-  email: { label: 'Email', icon: '📧', color: 'bg-red-500' },
-  qrcode: { label: 'QR Code', icon: '📱', color: 'bg-purple-600' },
+const PLATFORM_INFO: Record<string, { label: string; icon: any; color: string }> = {
+  line: { label: 'LINE', icon: MessageCircle, color: 'bg-green-500' },
+  facebook: { label: 'Facebook', icon: MessageCircle, color: 'bg-blue-600' },
+  instagram: { label: 'Instagram', icon: MessageCircle, color: 'bg-pink-600' },
+  phone: { label: 'Phone', icon: Phone, color: 'bg-gray-600' },
+  email: { label: 'Email', icon: Mail, color: 'bg-red-500' },
+  qrcode: { label: 'QR Code', icon: MessageCircle, color: 'bg-purple-600' },
 };
 
 export function Contact() {
@@ -35,8 +40,11 @@ export function Contact() {
     openingHours: null,
     phone: null,
     email: null,
+    contactPageTitle: null,
+    contactPageDescription: null,
   });
   const [loading, setLoading] = useState(true);
+  const { siteSettings: globalSettings } = useSiteSettings();
 
   useEffect(() => {
     fetchData();
@@ -73,7 +81,6 @@ export function Contact() {
     } else if (platform === 'line') {
       window.open(url, '_blank');
     } else if (platform === 'qrcode') {
-      // QR code is displayed as image, no action needed
       return;
     } else {
       window.open(url, '_blank');
@@ -82,97 +89,218 @@ export function Contact() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center text-gray-500">กำลังโหลด...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-swarovski-purple border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-500">กำลังโหลด...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">ติดต่อเรา</h1>
-
-      <div className="bg-white rounded-lg shadow p-8">
-        <div className="mb-8 text-center">
-          <h2 className="text-xl font-bold mb-2">{siteSettings.brandName}</h2>
-          {siteSettings.tagline && (
-            <p className="text-gray-600">{siteSettings.tagline}</p>
-          )}
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-swarovski-purple to-swarovski-black py-20 md:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <h1
+              className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white tracking-tight"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              {siteSettings.contactPageTitle || 'ติดต่อเรา'}
+            </h1>
+            <p className="text-lg sm:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
+              {siteSettings.contactPageDescription || 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง'}
+            </p>
+          </motion.div>
         </div>
+      </section>
 
-        {siteSettings.address && (
-          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-bold mb-2">ที่อตั้ง</h3>
-            <p className="text-gray-600 whitespace-pre-line">{siteSettings.address}</p>
+      {/* Contact Info Cards */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {siteSettings.address && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="bg-swarovski-gray p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-swarovski-purple rounded-full flex items-center justify-center mb-4">
+                  <MapPin size={24} className="text-white" />
+                </div>
+                <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>ที่อยู่</h3>
+                <p className="text-gray-600 whitespace-pre-line">{siteSettings.address}</p>
+              </motion.div>
+            )}
+
+            {siteSettings.phone && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="bg-swarovski-gray p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-swarovski-purple rounded-full flex items-center justify-center mb-4">
+                  <Phone size={24} className="text-white" />
+                </div>
+                <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>โทรศัพท์</h3>
+                <a href={`tel:${siteSettings.phone}`} className="text-gray-600 hover:text-swarovski-purple transition-colors">
+                  {siteSettings.phone}
+                </a>
+              </motion.div>
+            )}
+
+            {siteSettings.email && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-swarovski-gray p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-swarovski-purple rounded-full flex items-center justify-center mb-4">
+                  <Mail size={24} className="text-white" />
+                </div>
+                <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>อีเมล</h3>
+                <a href={`mailto:${siteSettings.email}`} className="text-gray-600 hover:text-swarovski-purple transition-colors">
+                  {siteSettings.email}
+                </a>
+              </motion.div>
+            )}
           </div>
-        )}
+        </div>
+      </section>
 
-        {siteSettings.openingHours && (
-          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-bold mb-2">เวลาทำการ</h3>
-            <p className="text-gray-600">{siteSettings.openingHours}</p>
-          </div>
-        )}
+      {/* Social Links */}
+      {socialLinks.length > 0 && (
+        <section className="py-16 bg-swarovski-gray">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2
+              className="text-2xl font-bold mb-8 text-center"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              ช่องทางการติดต่อ
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {socialLinks.map((link) => {
+                const info = PLATFORM_INFO[link.platform];
+                if (!info) return null;
+                const Icon = info.icon;
 
-        {socialLinks.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            ยังไม่มีข้อมูลการติดต่อ
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {socialLinks.map((link) => {
-              const info = PLATFORM_INFO[link.platform];
-              if (!info) return null;
-
-              if (link.platform === 'qrcode') {
-                return (
-                  <div key={link.id} className="text-center p-6 bg-gray-50 rounded-lg">
-                    <div className="text-4xl mb-4">{info.icon}</div>
-                    <h3 className="font-bold mb-4">{info.label}</h3>
-                    <div className="bg-white p-4 rounded-lg inline-block">
-                      <img
-                        src={link.url}
-                        alt="QR Code"
-                        className="w-48 h-48 object-contain"
-                        onError={(e) => {
-                          e.currentTarget.src = '/placeholder.svg';
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              }
-
-              return (
-                <button
-                  key={link.id}
-                  onClick={() => handleClick(link.platform, link.url)}
-                  className="text-left p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 ${info.color} rounded-full flex items-center justify-center text-white text-2xl`}>
-                      {info.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-bold">{info.label}</div>
-                      <div className="text-sm text-gray-600 truncate">
-                        {link.platform === 'phone' ? link.url : link.url}
+                if (link.platform === 'qrcode') {
+                  return (
+                    <motion.div
+                      key={link.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4 }}
+                      className="bg-white p-8 rounded-xl shadow-card text-center"
+                    >
+                      <div className="w-16 h-16 bg-swarovski-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Icon size={32} className="text-white" />
                       </div>
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
+                      <h3 className="font-bold mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>{info.label}</h3>
+                      <div className="bg-swarovski-gray p-4 rounded-lg inline-block">
+                        <img
+                          src={link.url}
+                          alt="QR Code"
+                          className="w-48 h-48 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder.svg';
+                          }}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                }
 
-        <div className="mt-8 pt-8 border-t text-center text-gray-500 text-sm">
-          <p>ติดต่อเราผ่านช่องทางด้านบนเพื่อสอบถามข้อมูลเพิ่มเติม</p>
+                return (
+                  <motion.button
+                    key={link.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
+                    onClick={() => handleClick(link.platform, link.url)}
+                    className="bg-white p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300 text-left group"
+                  >
+                    <div className={`w-16 h-16 ${info.color} rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon size={32} className="text-white" />
+                    </div>
+                    <div className="font-bold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>{info.label}</div>
+                    <div className="text-sm text-gray-600 truncate">{link.url}</div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Contact Form */}
+      <section className="py-16 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-swarovski-gray p-8 rounded-xl shadow-card"
+          >
+            <h2
+              className="text-2xl font-bold mb-6 text-center"
+              style={{ fontFamily: 'Montserrat, sans-serif' }}
+            >
+              ส่งข้อความถึงเรา
+            </h2>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อ</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                  placeholder="ชื่อของคุณ"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                <input
+                  type="email"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                  placeholder="อีเมลของคุณ"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">ข้อความ</label>
+                <textarea
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                  placeholder="ข้อความของคุณ"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full px-6 py-3 bg-swarovski-purple text-white font-semibold rounded-lg hover:bg-swarovski-purple-light transition-all duration-300 flex items-center justify-center gap-2"
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                <Send size={20} />
+                ส่งข้อความ
+              </button>
+            </form>
+          </motion.div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

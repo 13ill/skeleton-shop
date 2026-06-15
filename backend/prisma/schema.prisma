@@ -75,6 +75,20 @@ model SiteSettings {
   openingHours    String?
   phone           String?
   email           String?
+  
+  // Hero Section
+  heroTitle       String?
+  heroSubtitle    String?
+  heroButtonText  String?
+  
+  // Newsletter Section
+  newsletterTitle       String?
+  newsletterDescription String?
+  
+  // Contact Page
+  contactPageTitle       String?
+  contactPageDescription String?
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
