@@ -76,19 +76,25 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
     setCategories(updatedCategories);
     setDraggedIndex(null);
 
-    // Save to backend
-    for (const category of updatedCategories) {
+    // Save only the affected items to backend
+    const startIndex = Math.min(draggedIndex, dropIndex);
+    const endIndex = Math.max(draggedIndex, dropIndex);
+
+    for (let i = startIndex; i <= endIndex; i++) {
       try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories/${category.id}/priority`, {
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories/${updatedCategories[i].id}/priority`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ priority: category.priority }),
+          body: JSON.stringify({ priority: updatedCategories[i].priority }),
         });
       } catch (error) {
         console.error('Error updating category priority:', error);
+        // Revert on error
+        setCategories(categories);
+        break;
       }
     }
   };
@@ -118,10 +124,10 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, index)}
             className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors cursor-move ${selectedCategoryId === category.id
+              ? 'border-[#c8a96e] bg-[#c8a96e]/10'
+              : draggedIndex === index
                 ? 'border-[#c8a96e] bg-[#c8a96e]/10'
-                : draggedIndex === index
-                  ? 'border-[#c8a96e] bg-[#c8a96e]/10'
-                  : 'border-gray-200 hover:border-gray-300'
+                : 'border-gray-200 hover:border-gray-300'
               }`}
           >
             <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[#c8a96e] text-white rounded-full font-bold">
@@ -143,8 +149,8 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
         <button
           onClick={() => onCategorySelect?.('')}
           className={`w-full py-2 px-4 rounded-md transition-colors ${!selectedCategoryId
-              ? 'bg-[#c8a96e] text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            ? 'bg-[#c8a96e] text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
         >
           Show All Products

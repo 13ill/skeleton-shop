@@ -74,40 +74,28 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     setProducts(newProducts);
     setDraggedIndex(null);
 
-    await updateOrder(newProducts);
-  };
+    // Update order only for the affected items (not all products)
+    const startIndex = Math.min(draggedIndex, dropIndex);
+    const endIndex = Math.max(draggedIndex, dropIndex);
 
-  const updateOrder = async (newProducts: ProductWithImages[]) => {
     setSaving(true);
     try {
-      // Update globalOrder for interleaved mode
-      if (displayMode === 'interleaved') {
-        for (let i = 0; i < newProducts.length; i++) {
-          await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${newProducts[i].id}/globalOrder`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ globalOrder: i + 1 }),
-          });
-        }
-      } else {
-        // Update categoryOrder for grouped mode
-        for (let i = 0; i < newProducts.length; i++) {
-          await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${newProducts[i].id}/categoryOrder`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ categoryOrder: i + 1 }),
-          });
-        }
+      const endpoint = displayMode === 'interleaved' ? 'globalOrder' : 'categoryOrder';
+      for (let i = startIndex; i <= endIndex; i++) {
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${newProducts[i].id}/${endpoint}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ [endpoint]: i + 1 }),
+        });
       }
     } catch (error) {
       console.error('Error updating order:', error);
       alert('Failed to update order');
+      // Revert on error
+      setProducts(products);
     } finally {
       setSaving(false);
     }
