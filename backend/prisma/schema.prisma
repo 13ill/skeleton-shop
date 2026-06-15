@@ -55,3 +55,14 @@ model Product {
 
   @@map("products")
 }
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String   // "line", "facebook", "instagram", "phone", "email"
+  url       String   // URL or contact info
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("social_links")
+}

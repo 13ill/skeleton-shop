@@ -1,5 +1,22 @@
 import { useState, useEffect } from "react";
-import { MapPin, Instagram, Facebook, X } from "lucide-react";
+import { MapPin, X } from "lucide-react";
+import { env } from "../../config/env";
+
+interface SocialLink {
+  id: string;
+  platform: string;
+  url: string;
+  isActive: boolean;
+}
+
+const PLATFORM_INFO: Record<string, { label: string; icon: string; color: string }> = {
+  line: { label: 'LINE', icon: '💬', color: 'bg-green-500' },
+  facebook: { label: 'Facebook', icon: '📘', color: 'bg-blue-600' },
+  instagram: { label: 'Instagram', icon: '📷', color: 'bg-pink-600' },
+  phone: { label: 'Phone', icon: '📞', color: 'bg-gray-600' },
+  email: { label: 'Email', icon: '📧', color: 'bg-red-500' },
+  qrcode: { label: 'QR Code', icon: '📱', color: 'bg-purple-600' },
+};
 
 const QRCodeLine = () => (
   <svg viewBox="0 0 200 200" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,6 +52,24 @@ const QRCodeLine = () => (
 
 export function Footer() {
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+
+  useEffect(() => {
+    fetchSocialLinks();
+  }, []);
+
+  const fetchSocialLinks = async () => {
+    try {
+      const response = await fetch(`${env.API_BASE_URL}/public/social-links`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch social links');
+      }
+      const data = await response.json();
+      setSocialLinks(data);
+    } catch (error) {
+      console.error('Error fetching social links:', error);
+    }
+  };
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -62,6 +97,21 @@ export function Footer() {
     }
   };
 
+  const handleSocialClick = (platform: string, url: string) => {
+    if (platform === 'phone') {
+      window.open(`tel:${url}`, '_blank');
+    } else if (platform === 'email') {
+      window.open(`mailto:${url}`, '_blank');
+    } else if (platform === 'qrcode') {
+      setIsQRCodeOpen(true);
+    } else {
+      window.open(url, '_blank');
+    }
+  };
+
+  const qrCodeLink = socialLinks.find(link => link.platform === 'qrcode');
+  const otherLinks = socialLinks.filter(link => link.platform !== 'qrcode');
+
   return (
     <>
       <footer className="bg-[#1a1a18] text-[#c8bfb0] mt-24">
@@ -83,7 +133,7 @@ export function Footer() {
                     กรุงเทพมหานคร 10110
                   </address>
                 </div>
-                <p className="text-xs tracking-wide pl-[22px]">จันร์ � เสาร์  10:00 � 19:00 น.</p>
+                <p className="text-xs tracking-wide pl-[22px]">จันร์ - เสาร์  10:00 - 19:00 น.</p>
               </div>
             </div>
 
@@ -94,28 +144,27 @@ export function Footer() {
                 <div className="w-8 h-px bg-[#c8a96e] mb-6" />
               </div>
               <div className="space-y-4">
-                <a
-                  href="https://facebook.com/niwelry"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-xs tracking-widest uppercase hover:text-white transition-colors duration-300 group"
-                >
-                  <span className="w-7 h-7 rounded-full border border-[#c8a96e]/40 flex items-center justify-center group-hover:border-[#c8a96e] group-hover:bg-[#c8a96e]/10 transition-all duration-300">
-                    <Facebook size={13} className="text-[#c8a96e]" />
-                  </span>
-                  Facebook
-                </a>
-                <a
-                  href="https://instagram.com/niwelry"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-xs tracking-widest uppercase hover:text-white transition-colors duration-300 group"
-                >
-                  <span className="w-7 h-7 rounded-full border border-[#c8a96e]/40 flex items-center justify-center group-hover:border-[#c8a96e] group-hover:bg-[#c8a96e]/10 transition-all duration-300">
-                    <Instagram size={13} className="text-[#c8a96e]" />
-                  </span>
-                  Instagram
-                </a>
+                {otherLinks.length === 0 ? (
+                  <p className="text-xs text-gray-500">ยังไม่มีข้อมูลการติดต่อ</p>
+                ) : (
+                  otherLinks.map((link) => {
+                    const info = PLATFORM_INFO[link.platform];
+                    if (!info) return null;
+
+                    return (
+                      <button
+                        key={link.id}
+                        onClick={() => handleSocialClick(link.platform, link.url)}
+                        className="flex items-center gap-3 text-xs tracking-widest uppercase hover:text-white transition-colors duration-300 group w-full text-left"
+                      >
+                        <span className="w-7 h-7 rounded-full border border-[#c8a96e]/40 flex items-center justify-center group-hover:border-[#c8a96e] group-hover:bg-[#c8a96e]/10 transition-all duration-300">
+                          <span className="text-sm">{info.icon}</span>
+                        </span>
+                        {info.label}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
 
@@ -125,18 +174,41 @@ export function Footer() {
                 <h3 className="text-white font-light tracking-[0.2em] uppercase text-xs mb-1">LINE Official</h3>
                 <div className="w-8 h-px bg-[#c8a96e] mb-6" />
               </div>
-              <div className="flex items-start gap-4">
-                <button
-                  onClick={() => setIsQRCodeOpen(true)}
-                  className="w-20 h-20 text-white bg-white p-1.5 rounded-md shrink-0 cursor-pointer hover:scale-105 transition-transform duration-200"
-                >
-                  <QRCodeLine />
-                </button>
-                <div className="space-y-1.5 pt-1">
-                  <p className="text-xs tracking-wide leading-relaxed">สแกน QR Code<br />เพื่อติดต่อเราผ่าน LINE</p>
-                  <p className="text-[#c8a96e] text-xs tracking-widest">@niwelry</p>
+              {qrCodeLink ? (
+                <div className="flex items-start gap-4">
+                  <button
+                    onClick={() => setIsQRCodeOpen(true)}
+                    className="w-20 h-20 text-white bg-white p-1.5 rounded-md shrink-0 cursor-pointer hover:scale-105 transition-transform duration-200"
+                  >
+                    <img
+                      src={qrCodeLink.url}
+                      alt="LINE QR Code"
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.innerHTML = '';
+                        e.currentTarget.appendChild(QRCodeLine({}) as any);
+                      }}
+                    />
+                  </button>
+                  <div className="space-y-1.5 pt-1">
+                    <p className="text-xs tracking-wide leading-relaxed">สแกน QR Code<br />เพื่อติดต่อเราผ่าน LINE</p>
+                    <p className="text-[#c8a96e] text-xs tracking-widest">@niwelry</p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-start gap-4">
+                  <button
+                    onClick={() => setIsQRCodeOpen(true)}
+                    className="w-20 h-20 text-white bg-white p-1.5 rounded-md shrink-0 cursor-pointer hover:scale-105 transition-transform duration-200"
+                  >
+                    <QRCodeLine />
+                  </button>
+                  <div className="space-y-1.5 pt-1">
+                    <p className="text-xs tracking-wide leading-relaxed">สแกน QR Code<br />เพื่อติดต่อเราผ่าน LINE</p>
+                    <p className="text-[#c8a96e] text-xs tracking-widest">@niwelry</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -169,7 +241,19 @@ export function Footer() {
             </button>
             <div className="flex flex-col items-center">
               <div className="w-64 h-64 text-[#1a1a18] mb-6">
-                <QRCodeLine />
+                {qrCodeLink ? (
+                  <img
+                    src={qrCodeLink.url}
+                    alt="LINE QR Code"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.innerHTML = '';
+                      e.currentTarget.appendChild(QRCodeLine({}) as any);
+                    }}
+                  />
+                ) : (
+                  <QRCodeLine />
+                )}
               </div>
               <p className="text-gray-800 text-sm font-medium mb-2">LINE Official</p>
               <p className="text-[#c8a96e] text-lg tracking-widest font-semibold">@niwelry</p>

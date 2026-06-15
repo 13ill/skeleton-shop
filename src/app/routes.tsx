@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import { Root } from "./components/Root";
 import { Home } from "./components/Home";
 import { ProductDetail } from "./components/ProductDetail";
+import { Contact } from "./components/Contact";
 import { AuthProvider } from "./admin/authContext";
 import { Login } from "./admin/Login";
 import { ProtectedRoute } from "./admin/ProtectedRoute";
@@ -15,6 +16,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Home },
       { path: "product/:id", Component: ProductDetail },
+      { path: "contact", Component: Contact },
     ],
   },
   {

@@ -97,6 +97,12 @@ export function Header() {
               {categoryMap[category]} ({categoryCounts[category] || 0})
             </button>
           ))}
+          <Link
+            to="/contact"
+            className="uppercase transition-colors hover:text-gray-900 text-gray-500"
+          >
+            ติดต่อเรา
+          </Link>
         </nav>
       </div>
     </header>

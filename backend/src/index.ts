@@ -601,6 +601,88 @@ app.post('/upload', authMiddleware, async (c) => {
   }
 });
 
+// Social Links CRUD endpoints
+app.get('/social-links', authMiddleware, async (c) => {
+  try {
+    const socialLinks = await prisma.socialLink.findMany({
+      orderBy: { createdAt: 'asc' },
+    });
+    return c.json(socialLinks);
+  } catch (error) {
+    console.error('Error fetching social links:', error);
+    return c.json({ error: 'Failed to fetch social links' }, 500);
+  }
+});
+
+app.post('/social-links', authMiddleware, async (c) => {
+  try {
+    const { platform, url, isActive } = await c.req.json();
+    
+    const socialLink = await prisma.socialLink.create({
+      data: {
+        platform,
+        url,
+        isActive: isActive ?? true,
+      },
+    });
+    
+    return c.json(socialLink);
+  } catch (error) {
+    console.error('Error creating social link:', error);
+    return c.json({ error: 'Failed to create social link' }, 500);
+  }
+});
+
+app.put('/social-links/:id', authMiddleware, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const { platform, url, isActive } = await c.req.json();
+    
+    const socialLink = await prisma.socialLink.update({
+      where: { id },
+      data: {
+        platform,
+        url,
+        isActive,
+      },
+    });
+    
+    return c.json(socialLink);
+  } catch (error) {
+    console.error('Error updating social link:', error);
+    return c.json({ error: 'Failed to update social link' }, 500);
+  }
+});
+
+app.delete('/social-links/:id', authMiddleware, async (c) => {
+  try {
+    const id = c.req.param('id');
+    
+    await prisma.socialLink.delete({
+      where: { id },
+    });
+    
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting social link:', error);
+    return c.json({ error: 'Failed to delete social link' }, 500);
+  }
+});
+
+// Public endpoint to get active social links
+app.get('/public/social-links', async (c) => {
+  try {
+    const socialLinks = await prisma.socialLink.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    return c.json(socialLinks);
+  } catch (error) {
+    console.error('Error fetching public social links:', error);
+    return c.json({ error: 'Failed to fetch social links' }, 500);
+  }
+});
+
 const port = parseInt(process.env.PORT || '3001');
 console.log(`Server is running on port ${port}`);
 
