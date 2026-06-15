@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { hashPassword, verifyPassword, generateToken, verifyToken } from './auth';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 
 dotenv.config();
 
@@ -22,6 +22,30 @@ if (!existsSync(uploadsDir)) {
 app.get('/uploads/:filename', (c) => {
   const filename = c.req.param('filename');
   const filepath = join(uploadsDir, filename);
+
+  if (!existsSync(filepath)) {
+    return c.json({ error: 'File not found' }, 404);
+  }
+
+  const file = readFileSync(filepath);
+  const ext = filename.split('.').pop();
+  const mimeTypes: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+  };
+
+  c.header('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+  return c.body(file);
+});
+
+// Serve static files from Product directory
+app.get('/Product/:category/:filename', (c) => {
+  const category = c.req.param('category');
+  const filename = c.req.param('filename');
+  const filepath = join(uploadsDir, 'Product', category, filename);
 
   if (!existsSync(filepath)) {
     return c.json({ error: 'File not found' }, 404);
@@ -566,17 +590,20 @@ app.post('/upload', authMiddleware, async (c) => {
     // Decode base64
     const buffer = Buffer.from(data, 'base64');
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const ext = filename.split('.').pop();
-    const uniqueFilename = `${timestamp}.${ext}`;
-    const filepath = join(uploadsDir, uniqueFilename);
+    // Use the filename as-is (preserve directory structure)
+    const filepath = join(uploadsDir, filename);
+
+    // Ensure directory exists
+    const dir = dirname(filepath);
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
 
     // Save file
     writeFileSync(filepath, buffer);
 
     // Return file URL
-    const fileUrl = `/uploads/${uniqueFilename}`;
+    const fileUrl = `/${filename}`;
     return c.json({ url: fileUrl });
   } catch (error) {
     console.error('Error uploading file:', error);
