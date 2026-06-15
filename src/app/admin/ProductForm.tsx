@@ -68,10 +68,17 @@ export function ProductForm() {
     setError('');
 
     try {
+      // Get categoryId from category
+      const categoryResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories`);
+      const categories = await categoryResponse.json();
+      const category = categories.find((c: any) => c.slug === formData.category);
+      const categoryId = category?.id;
+
       const payload = {
         id: formData.id,
         name: formData.name,
         category: formData.category,
+        categoryId,
         price: formData.price ? parseInt(formData.price) : null,
         description: formData.description,
         fullDescription: formData.fullDescription,

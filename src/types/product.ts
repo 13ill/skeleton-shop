@@ -19,6 +19,11 @@ export interface Product {
 
 export interface ProductWithImages extends Product {
   images: string[];
+  categoryId?: string;
+  globalOrder?: number;
+  categoryOrder?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type Category = 'necklace' | 'ring' | 'bracelet' | 'earring' | 'pendant' | 'all';
