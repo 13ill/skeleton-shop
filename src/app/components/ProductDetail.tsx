@@ -30,7 +30,11 @@ export function ProductDetail() {
     loadProduct();
   }, [id]);
 
-  const images = product?.images || [];
+  const images = product?.images?.map(img =>
+    img?.startsWith('/uploads') || img?.startsWith('/Product')
+      ? `${import.meta.env.VITE_API_BASE_URL}${img}`
+      : img
+  ) || [];
   const hasMultipleImages = images.length > 1;
 
   const goToPrevious = () => {

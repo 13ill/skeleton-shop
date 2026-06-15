@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useAuth } from './authContext';
 import { env } from '../../config/env';
 import type { ProductWithImages } from '../../types/product';
+import { fetchWithRetry, getErrorMessage } from '../../utils/api';
 
 interface GlobalProductOrderProps {
   categoryId?: string;
@@ -35,9 +36,9 @@ const ProductItem = memo(({
       onDragStart={(e) => onDragStart(e, index)}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, index)}
-      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors cursor-move ${isDragging
-        ? 'border-[#c8a96e] bg-[#c8a96e]/10'
-        : 'border-gray-200 hover:border-gray-300'
+      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all cursor-move ${isDragging
+        ? 'border-[#c8a96e] bg-[#c8a96e]/10 shadow-lg opacity-75 scale-105'
+        : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
         }`}
     >
       <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold text-gray-600">
@@ -97,6 +98,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -184,11 +186,12 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
 
     setProducts(newProducts);
     setDraggedIndex(null);
+    setSaving(true);
+    setSaveSuccess(false);
 
     // Send only fromIndex, toIndex, and productId to backend
-    setSaving(true);
     try {
-      const response = await fetch(`${env.API_BASE_URL}/products/reorder`, {
+      const response = await fetchWithRetry(`${env.API_BASE_URL}/products/reorder`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -200,14 +203,19 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
           toIndex: dropIndex,
           productId: draggedItem.id,
         }),
+        retries: 3,
+        retryDelay: 1000,
       });
 
       if (!response.ok) {
         throw new Error('Failed to reorder product');
       }
+
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
     } catch (error) {
       console.error('Error reordering product:', error);
-      alert('Failed to update order');
+      alert(`Failed to update order: ${getErrorMessage(error)}`);
       // Revert on error
       setProducts(products);
     } finally {
@@ -250,7 +258,7 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-bold">Product Order</h3>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <button
             onClick={() => navigate('/admin/products/new')}
             className="bg-[#c8a96e] text-white px-4 py-2 rounded-md hover:bg-[#b0955e] transition-colors"
@@ -258,7 +266,18 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
             Add Product
           </button>
           {saving && (
-            <span className="text-sm text-gray-500 self-center">Saving...</span>
+            <div className="flex items-center gap-2 text-sm text-[#c8a96e]">
+              <div className="w-4 h-4 border-2 border-[#c8a96e] border-t-transparent rounded-full animate-spin" />
+              Saving...
+            </div>
+          )}
+          {saveSuccess && (
+            <div className="flex items-center gap-2 text-sm text-green-600">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Saved!
+            </div>
           )}
         </div>
       </div>

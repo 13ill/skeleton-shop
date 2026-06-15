@@ -5,27 +5,40 @@ import { categoryMap, type Category, type ProductWithImages } from "../../types/
 import { motion } from "motion/react";
 
 export function Home() {
-  const [selectedCategory, setSelectedCategory] = useState<Category>("all");
   const [displayMode, setDisplayMode] = useState<'interleaved' | 'grouped'>('interleaved');
-  const location = useLocation();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [products, setProducts] = useState<ProductWithImages[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const itemsPerPage = 10;
+  const location = useLocation();
+
+  // Get current category from URL
+  const getCurrentCategory = (): Category => {
+    const params = new URLSearchParams(location.search);
+    return (params.get('category') as Category) || 'all';
+  };
+
+  const [selectedCategory, setSelectedCategory] = useState<Category>(getCurrentCategory());
+
+  // Update selected category when URL changes
+  useEffect(() => {
+    setSelectedCategory(getCurrentCategory());
+  }, [location.search]);
 
   // Load products
   useEffect(() => {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        // Use display mode when showing all products
-        if (selectedCategory === 'all') {
-          const data = await getProductsWithMode(displayMode);
-          setProducts(data);
-        } else {
-          const data = await getProductsByCategory(selectedCategory);
-          setProducts(data);
-        }
+        // Always use display mode
+        const data = await getProductsWithMode(displayMode);
+
+        // Filter by category if not 'all'
+        const filteredData = selectedCategory === 'all'
+          ? data
+          : data.filter(p => p.category === selectedCategory);
+
+        setProducts(filteredData);
       } catch (error) {
         console.error("Failed to load products:", error);
       } finally {
@@ -34,41 +47,6 @@ export function Home() {
     };
     loadProducts();
   }, [selectedCategory, displayMode]);
-
-  // Load products by category when category changes
-  useEffect(() => {
-    const loadProductsByCategory = async () => {
-      setLoading(true);
-      try {
-        const data = await getProductsByCategory(selectedCategory);
-        setProducts(data);
-      } catch (error) {
-        console.error("Failed to load products by category:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProductsByCategory();
-  }, [selectedCategory]);
-
-  useEffect(() => {
-    const handleCategoryChange = (event: CustomEvent) => {
-      setSelectedCategory(event.detail);
-    };
-
-    window.addEventListener("categoryChange", handleCategoryChange as EventListener);
-
-    return () => {
-      window.removeEventListener("categoryChange", handleCategoryChange as EventListener);
-    };
-  }, []);
-
-  // Check for category from navigation state
-  useEffect(() => {
-    if (location.state?.category) {
-      setSelectedCategory(location.state.category);
-    }
-  }, [location.state]);
 
   // Reset page when category or display mode changes
   useEffect(() => {
@@ -132,7 +110,7 @@ export function Home() {
             >
               <div className="relative overflow-hidden bg-gray-50 aspect-[3/4] mb-4">
                 <img
-                  src={product.images[0]?.startsWith('/uploads')
+                  src={product.images[0]?.startsWith('/uploads') || product.images[0]?.startsWith('/Product')
                     ? `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`
                     : product.images[0] || '/placeholder.svg'}
                   alt={product.name}

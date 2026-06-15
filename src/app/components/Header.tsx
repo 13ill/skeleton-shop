@@ -1,12 +1,11 @@
-import { useState, useMemo, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
 import { getCategoryCounts } from "../../services/productService";
 import { categoryMap, type Category } from "../../types/product";
 
 const categories: Category[] = ["all", "ring", "necklace", "bracelet", "earring"];
 
 export function Header() {
-  const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [categoryCounts, setCategoryCounts] = useState<Record<Category, number>>({
     all: 0,
     ring: 0,
@@ -15,8 +14,21 @@ export function Header() {
     earring: 0,
     pendant: 0,
   });
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get current category from URL
+  const getCurrentCategory = (): Category => {
+    const params = new URLSearchParams(location.search);
+    return (params.get('category') as Category) || 'all';
+  };
+
+  const [activeCategory, setActiveCategory] = useState<Category>(getCurrentCategory());
+
+  // Update active category when URL changes
+  useEffect(() => {
+    setActiveCategory(getCurrentCategory());
+  }, [location.search]);
 
   // Load category counts
   useEffect(() => {
@@ -31,23 +43,22 @@ export function Header() {
     loadCounts();
   }, []);
 
-  // Update active category from navigation state
-  useEffect(() => {
-    if (location.state?.category) {
-      setActiveCategory(location.state.category);
-    }
-  }, [location.state]);
-
   const handleCategoryClick = (category: Category) => {
     setActiveCategory(category);
 
-    // Navigate to home with category state
-    navigate("/", { state: { category } });
+    // Update URL
+    const params = new URLSearchParams(location.search);
+    if (category === 'all') {
+      params.delete('category');
+    } else {
+      params.set('category', category);
+    }
+
+    const newUrl = `/?${params.toString()}`;
+    navigate(newUrl, { replace: true });
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
-
-    // Dispatch custom event for category change
-    window.dispatchEvent(new CustomEvent("categoryChange", { detail: category }));
   };
 
   return (

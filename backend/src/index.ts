@@ -45,7 +45,7 @@ app.get('/uploads/:filename', (c) => {
 app.get('/Product/:category/:filename', (c) => {
   const category = c.req.param('category');
   const filename = c.req.param('filename');
-  const filepath = join(uploadsDir, 'Product', category, filename);
+  const filepath = join(process.cwd(), '../public/Product', category, filename);
 
   if (!existsSync(filepath)) {
     return c.json({ error: 'File not found' }, 404);
@@ -517,7 +517,7 @@ app.get('/products', async (c) => {
     const mode = c.req.query('mode') || 'grouped';
 
     if (mode === 'interleaved') {
-      // Interleaved mode: ring1, necklace1, earring1, ring2, necklace2...
+      // Interleaved mode: sort by globalOrder, then interleave by category priority
       const categories = await prisma.category.findMany({
         orderBy: { priority: 'asc' },
       });
@@ -526,35 +526,25 @@ app.get('/products', async (c) => {
         orderBy: { globalOrder: 'asc' },
       });
 
-      // Interleave products based on category priority
-      const interleaved: any[] = [];
-      const categoryBuckets = new Map<string, any[]>();
-
-      // Group products by category
-      for (const product of products) {
-        const category = categories.find(c => c.id === product.categoryId);
-        if (category) {
-          if (!categoryBuckets.has(category.id)) {
-            categoryBuckets.set(category.id, []);
-          }
-          categoryBuckets.get(category.id)!.push(product);
-        }
+      // Create category priority map
+      const categoryPriorityMap = new Map<string, number>();
+      for (const category of categories) {
+        categoryPriorityMap.set(category.id, category.priority);
       }
 
-      // Interleave
-      let hasProducts = true;
-      while (hasProducts) {
-        hasProducts = false;
-        for (const category of categories) {
-          const bucket = categoryBuckets.get(category.id);
-          if (bucket && bucket.length > 0) {
-            interleaved.push(bucket.shift()!);
-            hasProducts = true;
-          }
+      // Sort products by globalOrder first, then by category priority
+      const sortedProducts = [...products].sort((a, b) => {
+        // First sort by globalOrder
+        if ((a.globalOrder || 0) !== (b.globalOrder || 0)) {
+          return (a.globalOrder || 0) - (b.globalOrder || 0);
         }
-      }
+        // Then sort by category priority
+        const aPriority = a.categoryId ? (categoryPriorityMap.get(a.categoryId) || 999) : 999;
+        const bPriority = b.categoryId ? (categoryPriorityMap.get(b.categoryId) || 999) : 999;
+        return aPriority - bPriority;
+      });
 
-      return c.json(interleaved);
+      return c.json(sortedProducts);
     } else {
       // Grouped mode: ring1, ring2, ring3..., necklace1, necklace2...
       const categories = await prisma.category.findMany({
