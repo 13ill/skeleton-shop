@@ -147,8 +147,32 @@ PORT=3000
 - [x] สร้าง Add/Edit Product form (`/admin/products/new`, `/admin/products/:id/edit`)
 - [x] เชื่อมต่อ Frontend กับ Backend API
 - [x] สร้าง Upload image functionality (API + frontend)
-- [ ] สร้างลำดับการแสดงผลสินค้า (drag & drop หรือ manual ordering)
-- [ ] ทดสอบ Admin Panel UI (พร้อมทดสอบ - รอผู้ใช้)
+
+#### Display Order Management (ลำดับขั้นตอนใหม่)
+- [ ] Phase 1: Database Schema
+  - [ ] เพิ่ม Category model (id, name, slug, priority, isActive)
+  - [ ] เพิ่ม categoryId, globalOrder, categoryOrder ใน Product model
+  - [ ] Migration
+  - [ ] Seed categories (แหวน, สร้อยคอ, สร้อยข้อมือ, ต่างหู, จี้)
+  - [ ] Update product seed ให้มี globalOrder และ categoryOrder
+- [ ] Phase 2: Backend API
+  - [ ] GET /categories (ดึงหมวดหมู่ตาม priority)
+  - [ ] POST /categories (เพิ่มหมวดหมู่)
+  - [ ] PUT /categories/:id/priority (อัปเดต priority)
+  - [ ] PUT /products/:id/globalOrder (อัปเดตลำดับทั่วไป)
+  - [ ] PUT /products/:id/categoryOrder (อัปเดตลำดับในหมวดหมู่)
+  - [ ] GET /products?mode=interleaved (ดึงสินค้าแบบ interleaved)
+  - [ ] GET /products?mode=grouped (ดึงสินค้าแบบ grouped)
+- [ ] Phase 3: Frontend - Admin Dashboard
+  - [ ] CategoryPriority component (ซ้าย - priority numbers)
+  - [ ] GlobalProductOrder component (ขวา - drag & drop)
+  - [ ] Toggle Button: Interleaved / Grouped
+  - [ ] Preview Button (ดูหน้าลูกค้าจริง)
+  - [ ] Save Order Button
+- [ ] Phase 4: Frontend - Customer View
+  - [ ] Home page → แสดงสินค้าแบบ interleaved (default)
+  - [ ] Category page → แสดงสินค้าแบบ grouped
+  - [ ] Toggle Button: Interleaved / Grouped (ให้ลูกค้าเลือกได้)
 
 #### ระบบเสริม
 - [ ] สลับ `dataSource` ของ frontend จาก static JSON → API
