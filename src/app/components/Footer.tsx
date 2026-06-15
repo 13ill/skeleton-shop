@@ -18,6 +18,9 @@ interface SiteSettings {
   email: string | null;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
+  newsletterBackgroundImage: string | null;
+  newsletterBorderColor: string | null;
+  newsletterShowBorder: boolean;
 }
 
 const PLATFORM_INFO: Record<string, { label: string; icon: any; color: string }> = {
@@ -41,6 +44,9 @@ export function Footer() {
     email: null,
     newsletterTitle: null,
     newsletterDescription: null,
+    newsletterBackgroundImage: null,
+    newsletterBorderColor: null,
+    newsletterShowBorder: false,
   });
   const [email, setEmail] = useState('');
 
@@ -315,8 +321,16 @@ export function Footer() {
           </div>
 
           {/* Newsletter Section */}
-          <div className="mt-16 pt-8 border-t border-white/10">
-            <div className="max-w-2xl mx-auto">
+          <div
+            className="mt-16 pt-8 border-t border-white/10 relative"
+            style={{
+              backgroundImage: siteSettings.newsletterBackgroundImage ? `url(${siteSettings.newsletterBackgroundImage})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              border: siteSettings.newsletterShowBorder ? `4px solid ${siteSettings.newsletterBorderColor}` : 'none',
+            }}
+          >
+            <div className="max-w-2xl mx-auto relative z-10">
               <h3
                 className="text-xl font-bold mb-2 text-center"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
