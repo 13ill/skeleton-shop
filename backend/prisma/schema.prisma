@@ -66,3 +66,17 @@ model SocialLink {
 
   @@map("social_links")
 }
+
+model SiteSettings {
+  id              String   @id @default(cuid())
+  brandName       String   @default("Niwelry")
+  tagline         String?
+  address         String?
+  openingHours    String?
+  phone           String?
+  email           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_settings")
+}

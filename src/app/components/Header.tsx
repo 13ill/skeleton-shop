@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { getCategoryCounts, getProductById } from "../../services/productService";
 import { categoryMap, type Category } from "../../types/product";
+import { useSiteSettings } from "../context/SiteSettingsContext";
 
 const categories: Category[] = ["all", "ring", "necklace", "bracelet", "earring"];
 
@@ -14,6 +15,7 @@ export function Header() {
     earring: 0,
     pendant: 0,
   });
+  const { siteSettings } = useSiteSettings();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -81,7 +83,7 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Link to="/" className="block text-center mb-8">
-          <h1 className="text-2xl tracking-[0.3em] uppercase">Niwelry</h1>
+          <h1 className="text-2xl tracking-[0.3em] uppercase">{siteSettings.brandName}</h1>
         </Link>
 
         <nav className="flex justify-center gap-8 text-sm tracking-wider">

@@ -8,6 +8,15 @@ interface SocialLink {
   isActive: boolean;
 }
 
+interface SiteSettings {
+  brandName: string;
+  tagline: string | null;
+  address: string | null;
+  openingHours: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
 const PLATFORM_INFO: Record<string, { label: string; icon: string; color: string }> = {
   line: { label: 'LINE', icon: '💬', color: 'bg-green-500' },
   facebook: { label: 'Facebook', icon: '📘', color: 'bg-blue-600' },
@@ -19,22 +28,38 @@ const PLATFORM_INFO: Record<string, { label: string; icon: string; color: string
 
 export function Contact() {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>({
+    brandName: 'Niwelry',
+    tagline: null,
+    address: null,
+    openingHours: null,
+    phone: null,
+    email: null,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchSocialLinks();
+    fetchData();
   }, []);
 
-  const fetchSocialLinks = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch(`${env.API_BASE_URL}/public/social-links`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch social links');
+      const [socialRes, settingsRes] = await Promise.all([
+        fetch(`${env.API_BASE_URL}/public/social-links`),
+        fetch(`${env.API_BASE_URL}/public/site-settings`),
+      ]);
+
+      if (!socialRes.ok || !settingsRes.ok) {
+        throw new Error('Failed to fetch data');
       }
-      const data = await response.json();
-      setSocialLinks(data);
+
+      const socialData = await socialRes.json();
+      const settingsData = await settingsRes.json();
+
+      setSocialLinks(socialData);
+      setSiteSettings(settingsData);
     } catch (error) {
-      console.error('Error fetching social links:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
@@ -69,9 +94,25 @@ export function Contact() {
 
       <div className="bg-white rounded-lg shadow p-8">
         <div className="mb-8 text-center">
-          <h2 className="text-xl font-bold mb-2">Niwelry</h2>
-          <p className="text-gray-600">เครื่องประดับเพชรพลอยคุณภาพสูง</p>
+          <h2 className="text-xl font-bold mb-2">{siteSettings.brandName}</h2>
+          {siteSettings.tagline && (
+            <p className="text-gray-600">{siteSettings.tagline}</p>
+          )}
         </div>
+
+        {siteSettings.address && (
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-bold mb-2">ที่อตั้ง</h3>
+            <p className="text-gray-600 whitespace-pre-line">{siteSettings.address}</p>
+          </div>
+        )}
+
+        {siteSettings.openingHours && (
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-bold mb-2">เวลาทำการ</h3>
+            <p className="text-gray-600">{siteSettings.openingHours}</p>
+          </div>
+        )}
 
         {socialLinks.length === 0 ? (
           <div className="text-center py-12 text-gray-500">

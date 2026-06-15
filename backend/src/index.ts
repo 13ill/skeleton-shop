@@ -683,6 +683,92 @@ app.get('/public/social-links', async (c) => {
   }
 });
 
+// Site Settings endpoints
+app.get('/site-settings', authMiddleware, async (c) => {
+  try {
+    let settings = await prisma.siteSettings.findFirst();
+    
+    // Create default settings if none exist
+    if (!settings) {
+      settings = await prisma.siteSettings.create({
+        data: {
+          brandName: 'Niwelry',
+          tagline: 'เครื่องประดับเพชรพลอยคุณภาพสูง',
+          address: '123 ถนนสุขุมวิท ซอย 11\nแขวคลองตียเหนือ เขตวัฒณา\nกรุงเทพมหานคร 10110',
+          openingHours: 'จันร์ - เสาร์  10:00 - 19:00 น.',
+        },
+      });
+    }
+    
+    return c.json(settings);
+  } catch (error) {
+    console.error('Error fetching site settings:', error);
+    return c.json({ error: 'Failed to fetch site settings' }, 500);
+  }
+});
+
+app.put('/site-settings', authMiddleware, async (c) => {
+  try {
+    const { brandName, tagline, address, openingHours, phone, email } = await c.req.json();
+    
+    let settings = await prisma.siteSettings.findFirst();
+    
+    if (settings) {
+      settings = await prisma.siteSettings.update({
+        where: { id: settings.id },
+        data: {
+          brandName,
+          tagline,
+          address,
+          openingHours,
+          phone,
+          email,
+        },
+      });
+    } else {
+      settings = await prisma.siteSettings.create({
+        data: {
+          brandName,
+          tagline,
+          address,
+          openingHours,
+          phone,
+          email,
+        },
+      });
+    }
+    
+    return c.json(settings);
+  } catch (error) {
+    console.error('Error updating site settings:', error);
+    return c.json({ error: 'Failed to update site settings' }, 500);
+  }
+});
+
+// Public endpoint to get site settings
+app.get('/public/site-settings', async (c) => {
+  try {
+    let settings = await prisma.siteSettings.findFirst();
+    
+    // Return default settings if none exist
+    if (!settings) {
+      settings = {
+        brandName: 'Niwelry',
+        tagline: 'เครื่องประดับเพชรพลอยคุณภาพสูง',
+        address: '123 ถนนสุขุมวิท ซอย 11\nแขวคลองตียเหนือ เขตวัฒณา\nกรุงเทพมหานคร 10110',
+        openingHours: 'จันร์ - เสาร์  10:00 - 19:00 น.',
+        phone: '',
+        email: '',
+      };
+    }
+    
+    return c.json(settings);
+  } catch (error) {
+    console.error('Error fetching public site settings:', error);
+    return c.json({ error: 'Failed to fetch site settings' }, 500);
+  }
+});
+
 const port = parseInt(process.env.PORT || '3001');
 console.log(`Server is running on port ${port}`);
 

@@ -9,6 +9,13 @@ interface SocialLink {
   isActive: boolean;
 }
 
+interface SiteSettings {
+  brandName: string;
+  tagline: string | null;
+  address: string | null;
+  openingHours: string | null;
+}
+
 const PLATFORM_INFO: Record<string, { label: string; icon: string; color: string }> = {
   line: { label: 'LINE', icon: '💬', color: 'bg-green-500' },
   facebook: { label: 'Facebook', icon: '📘', color: 'bg-blue-600' },
@@ -53,9 +60,16 @@ const QRCodeLine = () => (
 export function Footer() {
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>({
+    brandName: 'Niwelry',
+    tagline: null,
+    address: null,
+    openingHours: null,
+  });
 
   useEffect(() => {
     fetchSocialLinks();
+    fetchSiteSettings();
   }, []);
 
   const fetchSocialLinks = async () => {
@@ -68,6 +82,19 @@ export function Footer() {
       setSocialLinks(data);
     } catch (error) {
       console.error('Error fetching social links:', error);
+    }
+  };
+
+  const fetchSiteSettings = async () => {
+    try {
+      const response = await fetch(`${env.API_BASE_URL}/public/site-settings`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch site settings');
+      }
+      const data = await response.json();
+      setSiteSettings(data);
+    } catch (error) {
+      console.error('Error fetching site settings:', error);
     }
   };
 
@@ -121,19 +148,24 @@ export function Footer() {
             {/* Brand + Address */}
             <div className="space-y-6">
               <div>
-                <h2 className="text-white font-light tracking-[0.25em] uppercase text-sm mb-1">Niwelry</h2>
+                <h2 className="text-white font-light tracking-[0.25em] uppercase text-sm mb-1">{siteSettings.brandName}</h2>
                 <div className="w-8 h-px bg-[#c8a96e] mb-6" />
               </div>
+              {siteSettings.tagline && (
+                <p className="text-xs text-gray-400 mb-4">{siteSettings.tagline}</p>
+              )}
               <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <MapPin size={14} className="text-[#c8a96e] mt-0.5 shrink-0" />
-                  <address className="not-italic text-xs leading-relaxed tracking-wide">
-                    123 ถนนสุขุมวิท ซอย 11<br />
-                    แขวคลองตียเหนือ เขตวัฒณา<br />
-                    กรุงเทพมหานคร 10110
-                  </address>
-                </div>
-                <p className="text-xs tracking-wide pl-[22px]">จันร์ - เสาร์  10:00 - 19:00 น.</p>
+                {siteSettings.address && (
+                  <div className="flex items-start gap-3">
+                    <MapPin size={14} className="text-[#c8a96e] mt-0.5 shrink-0" />
+                    <address className="not-italic text-xs leading-relaxed tracking-wide whitespace-pre-line">
+                      {siteSettings.address}
+                    </address>
+                  </div>
+                )}
+                {siteSettings.openingHours && (
+                  <p className="text-xs tracking-wide pl-[22px]">{siteSettings.openingHours}</p>
+                )}
               </div>
             </div>
 
@@ -215,7 +247,7 @@ export function Footer() {
           {/* Bottom bar */}
           <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-[10px] tracking-widest uppercase text-white/30">
-              © {new Date().getFullYear()} Niwelry. All rights reserved.
+              © {new Date().getFullYear()} {siteSettings.brandName}. All rights reserved.
             </p>
             <div className="flex gap-1 items-center">
               {[...Array(3)].map((_, i) => (

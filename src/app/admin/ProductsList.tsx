@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { CategoryPriority } from './CategoryPriority';
 import { GlobalProductOrder } from './GlobalProductOrder';
 import { SocialLinksManager } from './SocialLinksManager';
+import { SiteSettingsManager } from './SiteSettingsManager';
 
 export function ProductsList() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [displayMode, setDisplayMode] = useState<'interleaved' | 'grouped'>('interleaved');
-  const [activeTab, setActiveTab] = useState<'products' | 'social'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'social' | 'settings'>('products');
 
   const handlePreview = () => {
     // Open customer view in new tab
@@ -24,8 +25,8 @@ export function ProductsList() {
         <button
           onClick={() => setActiveTab('products')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'products'
-              ? 'text-[#c8a96e] border-b-2 border-[#c8a96e]'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-[#c8a96e] border-b-2 border-[#c8a96e]'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           Products
@@ -33,11 +34,20 @@ export function ProductsList() {
         <button
           onClick={() => setActiveTab('social')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'social'
-              ? 'text-[#c8a96e] border-b-2 border-[#c8a96e]'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-[#c8a96e] border-b-2 border-[#c8a96e]'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           Social Links
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`px-4 py-2 font-medium transition-colors ${activeTab === 'settings'
+            ? 'text-[#c8a96e] border-b-2 border-[#c8a96e]'
+            : 'text-gray-500 hover:text-gray-700'
+            }`}
+        >
+          Site Settings
         </button>
       </div>
 
@@ -97,6 +107,11 @@ export function ProductsList() {
       {/* Social Links Tab */}
       {activeTab === 'social' && (
         <SocialLinksManager />
+      )}
+
+      {/* Site Settings Tab */}
+      {activeTab === 'settings' && (
+        <SiteSettingsManager />
       )}
     </div>
   );
