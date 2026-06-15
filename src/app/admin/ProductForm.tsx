@@ -8,6 +8,23 @@ import type { ProductWithImages } from '../../types/product';
 // Import SpecificationsEditor
 import { SpecificationsEditor } from './SpecificationsEditor';
 
+// Helper function to generate product ID from name
+const generateProductId = (name: string): string => {
+  // Convert to slug (lowercase, replace spaces with hyphens, remove special chars)
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+
+  // Add timestamp to ensure uniqueness
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 8);
+
+  return `${slug}-${timestamp}-${random}`;
+};
+
 export function ProductForm() {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -58,23 +75,18 @@ export function ProductForm() {
         throw new Error('Failed to fetch product');
       }
 
-      const product: ProductWithImages = await response.json();
-      console.log('Fetched product:', product);
-      console.log('Product images:', product.images);
+      const data = await response.json();
       setFormData({
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        price: product.price?.toString() || '',
-        description: product.description,
-        fullDescription: product.fullDescription,
-        material: product.material || '',
-        specifications: JSON.stringify(product.specifications || {}, null, 2),
-        images: JSON.stringify(product.images || []),
+        id: data.id,
+        name: data.name,
+        category: data.category,
+        price: data.price?.toString() || '',
+        description: data.description || '',
+        fullDescription: data.fullDescription || '',
+        material: data.material || '',
+        specifications: data.specifications ? JSON.stringify(data.specifications, null, 2) : '',
+        images: data.images ? JSON.stringify(data.images) : '',
       });
-
-      // Update parsedImages after formData is updated
-      setParsedImages(product.images || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch product');
     }
@@ -86,14 +98,16 @@ export function ProductForm() {
     setError('');
 
     try {
-      // Get categoryId from category
+      // Auto-generate ID for new products
+      const productId = isEditing ? id : generateProductId(formData.name);
+
       const categoryResponse = await fetch(`${env.API_BASE_URL}/categories`);
       const categories = await categoryResponse.json();
       const category = categories.find((c: any) => c.slug === formData.category);
       const categoryId = category?.id;
 
       const payload = {
-        id: formData.id,
+        id: productId,
         name: formData.name,
         category: formData.category,
         categoryId,
@@ -162,21 +176,13 @@ export function ProductForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow p-6">
-        <div>
-          <label htmlFor="id" className="block text-sm font-medium text-gray-700 mb-1">
-            Product ID *
-          </label>
-          <input
-            id="id"
-            name="id"
-            type="text"
-            value={formData.id}
-            onChange={handleChange}
-            disabled={isEditing}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e] disabled:bg-gray-100"
-            required
-          />
-        </div>
+        {/* Product ID - Hidden and auto-generated */}
+        <input
+          type="hidden"
+          name="id"
+          value={formData.id}
+          onChange={handleChange}
+        />
 
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -191,6 +197,11 @@ export function ProductForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
             required
           />
+          {!isEditing && (
+            <p className="text-xs text-gray-500 mt-1">
+              Product ID will be auto-generated from name
+            </p>
+          )}
         </div>
 
         <div>
@@ -215,7 +226,7 @@ export function ProductForm() {
 
         <div>
           <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-            Price (฿)
+            Price
           </label>
           <input
             id="price"
@@ -229,7 +240,7 @@ export function ProductForm() {
 
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Short Description *
+            Short Description
           </label>
           <textarea
             id="description"
@@ -238,7 +249,6 @@ export function ProductForm() {
             onChange={handleChange}
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
-            required
           />
         </div>
 
@@ -270,35 +280,40 @@ export function ProductForm() {
           />
         </div>
 
-        <SpecificationsEditor
-          value={formData.specifications}
-          onChange={(value: string) => setFormData({ ...formData, specifications: value })}
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Specifications
+          </label>
+          <SpecificationsEditor
+            value={formData.specifications}
+            onChange={(value) => setFormData({ ...formData, specifications: value })}
+          />
+        </div>
 
-        <ImageUpload
-          initialImages={parsedImages}
-          onImagesChange={(newImages) => {
-            setFormData({
-              ...formData,
-              images: JSON.stringify(newImages),
-            });
-          }}
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Images
+          </label>
+          <ImageUpload
+            images={parsedImages}
+            onChange={(images) => setFormData({ ...formData, images: JSON.stringify(images) })}
+          />
+        </div>
 
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-[#c8a96e] text-white py-2 px-4 rounded-md hover:bg-[#b0955e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Saving...' : isEditing ? 'Update Product' : 'Create Product'}
-          </button>
+        <div className="flex justify-end gap-3">
           <button
             type="button"
             onClick={() => navigate('/admin')}
-            className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
           >
             Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 bg-[#c8a96e] text-white rounded-md hover:bg-[#b89a5e] disabled:opacity-50"
+          >
+            {loading ? 'Saving...' : isEditing ? 'Update Product' : 'Add Product'}
           </button>
         </div>
       </form>
