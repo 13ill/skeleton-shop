@@ -86,6 +86,7 @@ export function Home() {
           backgroundImage: siteSettings.heroBackgroundImage ? `url(${siteSettings.heroBackgroundImage})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          border: siteSettings.heroShowBorder ? `4px solid ${siteSettings.heroBorderColor}` : 'none',
         }}
       >
         {/* Overlay */}
@@ -160,8 +161,8 @@ export function Home() {
                   window.location.href = `/?${params.toString()}`;
                 }}
                 className={`flex-shrink-0 px-6 py-3 rounded-full font-medium transition-all duration-300 ${selectedCategory === cat
-                    ? 'bg-swarovski-purple text-white shadow-md'
-                    : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
+                  ? 'bg-swarovski-purple text-white shadow-md'
+                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
                   }`}
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
@@ -188,8 +189,8 @@ export function Home() {
               <button
                 onClick={() => setDisplayMode('interleaved')}
                 className={`px-4 py-2 rounded-lg transition-all duration-300 ${displayMode === 'interleaved'
-                    ? 'bg-swarovski-purple text-white shadow-md'
-                    : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
+                  ? 'bg-swarovski-purple text-white shadow-md'
+                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
                   }`}
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
@@ -198,8 +199,8 @@ export function Home() {
               <button
                 onClick={() => setDisplayMode('grouped')}
                 className={`px-4 py-2 rounded-lg transition-all duration-300 ${displayMode === 'grouped'
-                    ? 'bg-swarovski-purple text-white shadow-md'
-                    : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
+                  ? 'bg-swarovski-purple text-white shadow-md'
+                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
                   }`}
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
@@ -279,8 +280,8 @@ export function Home() {
                     key={page}
                     onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 rounded-lg border transition-all duration-300 ${currentPage === page
-                        ? "border-swarovski-purple bg-swarovski-purple text-white shadow-md"
-                        : "border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple"
+                      ? "border-swarovski-purple bg-swarovski-purple text-white shadow-md"
+                      : "border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple"
                       }`}
                     style={{ fontFamily: 'Montserrat, sans-serif' }}
                   >
@@ -304,8 +305,17 @@ export function Home() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-16 bg-swarovski-purple">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        className="py-16 relative"
+        style={{
+          backgroundImage: siteSettings.newsletterBackgroundImage ? `url(${siteSettings.newsletterBackgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundColor: !siteSettings.newsletterBackgroundImage ? '#6b4c9a' : undefined,
+          border: siteSettings.newsletterShowBorder ? `4px solid ${siteSettings.newsletterBorderColor}` : 'none',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
