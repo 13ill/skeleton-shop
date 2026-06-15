@@ -8,6 +8,15 @@ interface SiteSettings {
   openingHours: string | null;
   phone: string | null;
   email: string | null;
+  heroTitle: string | null;
+  heroSubtitle: string | null;
+  heroButtonText: string | null;
+  heroBackgroundImage: string | null;
+  heroOverlayColor: string | null;
+  newsletterTitle: string | null;
+  newsletterDescription: string | null;
+  contactPageTitle: string | null;
+  contactPageDescription: string | null;
 }
 
 interface SiteSettingsContextType {
@@ -24,6 +33,15 @@ const defaultSettings: SiteSettings = {
   openingHours: null,
   phone: null,
   email: null,
+  heroTitle: null,
+  heroSubtitle: null,
+  heroButtonText: null,
+  heroBackgroundImage: null,
+  heroOverlayColor: null,
+  newsletterTitle: null,
+  newsletterDescription: null,
+  contactPageTitle: null,
+  contactPageDescription: null,
 };
 
 export function SiteSettingsProvider({ children }: { children: ReactNode }) {

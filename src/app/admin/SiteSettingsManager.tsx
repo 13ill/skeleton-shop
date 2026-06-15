@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './authContext';
 import { env } from '../../config/env';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface SiteSettings {
   id: string;
@@ -13,6 +14,8 @@ interface SiteSettings {
   heroTitle: string | null;
   heroSubtitle: string | null;
   heroButtonText: string | null;
+  heroBackgroundImage: string | null;
+  heroOverlayColor: string | null;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
   contactPageTitle: string | null;
@@ -32,6 +35,8 @@ export function SiteSettingsManager() {
     heroTitle: '',
     heroSubtitle: '',
     heroButtonText: '',
+    heroBackgroundImage: null,
+    heroOverlayColor: 'rgba(0, 0, 0, 0.4)',
     newsletterTitle: '',
     newsletterDescription: '',
     contactPageTitle: '',
@@ -41,6 +46,7 @@ export function SiteSettingsManager() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'brand' | 'hero' | 'newsletter' | 'contact'>('brand');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -67,6 +73,40 @@ export function SiteSettingsManager() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${env.API_BASE_URL}/upload`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      setSettings({ ...settings, heroBackgroundImage: data.url });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSettings({ ...settings, heroBackgroundImage: null });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -279,15 +319,101 @@ export function SiteSettingsManager() {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Hero Background Image
+              </label>
+              <div className="space-y-4">
+                {settings.heroBackgroundImage ? (
+                  <div className="relative">
+                    <img
+                      src={settings.heroBackgroundImage}
+                      alt="Hero Background"
+                      className="w-full h-48 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder.svg';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <ImageIcon size={48} className="mx-auto text-gray-400 mb-4" />
+                    <p className="text-sm text-gray-500 mb-4">No image uploaded</p>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-swarovski-purple text-white rounded-lg hover:bg-swarovski-purple-light transition-colors cursor-pointer">
+                    <Upload size={18} />
+                    {uploading ? 'Uploading...' : 'Upload Image'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Hero Overlay Color (RGBA)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={settings.heroOverlayColor || 'rgba(0, 0, 0, 0.4)'}
+                  onChange={(e) => setSettings({ ...settings, heroOverlayColor: e.target.value })}
+                  placeholder="rgba(0, 0, 0, 0.4)"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                />
+                <input
+                  type="color"
+                  value={settings.heroOverlayColor?.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)?.slice(1).join(',') || '000000'}
+                  onChange={(e) => {
+                    const hex = e.target.value;
+                    const r = parseInt(hex.slice(1, 3), 16);
+                    const g = parseInt(hex.slice(3, 5), 16);
+                    const b = parseInt(hex.slice(5, 7), 16);
+                    setSettings({ ...settings, heroOverlayColor: `rgba(${r}, ${g}, ${b}, 0.4)` });
+                  }}
+                  className="w-12 h-10 rounded cursor-pointer"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Format: rgba(r, g, b, a) e.g., rgba(0, 0, 0, 0.4)</p>
+            </div>
+
             {/* Preview */}
             <div className="mt-6 p-4 bg-swarovski-gray rounded-lg">
               <p className="text-xs text-gray-500 mb-2">Preview:</p>
-              <div className="text-center">
-                <h3 className="text-2xl font-bold mb-2">{settings.heroTitle || 'เครื่องประดับที่สะท้อนความเป็นคุณ'}</h3>
-                <p className="text-gray-600 mb-4">{settings.heroSubtitle || 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ'}</p>
-                <button className="px-6 py-3 bg-swarovski-black text-white rounded-lg">
-                  {settings.heroButtonText || 'ดูสินค้าทั้งหมด'}
-                </button>
+              <div
+                className="text-center p-8 rounded-lg relative overflow-hidden"
+                style={{
+                  backgroundImage: settings.heroBackgroundImage ? `url(${settings.heroBackgroundImage})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{ backgroundColor: settings.heroOverlayColor || 'rgba(0, 0, 0, 0.4)' }}
+                />
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-bold mb-2 text-white">{settings.heroTitle || 'เครื่องประดับที่สะท้อนความเป็นคุณ'}</h3>
+                  <p className="text-white/80 mb-4">{settings.heroSubtitle || 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ'}</p>
+                  <button className="px-6 py-3 bg-swarovski-black text-white rounded-lg">
+                    {settings.heroButtonText || 'ดูสินค้าทั้งหมด'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

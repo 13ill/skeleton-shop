@@ -80,6 +80,8 @@ model SiteSettings {
   heroTitle       String?
   heroSubtitle    String?
   heroButtonText  String?
+  heroBackgroundImage String?
+  heroOverlayColor String?
   
   // Newsletter Section
   newsletterTitle       String?

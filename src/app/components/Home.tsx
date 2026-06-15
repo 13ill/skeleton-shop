@@ -80,8 +80,26 @@ export function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-swarovski-gray to-white py-20 md:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        className="relative py-20 md:py-32"
+        style={{
+          backgroundImage: siteSettings.heroBackgroundImage ? `url(${siteSettings.heroBackgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Overlay */}
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: siteSettings.heroOverlayColor || 'rgba(0, 0, 0, 0.4)' }}
+        />
+
+        {/* Fallback gradient if no image */}
+        {!siteSettings.heroBackgroundImage && (
+          <div className="absolute inset-0 bg-gradient-to-br from-swarovski-gray to-white" />
+        )}
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -90,23 +108,31 @@ export function Home() {
           >
             <h1
               className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight"
-              style={{ fontFamily: 'Montserrat, sans-serif' }}
+              style={{
+                fontFamily: 'Montserrat, sans-serif',
+                color: siteSettings.heroBackgroundImage ? 'white' : 'inherit'
+              }}
             >
               {siteSettings.heroTitle || 'เครื่องประดับที่สะท้อน'}
-              <span className="block text-swarovski-purple mt-2">
+              <span className={`block mt-2 ${siteSettings.heroBackgroundImage ? 'text-swarovski-gold' : 'text-swarovski-purple'}`}>
                 {siteSettings.heroSubtitle?.split('\n')[0] || 'ความเป็นคุณ'}
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p
+              className={`text-lg sm:text-xl mb-8 max-w-2xl mx-auto ${siteSettings.heroBackgroundImage ? 'text-white/80' : 'text-gray-600'
+                }`}
+            >
               {siteSettings.heroSubtitle?.split('\n')[1] || siteSettings.tagline || "เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ"}
             </p>
-            <Link
-              to="/"
-              className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-purple transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
-              style={{ fontFamily: 'Montserrat, sans-serif' }}
-            >
-              {siteSettings.heroButtonText || 'ดูสินค้าทั้งหมด'}
-            </Link>
+            {siteSettings.heroButtonText && (
+              <Link
+                to="/"
+                className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-purple transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              >
+                {siteSettings.heroButtonText}
+              </Link>
+            )}
           </motion.div>
         </div>
       </section>
