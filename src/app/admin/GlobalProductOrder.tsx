@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from './authContext';
 import { env } from '../../config/env';
@@ -8,6 +8,89 @@ interface GlobalProductOrderProps {
   categoryId?: string;
   displayMode: 'interleaved' | 'grouped';
 }
+
+// Product item component with memo to prevent unnecessary re-renders
+const ProductItem = memo(({
+  product,
+  index,
+  isDragging,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onEdit,
+  onDelete
+}: {
+  product: ProductWithImages;
+  index: number;
+  isDragging: boolean;
+  onDragStart: (e: React.DragEvent, index: number) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, index: number) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+}) => {
+  return (
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, index)}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, index)}
+      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors cursor-move ${isDragging
+        ? 'border-[#c8a96e] bg-[#c8a96e]/10'
+        : 'border-gray-200 hover:border-gray-300'
+        }`}
+    >
+      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold text-gray-600">
+        {index + 1}
+      </div>
+
+      <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+        {product.images && product.images.length > 0 ? (
+          <img
+            src={product.images[0].startsWith('http')
+              ? product.images[0]
+              : product.images[0].startsWith('/uploads')
+                ? `${env.API_BASE_URL}${product.images[0]}`
+                : product.images[0]}
+            alt={product.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+            No image
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="font-medium truncate">{product.name}</div>
+        <div className="text-sm text-gray-500">
+          {product.price ? `฿${product.price.toLocaleString()}` : '-'}
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => onEdit(product.id)}
+          className="px-3 py-1 text-sm text-[#c8a96e] hover:text-[#b0955e]"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => onDelete(product.id)}
+          className="px-3 py-1 text-sm text-red-600 hover:text-red-700"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+});
+
+ProductItem.displayName = 'ProductItem';
 
 export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrderProps) {
   const [products, setProducts] = useState<ProductWithImages[]>([]);
@@ -193,64 +276,17 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
       ) : (
         <div className="space-y-2">
           {products.map((product, index) => (
-            <div
+            <ProductItem
               key={product.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
+              product={product}
+              index={index}
+              isDragging={draggedIndex === index}
+              onDragStart={handleDragStart}
               onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)}
-              className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-colors cursor-move ${draggedIndex === index
-                ? 'border-[#c8a96e] bg-[#c8a96e]/10'
-                : 'border-gray-200 hover:border-gray-300'
-                }`}
-            >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full font-bold text-gray-600">
-                {index + 1}
-              </div>
-
-              <div className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                {product.images && product.images.length > 0 ? (
-                  <img
-                    src={product.images[0].startsWith('http')
-                      ? product.images[0]
-                      : product.images[0].startsWith('/uploads')
-                        ? `${env.API_BASE_URL}${product.images[0]}`
-                        : product.images[0]}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/placeholder.svg';
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                    No image
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="font-medium truncate">{product.name}</div>
-                <div className="text-sm text-gray-500">
-                  {product.price ? `฿${product.price.toLocaleString()}` : '-'}
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => navigate(`/admin/products/${product.id}/edit`)}
-                  className="px-3 py-1 text-sm text-[#c8a96e] hover:text-[#b0955e]"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(product.id)}
-                  className="px-3 py-1 text-sm text-red-600 hover:text-red-700"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+              onDrop={handleDrop}
+              onEdit={(id) => navigate(`/admin/products/${id}/edit`)}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
       )}

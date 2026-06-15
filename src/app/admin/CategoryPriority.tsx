@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { useAuth } from './authContext';
 import { env } from '../../config/env';
 
@@ -14,6 +14,54 @@ interface CategoryPriorityProps {
   onCategorySelect?: (categoryId: string) => void;
   selectedCategoryId?: string;
 }
+
+// Category item component with memo to prevent unnecessary re-renders
+const CategoryItem = memo(({
+  category,
+  index,
+  isDragging,
+  isSelected,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onSelect
+}: {
+  category: Category;
+  index: number;
+  isDragging: boolean;
+  isSelected: boolean;
+  onDragStart: (e: React.DragEvent, index: number) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, index: number) => void;
+  onSelect: (categoryId: string) => void;
+}) => {
+  return (
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, index)}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, index)}
+      onClick={() => onSelect(category.id)}
+      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors cursor-move ${isSelected
+        ? 'border-[#c8a96e] bg-[#c8a96e]/10'
+        : isDragging
+          ? 'border-[#c8a96e] bg-[#c8a96e]/10'
+          : 'border-gray-200 hover:border-gray-300'
+        }`}
+    >
+      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[#c8a96e] text-white rounded-full font-bold">
+        {category.priority}
+      </div>
+
+      <div className="flex-1 cursor-pointer">
+        <div className="font-medium">{category.name}</div>
+        <div className="text-sm text-gray-500">{category.slug}</div>
+      </div>
+    </div>
+  );
+});
+
+CategoryItem.displayName = 'CategoryItem';
 
 export function CategoryPriority({ onCategorySelect, selectedCategoryId }: CategoryPriorityProps) {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -127,31 +175,17 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
 
       <div className="space-y-2">
         {categories.map((category, index) => (
-          <div
+          <CategoryItem
             key={category.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, index)}
+            category={category}
+            index={index}
+            isDragging={draggedIndex === index}
+            isSelected={selectedCategoryId === category.id}
+            onDragStart={handleDragStart}
             onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, index)}
-            className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors cursor-move ${selectedCategoryId === category.id
-              ? 'border-[#c8a96e] bg-[#c8a96e]/10'
-              : draggedIndex === index
-                ? 'border-[#c8a96e] bg-[#c8a96e]/10'
-                : 'border-gray-200 hover:border-gray-300'
-              }`}
-          >
-            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[#c8a96e] text-white rounded-full font-bold">
-              {category.priority}
-            </div>
-
-            <div
-              className="flex-1 cursor-pointer"
-              onClick={() => onCategorySelect?.(category.id)}
-            >
-              <div className="font-medium">{category.name}</div>
-              <div className="text-sm text-gray-500">{category.slug}</div>
-            </div>
-          </div>
+            onDrop={handleDrop}
+            onSelect={(id) => onCategorySelect?.(id)}
+          />
         ))}
       </div>
 
