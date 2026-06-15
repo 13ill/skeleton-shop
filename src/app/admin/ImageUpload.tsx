@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { env } from '../../config/env';
 
 interface ImageUploadProps {
   onImagesChange: (images: string[]) => void;
@@ -8,6 +9,7 @@ interface ImageUploadProps {
 export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadProps) {
   const [images, setImages] = useState<string[]>(initialImages);
   const [uploading, setUploading] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -25,7 +27,7 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         // Convert to base64
         const reader = new FileReader();
         await new Promise<void>((resolve) => {
@@ -37,7 +39,7 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
         const dataUrl = base64.split(',')[1]; // Remove data URL prefix
 
         // Upload to server
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/upload`, {
+        const response = await fetch(`${env.API_BASE_URL}/upload`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -72,6 +74,31 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
     onImagesChange(newImages);
   };
 
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const newImages = [...images];
+    const draggedImage = newImages[draggedIndex];
+    newImages.splice(draggedIndex, 1);
+    newImages.splice(dropIndex, 0, draggedImage);
+
+    setImages(newImages);
+    onImagesChange(newImages);
+    setDraggedIndex(null);
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -94,16 +121,27 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
       {images.length > 0 && (
         <div className="grid grid-cols-4 gap-4">
           {images.map((image, index) => (
-            <div key={index} className="relative group">
+            <div
+              key={index}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, index)}
+              className={`relative group ${draggedIndex === index ? 'opacity-50' : ''
+                }`}
+            >
+              <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded z-10">
+                {index + 1}
+              </div>
               <img
-                src={`${import.meta.env.VITE_API_BASE_URL}${image}`}
+                src={`${env.API_BASE_URL}${image}`}
                 alt={`Product image ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                className="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-move"
               />
               <button
                 type="button"
                 onClick={() => handleRemoveImage(index)}
-                className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10"
               >
                 ×
               </button>
@@ -114,6 +152,7 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
 
       <div className="text-sm text-gray-500">
         {images.length} image{images.length !== 1 ? 's' : ''} uploaded
+        {images.length > 1 && ' (Drag to reorder)'}
       </div>
     </div>
   );

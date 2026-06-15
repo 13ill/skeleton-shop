@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useAuth } from './authContext';
 import { ImageUpload } from './ImageUpload';
+import { SpecificationsEditor } from './SpecificationsEditor';
+import { env } from '../../config/env';
 import type { ProductWithImages } from '../../types/product';
 
 export function ProductForm() {
@@ -35,7 +37,7 @@ export function ProductForm() {
     if (!token || !id) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products/${id}`, {
+      const response = await fetch(`${env.API_BASE_URL}/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -69,7 +71,7 @@ export function ProductForm() {
 
     try {
       // Get categoryId from category
-      const categoryResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories`);
+      const categoryResponse = await fetch(`${env.API_BASE_URL}/categories`);
       const categories = await categoryResponse.json();
       const category = categories.find((c: any) => c.slug === formData.category);
       const categoryId = category?.id;
@@ -88,8 +90,8 @@ export function ProductForm() {
       };
 
       const url = isEditing
-        ? `${import.meta.env.VITE_API_BASE_URL}/products/${id}`
-        : `${import.meta.env.VITE_API_BASE_URL}/products`;
+        ? `${env.API_BASE_URL}/products/${id}`
+        : `${env.API_BASE_URL}/products`;
 
       const method = isEditing ? 'PUT' : 'POST';
 
@@ -252,20 +254,10 @@ export function ProductForm() {
           />
         </div>
 
-        <div>
-          <label htmlFor="specifications" className="block text-sm font-medium text-gray-700 mb-1">
-            Specifications (JSON)
-          </label>
-          <textarea
-            id="specifications"
-            name="specifications"
-            value={formData.specifications}
-            onChange={handleChange}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e] font-mono text-sm"
-            placeholder='{"size": "Medium", "weight": "10g"}'
-          />
-        </div>
+        <SpecificationsEditor
+          value={formData.specifications}
+          onChange={(value) => setFormData({ ...formData, specifications: value })}
+        />
 
         <ImageUpload
           initialImages={formData.images ? JSON.parse(formData.images) : []}
