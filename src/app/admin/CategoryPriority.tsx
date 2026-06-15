@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './authContext';
 
 interface Category {
@@ -19,18 +19,21 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
   const [loading, setLoading] = useState(true);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const { token } = useAuth();
+  const tokenRef = useRef(token);
 
+  // Update token ref when token changes
   useEffect(() => {
-    fetchCategories();
+    tokenRef.current = token;
   }, [token]);
 
-  const fetchCategories = async () => {
-    if (!token) return;
+  const fetchCategories = useCallback(async () => {
+    if (!tokenRef.current) return;
 
+    setLoading(true);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/categories`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${tokenRef.current}`,
         },
       });
 
@@ -45,7 +48,11 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);

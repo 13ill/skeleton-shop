@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from './authContext';
 import type { ProductWithImages } from '../../types/product';
@@ -16,16 +16,24 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchProducts();
-  }, [token, categoryId, displayMode]);
+  // Track previous values to prevent unnecessary fetches
+  const prevCategoryIdRef = useRef(categoryId);
+  const prevDisplayModeRef = useRef(displayMode);
+  const categoryIdRef = useRef(categoryId);
+  const displayModeRef = useRef(displayMode);
 
-  const fetchProducts = async () => {
+  // Update refs when props change
+  useEffect(() => {
+    categoryIdRef.current = categoryId;
+    displayModeRef.current = displayMode;
+  }, [categoryId, displayMode]);
+
+  const fetchProducts = useCallback(async () => {
     if (!token) return;
 
     setLoading(true);
     try {
-      const mode = displayMode === 'interleaved' ? 'interleaved' : 'grouped';
+      const mode = displayModeRef.current === 'interleaved' ? 'interleaved' : 'grouped';
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products?mode=${mode}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -39,8 +47,8 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
       const data = await response.json();
 
       // Filter by category if selected
-      const filteredProducts = categoryId
-        ? data.filter((p: ProductWithImages) => p.categoryId === categoryId)
+      const filteredProducts = categoryIdRef.current
+        ? data.filter((p: ProductWithImages) => p.categoryId === categoryIdRef.current)
         : data;
 
       setProducts(filteredProducts);
@@ -49,7 +57,16 @@ export function GlobalProductOrder({ categoryId, displayMode }: GlobalProductOrd
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    // Only fetch if categoryId or displayMode actually changed
+    if (prevCategoryIdRef.current !== categoryId || prevDisplayModeRef.current !== displayMode) {
+      fetchProducts();
+      prevCategoryIdRef.current = categoryId;
+      prevDisplayModeRef.current = displayMode;
+    }
+  }, [fetchProducts, categoryId, displayMode]);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
