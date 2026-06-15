@@ -146,7 +146,7 @@ PORT=3000
 - [x] เพิ่ม pagination (10 items/page) ใน Products list
 - [x] สร้าง Add/Edit Product form (`/admin/products/new`, `/admin/products/:id/edit`)
 - [x] เชื่อมต่อ Frontend กับ Backend API
-- [ ] สร้าง Upload image functionality
+- [x] สร้าง Upload image functionality (API + frontend)
 - [ ] สร้างลำดับการแสดงผลสินค้า (drag & drop หรือ manual ordering)
 - [ ] ทดสอบ Admin Panel UI (พร้อมทดสอบ - รอผู้ใช้)
 
