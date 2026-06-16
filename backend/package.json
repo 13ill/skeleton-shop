@@ -10,12 +10,15 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "seed": "tsx src/seed.ts",
-    "test": "node test-api.js"
+    "test": "node test-api.js",
+    "export:sqlite": "node scripts/export-sqlite.cjs",
+    "import:postgres": "node scripts/import-postgres.cjs"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
     "@prisma/client": "^6.1.0",
     "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^11.7.0",
     "dotenv": "^16.4.7",
     "hono": "^4.6.14",
     "jsonwebtoken": "^9.0.3",
