@@ -16,423 +16,226 @@
 
 ---
 
+## Deployment Strategy
+
+### Current Situation
+- **Jump-1:** E-commerce showcase website (no online payments)
+- **POS:** Point of sale system for motorcycle repair shop
+- **Traffic:** 10-30 customers/day (low traffic)
+- **Target:** MVP launch, fast deployment
+- **Region:** Thailand
+
+### Recommended Deployment: Managed Services (Option 3 - Hybrid)
+
+#### Architecture
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Frontend (React)                        │
+│                      Vercel (Free)                         │
+│                      99.9% uptime                           │
+└────────────────────┬────────────────────────────────────┘
+                     │
+        ┌────────────┴────────────┐
+        ▼                         ▼
+┌──────────────────┐    ┌──────────────────┐
+│  Jump-1 API      │    │   POS API        │
+│  Railway (Free)  │    │  Railway (Free)  │
+│  512MB RAM       │    │  512MB RAM       │
+└────────┬─────────┘    └────────┬─────────┘
+         │                      │
+         └──────────┬───────────┘
+                    ▼
+         ┌──────────────────────┐
+│   Shared Database    │
+│  Supabase (Free)    │
+│  500MB DB           │
+│  Auto-backup enabled │
+└──────────────────────┘
+```
+
+#### Cost Analysis
+- **MVP Stage:** $0/month (all free tiers)
+- **Growth Stage (50-100 users/day):** ~$5-10/month (Railway upgrade)
+- **Scale Stage (100-500 users/day):** ~$30-35/month (Railway $5 + Supabase $25)
+
+#### Risk Mitigation
+- **Downtime Risk:** 3/10 (low with mitigation)
+  - Standby backend on Render
+  - Uptime monitoring (UptimeRobot)
+  - Auto-backup enabled
+- **Data Loss Risk:** 2/10 (very low)
+  - Daily database backups
+  - Git version control
+  - Data validation
+- **Cost Creep Risk:** 2/10 (low)
+  - Budget alerts
+  - Usage monitoring
+  - Predictable scaling
+
+#### Migration to VPS 4GB (When Scale Increases)
+
+**When to Migrate:**
+- 100+ users/day
+- 50+ stores
+- Database > 500MB
+- Need more control
+
+**Migration Difficulty:** 6/10 (moderate)
+
+**Migration Steps:**
+
+1. **Prepare VPS Environment**
+   ```bash
+   # Install Node.js
+   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+   
+   # Install PostgreSQL
+   sudo apt update
+   sudo apt install postgresql postgresql-contrib
+   
+   # Install Nginx
+   sudo apt install nginx
+   
+   # Install PM2 (process manager)
+   npm install -g pm2
+   ```
+
+2. **Setup Database**
+   ```bash
+   # Create database
+   sudo -u postgres createdb jump1
+   
+   # Import data from Supabase
+   pg_dump -h db.xxx.supabase.co -U postgres -d postgres > backup.sql
+   psql -U postgres -d jump1 < backup.sql
+   ```
+
+3. **Deploy Backend**
+   ```bash
+   # Clone repository
+   git clone <repo-url>
+   cd jump-1/backend
+   
+   # Install dependencies
+   npm install
+   
+   # Build
+   npm run build
+   
+   # Run with PM2
+   pm2 start npm --name "backend" -- start
+   pm2 save
+   pm2 startup
+   ```
+
+4. **Deploy Frontend**
+   ```bash
+   # Build for production
+   npm run build
+   
+   # Serve with Nginx
+   sudo cp -r dist/* /var/www/html
+   sudo nginx -t
+   sudo systemctl restart nginx
+   ```
+
+5. **Update DNS**
+   - Point domain to VPS IP
+   - Configure SSL with Let's Encrypt
+   - Test deployment
+
+6. **Monitor & Optimize**
+   - Setup monitoring (PM2 monitoring)
+   - Configure log rotation
+   - Setup auto-backup scripts
+   - Test failover
+
+**Migration Timeline:** 1-2 days
+
+**Rollback Plan:**
+- Keep Railway/Render running during migration
+- Switch DNS back if issues
+- Database replication during migration
+- Test thoroughly before DNS switch
+
+**Data Migration:**
+- ✅ Easy: Database export/import (pg_dump)
+- ✅ Reliable: PostgreSQL to PostgreSQL
+- ✅ Fast: 30-60 minutes for 500MB database
+- ✅ Safe: Can rollback if issues
+
+**Application Migration:**
+- ✅ Easy: Same codebase, just different deployment
+- ✅ Reliable: PM2 ensures process stays running
+- ✅ Fast: 1-2 hours for full deployment
+- ✅ Safe: Can rollback to Railway if issues
+
+**Domain Migration:**
+- ✅ Easy: DNS change (propagates in minutes)
+- ✅ Reliable: DNS is standard protocol
+- ✅ Fast: 5-10 minutes for DNS propagation
+- ✅ Safe: Can switch back if issues
+
+**Configuration Migration:**
+- ✅ Easy: Environment variables
+- ✅ Reliable: Same .env structure
+- ✅ Fast: 10-20 minutes
+- ✅ Safe: Can copy back from Railway
+
+**Overall Migration Assessment:**
+- **Difficulty:** 6/10 (moderate)
+- **Time:** 1-2 days
+- **Risk:** 3/10 (low with proper planning)
+- **Rollback:** Easy (keep old services running)
+- **Data Loss Risk:** Very low (backup everything first)
+
+**Why Migration is Easy:**
+1. Same technology stack (Node.js, PostgreSQL)
+2. Same codebase (no rewriting needed)
+3. Standard tools (pm2, nginx, postgres)
+4. Well-documented migration paths
+5. Can test thoroughly before switch
+6. Can rollback quickly if issues
+
+**Pre-Migration Checklist:**
+- [ ] Backup database from Supabase
+- [ ] Backup code from Git
+- [ ] Test deployment on VPS locally
+- [ ] Setup monitoring on VPS
+- [ ] Prepare rollback plan
+- [ ] Notify users of maintenance window
+- [ ] Test rollback procedure
+
+**Post-Migration Checklist:**
+- [ ] Verify all services running
+- [ ] Test database connectivity
+- [ ] Test API endpoints
+- [ ] Test frontend functionality
+- [ ] Monitor performance
+- [ ] Check logs for errors
+- [ ] Verify backup scripts working
+- [ ] Update documentation
+
+**Cost Comparison:**
+- **Managed Services (at scale):** ~$30-35/month
+- **VPS 4GB:** ~$10-15/month
+- **Savings:** ~$15-25/month
+- **Trade-off:** More maintenance work
+
+**When VPS 4GB is Better:**
+- 100+ users/day
+- 50+ stores
+- Need more control
+- Want to save costs
+- Have DevOps skills/time
+
+**When Managed Services are Better:**
+- < 100 users/day
+- < 50 stores
+- Don't want to manage server
+- Want fast deployment
+- Want automatic scaling
+
+---
+
 ## Phase 1: Foundation (Multi-tenant) - 2-3 สัปดาห์
-
-### Backend Files
-
-```
-backend/
-├── prisma/
-│   ├── schema.prisma                          # เพิ่ม Store model + foreign keys
-│   └── migrations/
-│       └── 2024xxxx_add_multi_tenant/         # Migration สำหรับ multi-tenant
-│           └── migration.sql
-├── src/
-│   ├── middleware/
-│   │   ├── tenantMiddleware.ts               # Middleware ตรวจสอบ store
-│   │   └── authMiddleware.ts                  # แก้ auth รองรับ multi-tenant
-│   ├── services/
-│   │   ├── storeService.ts                    # Service จัดการ store
-│   │   └── tenantService.ts                   # Service จัดการ tenant logic
-│   ├── routes/
-│   │   ├── storeRoutes.ts                     # Routes สำหรับ store CRUD
-│   │   └── publicRoutes.ts                    # Public routes สำหรับ customer
-│   └── index.ts                               # แก้ให้รองรับ multi-tenant
-```
-
-### Frontend Files
-
-```
-src/
-├── app/
-│   ├── context/
-│   │   ├── StoreContext.tsx                   # Context สำหรับ store info
-│   │   └── TenantContext.tsx                  # Context สำหรับ tenant logic
-│   ├── components/
-│   │   ├── StoreSelector.tsx                  # Component เลือก store (สำหรับ admin)
-│   │   └── StoreBadge.tsx                     # Badge แสดง store name
-│   ├── admin/
-│   │   ├── StoreManagement.tsx                # หน้าจัดการ store (super admin)
-│   │   ├── StoreForm.tsx                      # ฟอร์มสร้าง/แก้ store
-│   │   └── StoreList.tsx                      # รายการ store ทั้งหมด
-│   ├── config/
-│   │   └── tenantConfig.ts                    # Config สำหรับ tenant detection
-│   └── utils/
-│       └── tenantHelper.ts                     # Helper functions สำหรับ tenant
-```
-
-### Database Schema Changes
-
-```prisma
-model Store {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique  // สำหรับ subdomain หรือ URL
-  domain      String?  @unique  // custom domain
-  plan        String   @default("free") // free, starter, professional, enterprise
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  users       User[]
-  categories  Category[]
-  products    Product[]
-  socialLinks SocialLink[]
-  siteSettings SiteSettings[]
-  
-  @@map("stores")
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  role      String   @default("admin")
-  storeId   String
-  store     Store    @relation(fields: [storeId], references: [id])
-  // ...
-}
-
-model Product {
-  id        String   @id
-  name      String
-  storeId   String
-  store     Store    @relation(fields: [storeId], references: [id])
-  // ...
-}
-
-model Category {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String
-  storeId   String
-  store     Store    @relation(fields: [storeId], references: [id])
-  // ...
-}
-
-model SocialLink {
-  id        String   @id @default(cuid())
-  platform  String
-  url       String
-  storeId   String
-  store     Store    @relation(fields: [storeId], references: [id])
-  // ...
-}
-
-model SiteSettings {
-  id          String   @id @default(cuid())
-  brandName   String
-  tagline     String?
-  address     String?
-  storeId     String
-  store       Store    @relation(fields: [storeId], references: [id])
-  // ...
-}
-```
-
-### Key Features
-- Multi-tenant auth system
-- Store detection (subdomain or path-based)
-- Tenant isolation in all API endpoints
-- Store-specific data filtering
-
----
-
-## Phase 2: Theme System - 1-2 สัปดาห์
-
-### Backend Files
-
-```
-backend/
-├── prisma/
-│   ├── schema.prisma                          # เพิ่ม Theme model
-│   └── migrations/
-│       └── 2024xxxx_add_theme_system/         # Migration สำหรับ theme
-│           └── migration.sql
-├── src/
-│   ├── routes/
-│   │   └── themeRoutes.ts                     # Routes สำหรับ theme CRUD
-│   ├── services/
-│   │   └── themeService.ts                    # Service จัดการ theme
-│   └── presets/
-│       ├── modernTheme.ts                     # Preset theme: Modern
-│       ├── classicTheme.ts                    # Preset theme: Classic
-│       ├── luxuryTheme.ts                     # Preset theme: Luxury
-│       └── minimalTheme.ts                    # Preset theme: Minimal
-```
-
-### Frontend Files
-
-```
-src/
-├── app/
-│   ├── context/
-│   │   └── ThemeContext.tsx                   # Context สำหรับ theme
-│   ├── components/
-│   │   ├── theme/
-│   │   │   ├── ThemeSelector.tsx              # Component เลือก theme
-│   │   │   ├── ThemeCustomizer.tsx            # Component custom theme
-│   │   │   ├── ColorPicker.tsx                # Component เลือกสี
-│   │   │   ├── FontSelector.tsx                # Component เลือก font
-│   │   │   └── ThemePreview.tsx               # Preview theme
-│   │   └── styles/
-│   │       ├── ThemeProvider.tsx              # Provider สำหรับ theme
-│   │       └── themeVariables.ts              # CSS variables สำหรับ theme
-│   ├── admin/
-│   │   └── ThemeManager.tsx                   # หน้าจัดการ theme
-│   └── themes/
-│       ├── modern/
-│       │   ├── colors.ts                      # Color palette
-│       │   ├── fonts.ts                       # Font settings
-│       │   └── components.tsx                 # Component styles
-│       ├── classic/
-│       │   ├── colors.ts
-│       │   ├── fonts.ts
-│       │   └── components.tsx
-│       ├── luxury/
-│       │   ├── colors.ts
-│       │   ├── fonts.ts
-│       │   └── components.tsx
-│       └── minimal/
-│           ├── colors.ts
-│           ├── fonts.ts
-│           └── components.tsx
-```
-
-### Database Schema Changes
-
-```prisma
-model Theme {
-  id              String   @id @default(cuid())
-  name            String   // modern, classic, luxury, minimal
-  storeId         String
-  store           Store    @relation(fields: [storeId], references: [id])
-  
-  // Customization
-  primaryColor    String?
-  secondaryColor  String?
-  backgroundColor String?
-  textColor       String?
-  accentColor     String?
-  
-  headingFont     String?
-  bodyFont        String?
-  fontSize        Int?
-  
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  @@map("themes")
-}
-
-model Store {
-  // ...
-  themes          Theme[]
-}
-```
-
-### Pre-built Themes
-
-1. **Modern** - Clean, minimalist, bold colors
-2. **Classic** - Traditional, elegant, gold accents
-3. **Luxury** - Premium, sophisticated, dark theme
-4. **Minimal** - Simple, white space, black & white
-
-### Customization Options
-- **Colors:** Primary, secondary, accent, background, text
-- **Fonts:** Heading font, body font (Google Fonts)
-- **Logo:** Upload custom logo
-- **Layout:** Grid vs List, Sidebar navigation
-- **Components:** Button styles, card styles, animations
-
----
-
-## Phase 3: Package/Billing System - 2-3 สัปดาห์
-
-### Backend Files
-
-```
-backend/
-├── prisma/
-│   ├── schema.prisma                          # เพิ่ม Package, Subscription model
-│   └── migrations/
-│       └── 2024xxxx_add_billing_system/       # Migration สำหรับ billing
-│           └── migration.sql
-├── src/
-│   ├── routes/
-│   │   ├── packageRoutes.ts                   # Routes สำหรับ package CRUD
-│   │   ├── subscriptionRoutes.ts               # Routes สำหรับ subscription
-│   │   └── paymentRoutes.ts                   # Routes สำหรับ payment
-│   ├── services/
-│   │   ├── packageService.ts                  # Service จัดการ package
-│   │   ├── subscriptionService.ts             # Service จัดการ subscription
-│   │   └── paymentService.ts                   # Service จัดการ payment
-│   ├── middleware/
-│   │   └── packageMiddleware.ts               # Middleware ตรวจสอบ package limits
-│   └── utils/
-│       ├── stripe.ts                          # Stripe integration
-│       └── invoiceGenerator.ts                # Generate invoice
-```
-
-### Frontend Files
-
-```
-src/
-├── app/
-│   ├── admin/
-│   │   ├── PackageManagement.tsx              # หน้าจัดการ package (super admin)
-│   │   ├── PackageForm.tsx                    # ฟอร์มสร้าง/แก้ package
-│   │   ├── SubscriptionManagement.tsx         # หน้าจัดการ subscription
-│   │   ├── PaymentHistory.tsx                 # ประวัติการชำระเงิน
-│   │   └── UpgradePackage.tsx                 # หน้า upgrade package
-│   ├── components/
-│   │   ├── billing/
-│   │   │   ├── PackageCard.tsx                # Card แสดง package
-│   │   │   ├── FeatureList.tsx                # List แสดง features
-│   │   │   ├── PricingTable.tsx               # ตารางราคา
-│   │   │   └── PaymentForm.tsx                # ฟอร์มชำระเงิน
-│   │   └── limits/
-│   │       ├── UsageIndicator.tsx             # แสดงการใช้งาน vs limit
-│   │       └── LimitWarning.tsx              # Warning เมื่อใกล้ limit
-│   └── context/
-│       └── PackageContext.tsx                 # Context สำหรับ package info
-```
-
-### Database Schema Changes
-
-```prisma
-model Package {
-  id          String   @id @default(cuid())
-  name        String   // Free Trial, Starter, Professional, Enterprise
-  price       Int      // ราคาต่อปี (บาท)
-  duration    Int      @default(365) // จำนวนวัน
-  
-  // Feature limits
-  maxProducts Int?
-  maxUsers    Int?
-  maxThemes   Int?
-  customDomain Boolean  @default(false)
-  apiAccess   Boolean  @default(false)
-  
-  features    Json     // Array of feature names
-  
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("packages")
-}
-
-model Subscription {
-  id          String   @id @default(cuid())
-  storeId     String
-  store       Store    @relation(fields: [storeId], references: [id])
-  packageId   String
-  package     Package  @relation(fields: [packageId], references: [id])
-  
-  startDate   DateTime
-  endDate     DateTime
-  status      String   // active, cancelled, expired, pending
-  
-  stripeCustomerId String?
-  stripeSubscriptionId String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("subscriptions")
-}
-
-model Payment {
-  id          String   @id @default(cuid())
-  subscriptionId String
-  subscription Subscription @relation(fields: [subscriptionId], references: [id])
-  
-  amount      Int
-  currency    String   @default("THB")
-  status      String   // pending, completed, failed, refunded
-  
-  stripePaymentIntentId String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("payments")
-}
-
-model Store {
-  // ...
-  subscriptions Subscription[]
-}
-
-model Package {
-  // ...
-  subscriptions Subscription[]
-  payments Payment[]
-}
-```
-
-### Pricing Packages
-
-**Free Trial (14 วัน)**
-- 50 products
-- 1 admin user
-- Basic theme (1 theme)
-- Basic features
-- Chat support (limited)
-
-**Starter - ฿5,000/ปี**
-- 200 products
-- 2 admin users
-- 3 themes
-- Basic analytics
-- Priority chat support
-- Custom logo
-
-**Professional - ฿15,000/ปี**
-- 1,000 products
-- 5 admin users
-- All themes
-- Advanced analytics
-- Custom domain
-- Priority chat support
-- Inventory management
-- Export/Import data
-
-**Enterprise - ฿50,000/ปี**
-- Unlimited products
-- Unlimited admin users
-- Custom theme development
-- White-label
-- API access
-- Dedicated chat support
-- Custom integrations
-- Priority feature requests
-
----
-
-## Recommended Implementation Order
-
-1. **Phase 2 (Theme System)** - ทำก่อนเพื่อให้หน้าเว็บสวยงาม
-2. **Phase 1 (Foundation)** - แปลงเป็น multi-tenant
-3. **Phase 3 (Package/Billing)** - จัดการ subscription
-
----
-
-## Chat Support System
-
-### Options:
-
-**Option 1: Third-party (Recommended)**
-- **Crisp** - Free tier ดี, easy setup
-- **Intercom** - Professional, มี features ครบ
-- **Tawk.to** - Free, basic features
-
-**Option 2: Build Custom Chat**
-- WebSocket + Database
-- Real-time messaging
-- File attachments
-
-**Recommendation:** เริ่มจาก **Crisp** (free tier ดี) แล้วค่อยย้ายไป Intercom เมื่อ scale ขึ้น
