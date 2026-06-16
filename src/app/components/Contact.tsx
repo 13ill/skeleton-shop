@@ -122,7 +122,7 @@ export function Contact() {
               className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white tracking-tight"
               style={{
                 fontFamily: 'Montserrat, sans-serif',
-                WebkitTextStroke: `${siteSettings.contactTextStrokeWidth || 2}px ${siteSettings.contactTextStrokeColor || '#ffffff'}`,
+                WebkitTextStroke: `${siteSettings.contactTextStrokeWidth || 0.5}px ${siteSettings.contactTextStrokeColor || '#ffffff'}`,
               }}
             >
               {siteSettings.contactPageTitle || 'ติดต่อเรา'}
@@ -130,7 +130,7 @@ export function Contact() {
             <p
               className="text-lg sm:text-xl text-white/80 mb-8 max-w-2xl mx-auto"
               style={{
-                WebkitTextStroke: `${siteSettings.contactTextStrokeWidth || 2}px ${siteSettings.contactTextStrokeColor || '#ffffff'}`,
+                WebkitTextStroke: `${siteSettings.contactTextStrokeWidth || 0.5}px ${siteSettings.contactTextStrokeColor || '#ffffff'}`,
               }}
             >
               {siteSettings.contactPageDescription || 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง'}

@@ -50,21 +50,21 @@ export function SiteSettingsManager() {
     heroButtonText: '',
     heroBackgroundImage: null,
     heroTextStrokeColor: '#ffffff',
-    heroTextStrokeWidth: 2,
+    heroTextStrokeWidth: 0.5,
     heroBorderColor: '#6b4c9a',
     heroShowBorder: false,
     newsletterTitle: '',
     newsletterDescription: '',
     newsletterBackgroundImage: null,
     newsletterTextStrokeColor: '#ffffff',
-    newsletterTextStrokeWidth: 2,
+    newsletterTextStrokeWidth: 0.5,
     newsletterBorderColor: '#d4af37',
     newsletterShowBorder: false,
     contactPageTitle: '',
     contactPageDescription: '',
     contactBackgroundImage: null,
     contactTextStrokeColor: '#ffffff',
-    contactTextStrokeWidth: 2,
+    contactTextStrokeWidth: 0.5,
     contactBorderColor: '#6b4c9a',
     contactShowBorder: false,
   });
@@ -309,10 +309,11 @@ export function SiteSettingsManager() {
         </label>
         <input
           type="number"
-          value={strokeWidth || 2}
-          onChange={(e) => onStrokeWidthChange(parseInt(e.target.value) || 2)}
+          value={strokeWidth || 0.5}
+          onChange={(e) => onStrokeWidthChange(parseFloat(e.target.value) || 0.5)}
           min="0"
-          max="10"
+          max="5"
+          step="0.1"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
         />
         <p className="text-xs text-gray-500 mt-1">Recommended: 1-3px</p>
@@ -339,8 +340,8 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('brand')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'brand'
-              ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           Brand Info
@@ -348,8 +349,8 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('hero')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'hero'
-              ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           Hero Section
@@ -357,8 +358,8 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('newsletter')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'newsletter'
-              ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           Newsletter
@@ -366,8 +367,8 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('contact')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'contact'
-              ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
-              : 'text-gray-500 hover:text-gray-700'
+            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            : 'text-gray-500 hover:text-gray-700'
             }`}
         >
           Contact Page
@@ -538,7 +539,7 @@ export function SiteSettingsManager() {
                     className="text-2xl font-bold mb-2"
                     style={{
                       fontFamily: 'Montserrat, sans-serif',
-                      WebkitTextStroke: `${settings.heroTextStrokeWidth || 2}px ${settings.heroTextStrokeColor || '#ffffff'}`,
+                      WebkitTextStroke: `${settings.heroTextStrokeWidth || 0.5}px ${settings.heroTextStrokeColor || '#ffffff'}`,
                       color: settings.heroBackgroundImage ? 'white' : 'inherit',
                     }}
                   >
@@ -547,7 +548,7 @@ export function SiteSettingsManager() {
                   <p
                     className="mb-4"
                     style={{
-                      WebkitTextStroke: `${settings.heroTextStrokeWidth || 2}px ${settings.heroTextStrokeColor || '#ffffff'}`,
+                      WebkitTextStroke: `${settings.heroTextStrokeWidth || 0.5}px ${settings.heroTextStrokeColor || '#ffffff'}`,
                       color: settings.heroBackgroundImage ? 'white' : 'inherit',
                     }}
                   >
@@ -632,7 +633,7 @@ export function SiteSettingsManager() {
                     className="text-2xl font-bold mb-2 text-white"
                     style={{
                       fontFamily: 'Montserrat, sans-serif',
-                      WebkitTextStroke: `${settings.newsletterTextStrokeWidth || 2}px ${settings.newsletterTextStrokeColor || '#ffffff'}`,
+                      WebkitTextStroke: `${settings.newsletterTextStrokeWidth || 0.5}px ${settings.newsletterTextStrokeColor || '#ffffff'}`,
                     }}
                   >
                     {settings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
@@ -640,7 +641,7 @@ export function SiteSettingsManager() {
                   <p
                     className="text-white/80 mb-4"
                     style={{
-                      WebkitTextStroke: `${settings.newsletterTextStrokeWidth || 2}px ${settings.newsletterTextStrokeColor || '#ffffff'}`,
+                      WebkitTextStroke: `${settings.newsletterTextStrokeWidth || 0.5}px ${settings.newsletterTextStrokeColor || '#ffffff'}`,
                     }}
                   >
                     {settings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}

@@ -107,7 +107,7 @@ export function Home() {
                 fontFamily: 'Montserrat, sans-serif',
                 color: siteSettings.heroBackgroundImage ? 'white' : 'inherit',
                 WebkitTextStroke: siteSettings.heroBackgroundImage
-                  ? `${siteSettings.heroTextStrokeWidth || 2}px ${siteSettings.heroTextStrokeColor || '#ffffff'}`
+                  ? `${siteSettings.heroTextStrokeWidth || 0.5}px ${siteSettings.heroTextStrokeColor || '#ffffff'}`
                   : 'none',
               }}
             >
@@ -121,7 +121,7 @@ export function Home() {
                 }`}
               style={{
                 WebkitTextStroke: siteSettings.heroBackgroundImage
-                  ? `${siteSettings.heroTextStrokeWidth || 2}px ${siteSettings.heroTextStrokeColor || '#ffffff'}`
+                  ? `${siteSettings.heroTextStrokeWidth || 0.5}px ${siteSettings.heroTextStrokeColor || '#ffffff'}`
                   : 'none',
               }}
             >
@@ -329,7 +329,7 @@ export function Home() {
               className="text-3xl font-bold mb-4 text-white"
               style={{
                 fontFamily: 'Montserrat, sans-serif',
-                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 1}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
               }}
             >
               {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
@@ -337,7 +337,7 @@ export function Home() {
             <p
               className="text-white/80 mb-8 max-w-xl mx-auto"
               style={{
-                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 1}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
               }}
             >
               {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}

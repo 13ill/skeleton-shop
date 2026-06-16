@@ -339,7 +339,7 @@ export function Footer() {
                 className="text-xl font-bold mb-2 text-center"
                 style={{
                   fontFamily: 'Montserrat, sans-serif',
-                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 0.5}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
                 }}
               >
                 {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
@@ -347,7 +347,7 @@ export function Footer() {
               <p
                 className="text-gray-300 text-sm text-center mb-6"
                 style={{
-                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 2}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 0.5}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
                 }}
               >
                 {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
