@@ -37,7 +37,7 @@ app.get('/uploads/:filename', (c) => {
     webp: 'image/webp',
   };
 
-  c.header('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+  c.header('Content-Type', ext && mimeTypes[ext] ? mimeTypes[ext] : 'application/octet-stream');
   return c.body(file);
 });
 
@@ -61,7 +61,7 @@ app.get('/Product/:category/:filename', (c) => {
     webp: 'image/webp',
   };
 
-  c.header('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+  c.header('Content-Type', ext && mimeTypes[ext] ? mimeTypes[ext] : 'application/octet-stream');
   return c.body(file);
 });
 
@@ -845,6 +845,9 @@ app.get('/public/site-settings', async (c) => {
     // Return default settings if none exist
     if (!settings) {
       settings = {
+        id: 'default',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         brandName: 'Niwelry',
         tagline: 'เครื่องประดับเพชรพลอยคุณภาพสูง',
         address: '123 ถนนสุขุมวิท ซอย 11\nแขวคลองตียเหนือ เขตวัฒณา\nกรุงเทพมหานคร 10110',
@@ -856,21 +859,21 @@ app.get('/public/site-settings', async (c) => {
         heroButtonText: 'ดูสินค้าทั้งหมด',
         heroBackgroundImage: null,
         heroTextStrokeColor: '#ffffff',
-        heroTextStrokeWidth: 2,
+        heroTextStrokeWidth: 0.5,
         heroBorderColor: '#6b4c9a',
         heroShowBorder: false,
         newsletterTitle: 'รับข่าวสารและโปรโมชั่นพิเศษ',
         newsletterDescription: 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด',
         newsletterBackgroundImage: null,
         newsletterTextStrokeColor: '#ffffff',
-        newsletterTextStrokeWidth: 2,
+        newsletterTextStrokeWidth: 0.5,
         newsletterBorderColor: '#d4af37',
         newsletterShowBorder: false,
         contactPageTitle: 'ติดต่อเรา',
         contactPageDescription: 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง',
         contactBackgroundImage: null,
         contactTextStrokeColor: '#ffffff',
-        contactTextStrokeWidth: 2,
+        contactTextStrokeWidth: 0.5,
         contactBorderColor: '#6b4c9a',
         contactShowBorder: false,
       };

@@ -20,6 +20,11 @@ interface SiteSettings {
   email: string | null;
   contactPageTitle: string | null;
   contactPageDescription: string | null;
+  contactBackgroundImage: string | null;
+  contactTextStrokeColor: string | null;
+  contactTextStrokeWidth: number | null;
+  contactBorderColor: string | null;
+  contactShowBorder: boolean;
 }
 
 const PLATFORM_INFO: Record<string, { label: string; icon: any; color: string }> = {
@@ -42,6 +47,11 @@ export function Contact() {
     email: null,
     contactPageTitle: null,
     contactPageDescription: null,
+    contactBackgroundImage: null,
+    contactTextStrokeColor: null,
+    contactTextStrokeWidth: null,
+    contactBorderColor: null,
+    contactShowBorder: false,
   });
   const [loading, setLoading] = useState(true);
   const { siteSettings: globalSettings } = useSiteSettings();
