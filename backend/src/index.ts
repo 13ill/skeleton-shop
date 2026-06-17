@@ -110,7 +110,7 @@ app.get('/health', async (c) => {
     return c.json({
       status: 'unhealthy',
       database: 'disconnected',
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
       timestamp: new Date().toISOString()
     }, 503);
   }
@@ -876,6 +876,7 @@ app.get('/public/site-settings', async (c) => {
     if (!settings) {
       settings = {
         id: 'default',
+        project: 'jump1',
         createdAt: new Date(),
         updatedAt: new Date(),
         brandName: 'Niwelry',
