@@ -45,28 +45,39 @@
 - **Document:** POS_CONFLICTS.md
 - **Coverage:** All 5 conflict types documented with resolutions
 
+### Step 1.8: Generate SQL Scripts for Manual Import
+- **Status:** ✅ Completed
+- **Scripts Created:**
+  - `backend/scripts/create-tables.sql` - Table creation script
+  - `backend/scripts/import-data.sql` - Data import script (from SQLite export)
+  - `backend/scripts/generate-import-sql.cjs` - Script generator
+- **Documentation:** SUPABASE_MANUAL_IMPORT.md
+- **Data Ready:** 6 products, 1 site settings
+
 ---
 
 ## ⏸️ Blocked Steps
 
-### Step 1.6: Run Prisma Migration to Supabase
-- **Status:** ❌ Blocked - Connection Issue
-- **Error:** P1001 - Can't reach database server
-- **Details:** Cannot connect to `db.nnhohnfjmzarkopoebqr.supabase.co:5432`
-- **Troubleshooting:** See SUPABASE_CONNECTION_ISSUE.md
-- **Action Required:** User to check Supabase project status
+### Step 1.6: Create Tables in Supabase (Manual)
+- **Status:** 🔄 In Progress - Ready for User Action
+- **Approach:** Manual execution via Supabase SQL Editor
+- **Script:** `backend/scripts/create-tables.sql`
+- **Instructions:** See SUPABASE_MANUAL_IMPORT.md
+- **Action Required:** User to execute script in Supabase SQL Editor
 
-### Step 1.5: Import Data to PostgreSQL
-- **Status:** ⏸️ Pending - Blocked by Step 1.6
+### Step 1.7: Import Data to PostgreSQL (Manual)
+- **Status:** ⏸️ Pending - Waiting for Step 1.6
 - **Prerequisites:** Step 1.6 must complete first
-- **Script:** `backend/scripts/import-postgres.cjs` (ready to run)
-- **Command:** `npm run import:postgres`
+- **Script:** `backend/scripts/import-data.sql` (generated from SQLite export)
+- **Data:** 6 products, 1 site settings
+- **Instructions:** See SUPABASE_MANUAL_IMPORT.md
+- **Action Required:** User to execute script in Supabase SQL Editor
 
-### Step 1.6: Verify Database Migration
-- **Status:** ⏸️ Pending - Blocked by Step 1.6
-- **Prerequisites:** Step 1.5 must complete first
-- **Script:** Will create verification script
-- **Command:** `npm run verify:postgres`
+### Step 1.8: Verify Database Migration
+- **Status:** ⏸️ Pending - Waiting for Step 1.7
+- **Prerequisites:** Step 1.7 must complete first
+- **Instructions:** See SUPABASE_MANUAL_IMPORT.md (Section 4)
+- **Action Required:** User to run verification queries
 
 ---
 
@@ -136,13 +147,12 @@ If connection continues to fail:
 
 ## 🎯 Next Steps
 
-1. **User Action:** Check Supabase project status
-2. **User Action:** Test connection via Supabase SQL Editor
-3. **User Action:** Resolve connection issue
-4. **Automated:** Run `npx prisma db push`
-5. **Automated:** Run `npm run import:postgres`
-6. **Automated:** Create verification script
-7. **Automated:** Run verification
+1. **User Action:** Execute `create-tables.sql` in Supabase SQL Editor
+2. **User Action:** Execute `import-data.sql` in Supabase SQL Editor
+3. **User Action:** Run verification queries in Supabase SQL Editor
+4. **Automated:** Update backend `.env` with Supabase connection string
+5. **Automated:** Test backend connection to Supabase
+6. **Automated:** Update Phase 1 status to complete
 
 ---
 
@@ -168,5 +178,6 @@ If connection continues to fail:
 ---
 
 **Phase 1 Status:** 67% Complete (6/9 steps)
-**Blocking:** Supabase connection issue (P1001)
+**Current Task:** Manual table creation via Supabase SQL Editor
+**Blocking:** Waiting for user to execute SQL scripts
 **Last Updated:** 2025-01-16

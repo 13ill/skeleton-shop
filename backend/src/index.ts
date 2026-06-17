@@ -96,6 +96,26 @@ app.get('/', (c) => {
   return c.json({ status: 'ok', message: 'Jump-1 API is running' });
 });
 
+// Detailed health check for Railway
+app.get('/health', async (c) => {
+  try {
+    // Test database connection
+    await prisma.$queryRaw`SELECT 1`;
+    return c.json({
+      status: 'healthy',
+      database: 'connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    return c.json({
+      status: 'unhealthy',
+      database: 'disconnected',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    }, 503);
+  }
+});
+
 // Auth: Register
 app.post('/auth/register', async (c) => {
   try {
@@ -515,16 +535,21 @@ app.put('/products/bulk-order', authMiddleware, async (c) => {
 app.get('/products', async (c) => {
   try {
     const mode = c.req.query('mode') || 'grouped';
+    console.log('📡 Fetching products with mode:', mode);
 
     if (mode === 'interleaved') {
       // Interleaved mode: sort by globalOrder, then interleave by category priority
+      console.log('📡 Fetching categories...');
       const categories = await prisma.category.findMany({
         orderBy: { priority: 'asc' },
       });
+      console.log('✅ Categories fetched:', categories.length);
 
+      console.log('📡 Fetching products...');
       const products = await prisma.product.findMany({
         orderBy: { globalOrder: 'asc' },
       });
+      console.log('✅ Products fetched:', products.length);
 
       // Create category priority map
       const categoryPriorityMap = new Map<string, number>();
@@ -547,19 +572,24 @@ app.get('/products', async (c) => {
       return c.json(sortedProducts);
     } else {
       // Grouped mode: ring1, ring2, ring3..., necklace1, necklace2...
+      console.log('📡 Fetching categories for grouped mode...');
       const categories = await prisma.category.findMany({
         orderBy: { priority: 'asc' },
       });
+      console.log('✅ Categories fetched:', categories.length);
 
       const grouped: any[] = [];
       for (const category of categories) {
+        console.log('📡 Fetching products for category:', category.name);
         const products = await prisma.product.findMany({
           where: { categoryId: category.id },
           orderBy: { categoryOrder: 'asc' },
         });
+        console.log('✅ Products for category:', products.length);
         grouped.push(...products);
       }
 
+      console.log('✅ Returning grouped products:', grouped.length);
       return c.json(grouped);
     }
   } catch (error) {
