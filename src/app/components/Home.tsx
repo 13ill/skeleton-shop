@@ -140,41 +140,6 @@ export function Home() {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2
-            className="text-2xl font-bold mb-8 text-center"
-            style={{ fontFamily: 'Montserrat, sans-serif' }}
-          >
-            หมวดหมู่สินค้า
-          </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {['all', 'ring', 'necklace', 'bracelet', 'earring'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => {
-                  const params = new URLSearchParams(location.search);
-                  if (cat === 'all') {
-                    params.delete('category');
-                  } else {
-                    params.set('category', cat);
-                  }
-                  window.location.href = `/?${params.toString()}`;
-                }}
-                className={`flex-shrink-0 px-6 py-3 rounded-full font-medium transition-all duration-300 ${selectedCategory === cat
-                  ? 'bg-swarovski-purple text-white shadow-md'
-                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
-                  }`}
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              >
-                {cat === 'all' ? 'ทั้งหมด' : categoryMap[cat as Category]}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Products Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
