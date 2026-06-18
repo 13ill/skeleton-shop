@@ -52,9 +52,7 @@ const ProductItem = memo(({
           <img
             src={product.images[0].startsWith('http')
               ? product.images[0]
-              : product.images[0].startsWith('http')
-                ? `${env.API_BASE_URL}${product.images[0]}`
-                : product.images[0]}
+              : product.images[0]}
             alt={product.name}
             className="w-full h-full object-cover"
             onError={(e) => {

@@ -139,7 +139,9 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
                 {index + 1}
               </div>
               <img
-                src={`${env.API_BASE_URL}${image}`}
+                src={image.startsWith('http')
+                  ? image
+                  : image}
                 alt={`Product image ${index + 1}`}
                 className="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-move"
               />
