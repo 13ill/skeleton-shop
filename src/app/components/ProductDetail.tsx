@@ -31,7 +31,7 @@ export function ProductDetail() {
   }, [id]);
 
   const images = product?.images?.map(img =>
-    img?.startsWith('/uploads') 
+    img?.startsWith('http') 
       ? `${import.meta.env.VITE_API_BASE_URL}${img}`
       : img
   ) || [];
