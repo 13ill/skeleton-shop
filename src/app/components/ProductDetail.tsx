@@ -31,8 +31,8 @@ export function ProductDetail() {
   }, [id]);
 
   const images = product?.images?.map(img =>
-    img?.startsWith('http') 
-      ? `${import.meta.env.VITE_API_BASE_URL}${img}`
+    img?.startsWith('http')
+      ? img
       : img
   ) || [];
   const hasMultipleImages = images.length > 1;

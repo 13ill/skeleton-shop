@@ -225,8 +225,8 @@ export function Home() {
                 >
                   <div className="relative overflow-hidden bg-swarovski-gray aspect-[3/4] mb-4 rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300">
                     <img
-                      src={product.images[0]?.startsWith('http') 
-                        ? `${import.meta.env.VITE_API_BASE_URL}${product.images[0]}`
+                      src={product.images[0]?.startsWith('http')
+                        ? product.images[0]
                         : product.images[0] || '/placeholder.svg'}
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
