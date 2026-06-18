@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useAuth } from './authContext';
 import { CategoryPriority } from './CategoryPriority';
 import { GlobalProductOrder } from './GlobalProductOrder';
 import { SocialLinksManager } from './SocialLinksManager';
 import { SiteSettingsManager } from './SiteSettingsManager';
 
 export function ProductsList() {
+  const { logout } = useAuth();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [displayMode, setDisplayMode] = useState<'interleaved' | 'grouped'>('interleaved');
   const [activeTab, setActiveTab] = useState<'products' | 'social' | 'settings'>('products');
@@ -14,10 +16,21 @@ export function ProductsList() {
     window.open('/', '_blank');
   };
 
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/admin/login';
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+        >
+          Logout
+        </button>
       </div>
 
       {/* Tabs */}
