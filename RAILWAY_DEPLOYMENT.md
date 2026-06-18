@@ -195,3 +195,22 @@ Railway will auto-deploy on push.
 2. ⏳ Deploy frontend to Vercel
 3. ⏳ Configure custom domain (optional)
 4. ⏳ Set up monitoring (UptimeRobot)
+
+
+---
+
+## 🖼️ Cloudflare R2 Image Upload
+
+The backend now uses Cloudflare R2 for image storage. See [R2_IMAGE_UPLOAD.md](./R2_IMAGE_UPLOAD.md) for detailed configuration.
+
+### Required Environment Variables
+
+Add these to Railway dashboard:
+
+```env
+R2_ENDPOINT=https://6fc2659450d326addf8554c4d05aa835.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=your_r2_access_key_id
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+R2_BUCKET_NAME=jump-1-images
+R2_PUBLIC_URL=https://pub-2d7e25b6f92840b9b82cc077b739efd8.r2.dev
+```
