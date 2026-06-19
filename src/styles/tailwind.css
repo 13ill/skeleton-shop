@@ -38,8 +38,9 @@
     --font-bluenile: 'Roboto', sans-serif;
 
     /* Spacing */
-    --spacing-section: 6rem;
-    --spacing-section-mobile: 3rem;
+    --spacing-section: 8rem;
+    --spacing-section-mobile: 4rem;
+    --spacing-section-lg: 10rem;
 
     /* Border Radius */
     --radius-card: 0.5rem;

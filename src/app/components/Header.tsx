@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { getCategoryCounts, getProductById } from "../../services/productService";
 import { categoryMap, type Category } from "../../types/product";
 import { useSiteSettings } from "../context/SiteSettingsContext";
+import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 const categories: Category[] = ["all", "ring", "necklace", "bracelet", "earring"];
 
@@ -19,6 +21,7 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Scroll effect for header
   useEffect(() => {
@@ -96,9 +99,15 @@ export function Header() {
 
   const handleContactClick = () => {
     navigate('/contact');
+    setIsMobileMenuOpen(false);
   };
 
   const isContactPage = location.pathname === '/contact';
+
+  const handleMobileCategoryClick = (category: Category) => {
+    handleCategoryClick(category);
+    setIsMobileMenuOpen(false);
+  };
 
   return (
     <header
@@ -106,21 +115,30 @@ export function Header() {
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Logo Section */}
-        <div className="py-6 text-center">
+        {/* Logo Section with Hamburger */}
+        <div className="py-6 flex items-center justify-between">
           <Link to="/" className="inline-block">
             <h1
-              className="text-3xl sm:text-4xl font-bold tracking-[0.2em] uppercase font-swarovski text-swarovski-black hover:text-swarovski-gold transition-colors duration-300"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-[0.2em] uppercase font-swarovski text-swarovski-black hover:text-swarovski-gold transition-colors duration-300"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
               {siteSettings.brandName}
             </h1>
           </Link>
+
+          {/* Hamburger Menu Button - Mobile Only */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 text-swarovski-black hover:text-swarovski-gold transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="pb-6">
-          <div className="flex justify-center gap-4 sm:gap-8 text-xs sm:text-sm tracking-wider font-medium">
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:block pb-6">
+          <div className="flex justify-center gap-8 text-sm tracking-wider font-medium">
             {categories
               .filter((category) => category === 'all' || (categoryCounts[category] || 0) > 0)
               .map((category) => (
@@ -149,6 +167,74 @@ export function Header() {
           </div>
         </nav>
       </div>
+
+      {/* Mobile Menu Drawer */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 lg:hidden"
+          >
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold tracking-wider uppercase" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  เมนู
+                </h2>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 text-swarovski-black hover:text-swarovski-gold transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <nav className="space-y-4">
+                {categories
+                  .filter((category) => category === 'all' || (categoryCounts[category] || 0) > 0)
+                  .map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => handleMobileCategoryClick(category)}
+                      className={`w-full text-left py-3 px-4 rounded-lg transition-all duration-300 ${!isContactPage && activeCategory === category
+                          ? 'bg-swarovski-gold text-white'
+                          : 'bg-swarovski-gray text-swarovski-black hover:bg-swarovski-gold hover:text-white'
+                        }`}
+                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="uppercase tracking-wider">{categoryMap[category]}</span>
+                        <span className="text-sm opacity-75">({categoryCounts[category] || 0})</span>
+                      </div>
+                    </button>
+                  ))}
+                <button
+                  onClick={handleContactClick}
+                  className={`w-full text-left py-3 px-4 rounded-lg transition-all duration-300 ${isContactPage
+                      ? 'bg-swarovski-gold text-white'
+                      : 'bg-swarovski-gray text-swarovski-black hover:bg-swarovski-gold hover:text-white'
+                    }`}
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  <span className="uppercase tracking-wider">ติดต่อเรา</span>
+                </button>
+              </nav>
+            </div>
+
+            {/* Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

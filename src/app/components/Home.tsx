@@ -2,18 +2,29 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { getAllProducts, getProductsByCategory, getProductsWithMode } from "../../services/productService";
 import { categoryMap, type Category, type ProductWithImages } from "../../types/product";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useSiteSettings } from "../context/SiteSettingsContext";
 import { ResponsiveImage } from "./ResponsiveImage";
+import { Heart, Eye } from "lucide-react";
 
 export function Home() {
   const [displayMode, setDisplayMode] = useState<'interleaved' | 'grouped'>('interleaved');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [products, setProducts] = useState<ProductWithImages[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [scrollY, setScrollY] = useState(0);
   const itemsPerPage = 12;
   const location = useLocation();
   const { siteSettings } = useSiteSettings();
+
+  // Parallax effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Get current category from URL
   const getCurrentCategory = (): Category => {
@@ -69,10 +80,23 @@ export function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-swarovski-gray to-white">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-swarovski-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500">กำลังโหลด...</p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="w-16 h-16 border-4 border-swarovski-gold border-t-transparent rounded-full animate-spin mx-auto mb-6"
+          />
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-gray-600 tracking-wider uppercase text-sm"
+            style={{ fontFamily: 'Montserrat, sans-serif' }}
+          >
+            กำลังโหลด...
+          </motion.p>
         </div>
       </div>
     );
@@ -82,28 +106,35 @@ export function Home() {
     <div>
       {/* Hero Section */}
       <section
-        className="relative py-20 md:py-32"
+        className="relative py-20 md:py-32 overflow-hidden"
         style={{
           backgroundImage: siteSettings.heroBackgroundImage ? `url(${siteSettings.heroBackgroundImage})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
           border: siteSettings.heroShowBorder ? `4px solid ${siteSettings.heroBorderColor}` : 'none',
         }}
       >
         {/* Fallback gradient if no image */}
         {!siteSettings.heroBackgroundImage && (
-          <div className="absolute inset-0 bg-gradient-to-br from-swarovski-gray to-white" />
+          <div className="absolute inset-0 bg-gradient-to-br from-swarovski-gray via-white to-swarovski-gray" />
         )}
+
+        {/* Decorative overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1, ease: "easeOut" }}
             className="text-center"
           >
-            <h1
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 tracking-tight leading-[1.2]"
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight leading-[1.2]"
               style={{
                 fontFamily: 'Montserrat, sans-serif',
                 color: siteSettings.heroBackgroundImage ? 'white' : 'inherit',
@@ -113,12 +144,20 @@ export function Home() {
               }}
             >
               {siteSettings.heroTitle || 'เครื่องประดับที่สะท้อน'}
-              <span className={`block mt-3 ${siteSettings.heroBackgroundImage ? 'text-swarovski-gold' : 'text-swarovski-gold'}`}>
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className={`block mt-3 ${siteSettings.heroBackgroundImage ? 'text-swarovski-gold' : 'text-swarovski-gold'}`}
+              >
                 {siteSettings.heroSubtitle?.split('\n')[0] || 'ความเป็นคุณ'}
-              </span>
-            </h1>
-            <p
-              className={`text-lg sm:text-xl mb-8 max-w-2xl mx-auto ${siteSettings.heroBackgroundImage ? 'text-white/80' : 'text-gray-600'
+              </motion.span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className={`text-lg sm:text-xl mb-8 max-w-2xl mx-auto ${siteSettings.heroBackgroundImage ? 'text-white/90' : 'text-gray-700'
                 }`}
               style={{
                 WebkitTextStroke: siteSettings.heroBackgroundImage
@@ -127,22 +166,48 @@ export function Home() {
               }}
             >
               {siteSettings.heroSubtitle?.split('\n')[1] || siteSettings.tagline || "เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ"}
-            </p>
+            </motion.p>
             {siteSettings.heroButtonText && (
-              <Link
-                to="/"
-                className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-gold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
               >
-                {siteSettings.heroButtonText}
-              </Link>
+                <Link
+                  to="/"
+                  className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-gold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  {siteSettings.heroButtonText}
+                </Link>
+              </motion.div>
             )}
           </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center pt-2"
+          >
+            <motion.div
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="w-1 h-3 bg-white/70 rounded-full"
+            />
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Products Section */}
-      <section className="py-16 bg-white">
+      <section className="py-20 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h2
@@ -197,6 +262,29 @@ export function Home() {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
+
+                    {/* Quick Actions Overlay */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                      <button
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-swarovski-gold hover:text-white transition-all duration-300"
+                        aria-label="Add to wishlist"
+                      >
+                        <Heart size={18} className="fill-transparent" />
+                      </button>
+                      <button
+                        className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-swarovski-gold hover:text-white transition-all duration-300"
+                        aria-label="Quick view"
+                      >
+                        <Eye size={18} />
+                      </button>
+                    </div>
+
+                    {/* New Badge */}
+                    {index < 3 && (
+                      <div className="absolute top-3 left-3 bg-swarovski-gold text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        New
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
