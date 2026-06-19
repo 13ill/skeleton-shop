@@ -209,7 +209,9 @@ app.get('/products/:id', async (c) => {
     if (!product) {
       return c.json({ error: 'Product not found' }, 404);
     }
-    return c.json(product);
+    // Parse images from JSON string to array for frontend
+    const parsedImages = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+    return c.json({ ...product, images: parsedImages });
   } catch (error) {
     console.error('Error fetching product:', error);
     return c.json({ error: 'Failed to fetch product' }, 500);
@@ -224,7 +226,12 @@ app.get('/products/category/:category', async (c) => {
       where: { category },
       orderBy: { createdAt: 'desc' },
     });
-    return c.json(products);
+    // Parse images from JSON string to array for each product
+    const parsedProducts = products.map(p => ({
+      ...p,
+      images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images
+    }));
+    return c.json(parsedProducts);
   } catch (error) {
     console.error('Error fetching products by category:', error);
     return c.json({ error: 'Failed to fetch products' }, 500);
@@ -256,7 +263,9 @@ app.post('/products', authMiddleware, async (c) => {
       },
     });
 
-    return c.json(product);
+    // Parse images from JSON string to array for frontend
+    const parsedImages = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+    return c.json({ ...product, images: parsedImages });
   } catch (error) {
     console.error('Error creating product:', error);
     return c.json({ error: 'Failed to create product' }, 500);
@@ -335,7 +344,9 @@ app.put('/products/:id', authMiddleware, async (c) => {
       },
     });
 
-    return c.json(product);
+    // Parse images from JSON string to array for frontend
+    const parsedImages = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+    return c.json({ ...product, images: parsedImages });
   } catch (error) {
     console.error('Error updating product:', error);
     return c.json({ error: 'Failed to update product' }, 500);
@@ -422,7 +433,9 @@ app.put('/products/:id/globalOrder', authMiddleware, async (c) => {
       data: { globalOrder },
     });
 
-    return c.json(product);
+    // Parse images from JSON string to array for frontend
+    const parsedImages = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+    return c.json({ ...product, images: parsedImages });
   } catch (error) {
     console.error('Error updating product global order:', error);
     return c.json({ error: 'Failed to update product global order' }, 500);
@@ -440,7 +453,9 @@ app.put('/products/:id/categoryOrder', authMiddleware, async (c) => {
       data: { categoryOrder },
     });
 
-    return c.json(product);
+    // Parse images from JSON string to array for frontend
+    const parsedImages = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+    return c.json({ ...product, images: parsedImages });
   } catch (error) {
     console.error('Error updating product category order:', error);
     return c.json({ error: 'Failed to update product category order' }, 500);
@@ -582,7 +597,12 @@ app.get('/products', async (c) => {
         return aPriority - bPriority;
       });
 
-      return c.json(sortedProducts);
+      // Parse images from JSON string to array for each product
+      const parsedProducts = sortedProducts.map(p => ({
+        ...p,
+        images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images
+      }));
+      return c.json(parsedProducts);
     } else {
       // Grouped mode: ring1, ring2, ring3..., necklace1, necklace2...
       console.log('📡 Fetching categories for grouped mode...');
@@ -603,7 +623,12 @@ app.get('/products', async (c) => {
       }
 
       console.log('✅ Returning grouped products:', grouped.length);
-      return c.json(grouped);
+      // Parse images from JSON string to array for each product
+      const parsedProducts = grouped.map(p => ({
+        ...p,
+        images: typeof p.images === 'string' ? JSON.parse(p.images) : p.images
+      }));
+      return c.json(parsedProducts);
     }
   } catch (error) {
     console.error('Error fetching products:', error);
