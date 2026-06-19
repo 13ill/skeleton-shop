@@ -4,6 +4,7 @@ import { getAllProducts, getProductsByCategory, getProductsWithMode } from "../.
 import { categoryMap, type Category, type ProductWithImages } from "../../types/product";
 import { motion } from "motion/react";
 import { useSiteSettings } from "../context/SiteSettingsContext";
+import { ResponsiveImage } from "./ResponsiveImage";
 
 export function Home() {
   const [displayMode, setDisplayMode] = useState<'interleaved' | 'grouped'>('interleaved');
@@ -70,7 +71,7 @@ export function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-swarovski-purple border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-swarovski-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-500">กำลังโหลด...</p>
         </div>
       </div>
@@ -102,7 +103,7 @@ export function Home() {
             className="text-center"
           >
             <h1
-              className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tight"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 tracking-tight leading-[1.2]"
               style={{
                 fontFamily: 'Montserrat, sans-serif',
                 color: siteSettings.heroBackgroundImage ? 'white' : 'inherit',
@@ -112,7 +113,7 @@ export function Home() {
               }}
             >
               {siteSettings.heroTitle || 'เครื่องประดับที่สะท้อน'}
-              <span className={`block mt-2 ${siteSettings.heroBackgroundImage ? 'text-swarovski-gold' : 'text-swarovski-purple'}`}>
+              <span className={`block mt-3 ${siteSettings.heroBackgroundImage ? 'text-swarovski-gold' : 'text-swarovski-gold'}`}>
                 {siteSettings.heroSubtitle?.split('\n')[0] || 'ความเป็นคุณ'}
               </span>
             </h1>
@@ -130,7 +131,7 @@ export function Home() {
             {siteSettings.heroButtonText && (
               <Link
                 to="/"
-                className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-purple transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
+                className="inline-block px-8 py-4 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-gold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-glow"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
                 {siteSettings.heroButtonText}
@@ -156,8 +157,8 @@ export function Home() {
               <button
                 onClick={() => setDisplayMode('interleaved')}
                 className={`px-4 py-2 rounded-lg transition-all duration-300 ${displayMode === 'interleaved'
-                  ? 'bg-swarovski-purple text-white shadow-md'
-                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
+                  ? 'bg-swarovski-black text-white shadow-md'
+                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-black hover:text-white'
                   }`}
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
@@ -166,8 +167,8 @@ export function Home() {
               <button
                 onClick={() => setDisplayMode('grouped')}
                 className={`px-4 py-2 rounded-lg transition-all duration-300 ${displayMode === 'grouped'
-                  ? 'bg-swarovski-purple text-white shadow-md'
-                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-purple hover:text-white'
+                  ? 'bg-swarovski-black text-white shadow-md'
+                  : 'bg-swarovski-gray text-gray-700 hover:bg-swarovski-black hover:text-white'
                   }`}
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
@@ -188,16 +189,12 @@ export function Home() {
                   to={`/product/${product.id}`}
                   className="group block"
                 >
-                  <div className="relative overflow-hidden bg-swarovski-gray aspect-[3/4] mb-4 rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300">
-                    <img
-                      src={product.images[0]?.startsWith('http')
-                        ? product.images[0]
-                        : product.images[0] || '/placeholder.svg'}
+                  <div className="relative overflow-hidden bg-swarovski-gray aspect-[3/4] mb-4 rounded-lg border border-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300">
+                    <ResponsiveImage
+                      src={product.images[0] || '/placeholder.svg'}
                       alt={product.name}
+                      sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      onError={(e) => {
-                        e.currentTarget.src = '/placeholder.svg';
-                      }}
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
                   </div>
@@ -207,7 +204,7 @@ export function Home() {
                       {categoryMap[product.category as Category] || product.category}
                     </p>
                     <h3
-                      className="text-base font-semibold tracking-wide group-hover:text-swarovski-purple transition-colors"
+                      className="text-base font-semibold tracking-wide group-hover:text-swarovski-gold transition-colors"
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       {product.name}
@@ -235,7 +232,7 @@ export function Home() {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-lg border border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  className="px-4 py-2 rounded-lg border border-gray-200 hover:border-swarovski-gold hover:text-swarovski-gold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                   style={{ fontFamily: 'Montserrat, sans-serif' }}
                 >
                   ก่อนหน้า
@@ -247,8 +244,8 @@ export function Home() {
                     key={page}
                     onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 rounded-lg border transition-all duration-300 ${currentPage === page
-                      ? "border-swarovski-purple bg-swarovski-purple text-white shadow-md"
-                      : "border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple"
+                      ? "border-swarovski-black bg-swarovski-black text-white shadow-md"
+                      : "border-gray-200 hover:border-swarovski-gold hover:text-swarovski-gold"
                       }`}
                     style={{ fontFamily: 'Montserrat, sans-serif' }}
                   >
@@ -260,7 +257,7 @@ export function Home() {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-lg border border-gray-200 hover:border-swarovski-purple hover:text-swarovski-purple disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                  className="px-4 py-2 rounded-lg border border-gray-200 hover:border-swarovski-gold hover:text-swarovski-gold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                   style={{ fontFamily: 'Montserrat, sans-serif' }}
                 >
                   ถัดไป
@@ -278,7 +275,7 @@ export function Home() {
           backgroundImage: siteSettings.newsletterBackgroundImage ? `url(${siteSettings.newsletterBackgroundImage})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundColor: !siteSettings.newsletterBackgroundImage ? '#6b4c9a' : undefined,
+          backgroundColor: !siteSettings.newsletterBackgroundImage ? '#1f1b18' : undefined,
           border: siteSettings.newsletterShowBorder ? `4px solid ${siteSettings.newsletterBorderColor}` : 'none',
         }}
       >

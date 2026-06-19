@@ -6,8 +6,8 @@
 @theme {
     /* Swarovski Colors */
     --color-swarovski-black: #000000;
-    --color-swarovski-purple: #6b4c9a;
-    --color-swarovski-purple-light: #8b6cb8;
+    --color-swarovski-purple: #1f1b18;
+    --color-swarovski-purple-light: #3a322c;
     --color-swarovski-gold: #d4af37;
     --color-swarovski-gold-light: #e8c869;
     --color-swarovski-gray: #f5f5f5;
@@ -49,5 +49,5 @@
     /* Shadows */
     --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px rgba(107, 76, 154, 0.3);
+    --shadow-glow: 0 0 20px rgba(212, 175, 55, 0.35);
 }

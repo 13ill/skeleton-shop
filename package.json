@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node scripts/build-products.cjs && vite build",
     "build:products": "node scripts/build-products.cjs",
+    "build:images": "node scripts/generate-image-variants.cjs",
     "dev": "node scripts/build-products.cjs && vite",
     "test": "node frontend-test.js",
     "test:performance": "node performance-test.js"

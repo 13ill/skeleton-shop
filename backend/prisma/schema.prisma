@@ -50,6 +50,8 @@ model Product {
   material        String?
   specifications   Json?    // Store as JSON for flexibility
   images          Json     // Store as JSON array
+  metaTitle       String?  // SEO: <title> override for product page
+  metaDescription String?  // SEO: meta description for product page
   project         String   @default("jump1") // Project isolation
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

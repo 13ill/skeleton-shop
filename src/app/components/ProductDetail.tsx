@@ -4,6 +4,7 @@ import { categoryMap, type ProductWithImages } from "../../types/product";
 import { ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect, useRef } from "react";
+import { ResponsiveImage, buildSrcSet } from "./ResponsiveImage";
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +30,29 @@ export function ProductDetail() {
     };
     loadProduct();
   }, [id]);
+
+  // SEO: per-product <title> and meta description
+  useEffect(() => {
+    if (!product) return;
+    const prevTitle = document.title;
+    document.title = product.metaTitle || `${product.name} | Niwelry`;
+
+    let tag = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
+    const created = !tag;
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute('name', 'description');
+      document.head.appendChild(tag);
+    }
+    const prevDesc = tag.getAttribute('content');
+    tag.setAttribute('content', product.metaDescription || product.description || '');
+
+    return () => {
+      document.title = prevTitle;
+      if (created && tag && tag.parentNode) tag.parentNode.removeChild(tag);
+      else if (tag) tag.setAttribute('content', prevDesc || '');
+    };
+  }, [product]);
 
   const images = product?.images?.map(img =>
     img?.startsWith('http')
@@ -143,6 +167,10 @@ export function ProductDetail() {
               <motion.img
                 key={currentIndex}
                 src={images[currentIndex] || '/placeholder.jpg'}
+                  srcSet={buildSrcSet(images[currentIndex] || '')}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  loading="eager"
+                  decoding="async"
                 alt={`${product.name} - Image ${currentIndex + 1}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -221,9 +249,10 @@ export function ProductDetail() {
                       : "border-gray-200 hover:border-gray-300"
                       }`}
                   >
-                    <img
+                    <ResponsiveImage
                       src={image}
                       alt={`${product.name} - Thumbnail ${index + 1}`}
+                      sizes="96px"
                       className="w-full h-full object-cover"
                     />
                     {index === currentIndex && (
@@ -394,6 +423,10 @@ export function ProductDetail() {
                 <motion.img
                   key={currentIndex}
                   src={images[currentIndex] || '/placeholder.jpg'}
+                  srcSet={buildSrcSet(images[currentIndex] || '')}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  loading="eager"
+                  decoding="async"
                   alt={`${product.name} - Image ${currentIndex + 1}`}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}

@@ -198,3 +198,43 @@ PORT=3000
 ## 6. เอกสารที่เกี่ยวข้อง
 - `docs/DEPLOYMENT_PLAN.md` — ตั้งค่า VPS, security, backup, deploy, Docker
 - `PRODUCT_GUIDE.md` — วิธีเพิ่มสินค้า (ของเดิม, ระบบไฟล์ — จะอัปเดตเมื่อมี admin)
+
+---
+
+## 7. ความคืบหน้ารายวัน (Daily Updates)
+
+### 2026-06-19 — Polish UI/Content/Images (branch `polish-ui-content-images`)
+ทำตาม feedback รีวิวเว็บ (UI/UX + เนื้อหา + CMS + ภาพหลายขนาด)
+
+**UI/UX — ปรับธีมเป็น ทอง/ดำ/เทา (ไล่สีม่วงออกทั้งเว็บ):**
+- ✅ Remap CSS variable ม่วง → charcoal เป็น safety net + เปลี่ยน `shadow-glow` เป็นทอง (`tailwind.css`)
+- ✅ แปลง 55+ จุดแบบตั้งใจ: accent/hover/active = ทอง, ปุ่ม/fill หลัก = ดำ (Home, Header, Footer, Contact, SiteSettingsManager) + แก้ hex `#6b4c9a` ที่ hardcode
+- ✅ Hero typography: ลดขนาด (6xl→5xl) + เพิ่ม `leading-[1.2]` + เว้นบรรทัด, แก้ default heroTitle/heroSubtitle ไม่ให้ซ้ำ
+- ✅ Product card: เพิ่ม border บางให้มีมิติ
+
+**เนื้อหา/ข้อมูล:**
+- ✅ แก้คำผิด footer ทุกที่ (`แขวงคลองเตยเหนือ เขตวัฒนา`, `จันทร์`) — backend seed 2 บล็อก + CMS placeholder + `data-export.json`
+- ✅ เพิ่ม demo contact/social เป็น default seed ใน backend (แสดงเมื่อ DB ว่าง) — footer ไม่โล่ง
+- ✅ Payment icons: เปลี่ยน CreditCard ซ้ำ → VISA / Mastercard / PromptPay
+
+**CMS:**
+- ✅ ซ่อนหมวดหมู่ที่ count=0 อัตโนมัติ (Header, คง "ทั้งหมด" ไว้เสมอ)
+- ✅ SEO meta per product: เพิ่ม `metaTitle`/`metaDescription` (schema + backend CRUD + ProductForm + ตั้ง `document.title`/meta ใน ProductDetail)
+- ✅ ImageUpload: เพิ่ม hint สัดส่วนแนะนำ 3:4
+
+**ภาพหลายขนาด (ลดค่าใช้จ่าย/bandwidth):**
+- ✅ Backend `/upload` ใช้ `sharp` สร้าง WebP 3 ขนาด (400/800/1200px) + คืน `srcset`
+- ✅ สร้าง `<ResponsiveImage>` (srcset + sizes + lazy + decoding=async + fallback) ใช้ใน Home/ProductDetail/ImageUpload
+- ✅ สคริปต์ `scripts/generate-image-variants.cjs` (+ npm `build:images`) — รันแล้วได้ 246 variants สำหรับ catalog เดิม 82 รูป
+
+**ทดสอบ:**
+- ✅ Backend `npm run build` (tsc) ผ่าน
+- ✅ Frontend `npm run build` (vite) ผ่าน (built in ~18s)
+
+**ปัญหาที่พบและแก้ไข:**
+- **ไฟล์เป็น CRLF**: edit แบบ multi-line ไม่ match → ใช้ node script / single-line anchor แทน
+- **R2 ยังไม่ได้ implement จริง**: `/upload` ยังเก็บ local filesystem (ตามโค้ดเดิม) — ตรรกะ variant พร้อมย้ายไป R2 ได้ทันที
+
+**⚠️ ต้องทำตอน deploy:**
+- ฟิลด์ SEO เป็นคอลัมน์ใหม่ใน Prisma → ต้องรัน `npx prisma db push` (หรือ `prisma migrate deploy`) บน DB จริงก่อน ไม่งั้น API products จะ error
+- commit ไฟล์ `*.webp` variants (246 ไฟล์) เพื่อให้ srcset ใช้ได้บน production (Vercel static build ไม่มี sharp)

@@ -5,11 +5,20 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { hashPassword, verifyPassword, generateToken, verifyToken } from './auth';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, extname } from 'path';
+import sharp from 'sharp';
 
 dotenv.config();
 
 const prisma = new PrismaClient();
+
+const DEMO_SOCIAL_LINKS = [
+  { id: 'demo-line', platform: 'line', url: 'https://line.me/R/ti/p/@niwelry', isActive: true },
+  { id: 'demo-facebook', platform: 'facebook', url: 'https://facebook.com/niwelry', isActive: true },
+  { id: 'demo-instagram', platform: 'instagram', url: 'https://instagram.com/niwelry', isActive: true },
+  { id: 'demo-phone', platform: 'phone', url: '02-123-4567', isActive: true },
+];
+
 const app = new Hono();
 
 // Ensure uploads directory exists
@@ -225,7 +234,7 @@ app.get('/products/category/:category', async (c) => {
 // Create product (requires auth)
 app.post('/products', authMiddleware, async (c) => {
   try {
-    const { id, name, category, price, description, fullDescription, material, materials, specifications, images } = await c.req.json();
+    const { id, name, category, price, description, fullDescription, material, materials, specifications, images, metaTitle, metaDescription } = await c.req.json();
 
     if (!id || !name || !category) {
       return c.json({ error: 'ID, name, and category are required' }, 400);
@@ -242,6 +251,8 @@ app.post('/products', authMiddleware, async (c) => {
         material,
         specifications: specifications || null,
         images: images || [],
+        metaTitle: metaTitle || null,
+        metaDescription: metaDescription || null,
       },
     });
 
@@ -306,7 +317,7 @@ app.put('/products/reorder', authMiddleware, async (c) => {
 app.put('/products/:id', authMiddleware, async (c) => {
   const id = c.req.param('id');
   try {
-    const { name, category, price, description, fullDescription, material, materials, specifications, images } = await c.req.json();
+    const { name, category, price, description, fullDescription, material, materials, specifications, images, metaTitle, metaDescription } = await c.req.json();
 
     const product = await prisma.product.update({
       where: { id },
@@ -319,6 +330,8 @@ app.put('/products/:id', authMiddleware, async (c) => {
         ...(material && { material }),
         ...(specifications && { specifications }),
         ...(images && { images }),
+        ...(metaTitle !== undefined && { metaTitle }),
+        ...(metaDescription !== undefined && { metaDescription }),
       },
     });
 
@@ -598,6 +611,11 @@ app.get('/products', async (c) => {
   }
 });
 
+// Responsive image widths used to generate WebP variants on upload.
+// Serving an appropriately sized image (instead of the full original)
+// dramatically reduces bandwidth / R2 egress cost.
+const IMAGE_WIDTHS = [400, 800, 1200];
+
 // Upload image (requires auth) - accepts base64 encoded image
 app.post('/upload', authMiddleware, async (c) => {
   try {
@@ -619,12 +637,41 @@ app.post('/upload', authMiddleware, async (c) => {
       mkdirSync(dir, { recursive: true });
     }
 
-    // Save file
+    // Keep the original (full quality) file for the lightbox / downloads
     writeFileSync(filepath, buffer);
 
-    // Return file URL
-    const fileUrl = `/${filename}`;
-    return c.json({ url: fileUrl });
+    // Generate responsive WebP variants: "<path-without-ext>-<width>.webp"
+    const ext = extname(filename);
+    const base = ext ? filename.slice(0, -ext.length) : filename;
+    const variants: { width: number; url: string }[] = [];
+    try {
+      const meta = await sharp(buffer).metadata();
+      for (const width of IMAGE_WIDTHS) {
+        // Skip variants larger than the source (avoid duplicate upscaled files)
+        if (meta.width && meta.width < width && variants.length > 0) continue;
+        const variantName = `${base}-${width}.webp`;
+        const variantPath = join(uploadsDir, variantName);
+        const variantDir = dirname(variantPath);
+        if (!existsSync(variantDir)) {
+          mkdirSync(variantDir, { recursive: true });
+        }
+        await sharp(buffer)
+          .rotate() // respect EXIF orientation
+          .resize({ width, withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(variantPath);
+        variants.push({ width, url: `/${variantName}` });
+      }
+    } catch (variantError) {
+      console.error('Failed to generate image variants:', variantError);
+    }
+
+    // Default url = the 800px variant (good for product cards); fall back to original
+    const medium = variants.find((v) => v.width === 800) || variants[variants.length - 1];
+    const fileUrl = medium ? medium.url : `/${filename}`;
+    const srcset = variants.map((v) => `${v.url} ${v.width}w`).join(', ');
+
+    return c.json({ url: fileUrl, srcset, variants, original: `/${filename}` });
   } catch (error) {
     console.error('Error uploading file:', error);
     return c.json({ error: 'Failed to upload file' }, 500);
@@ -706,6 +753,10 @@ app.get('/public/social-links', async (c) => {
       where: { isActive: true },
       orderBy: { createdAt: 'asc' },
     });
+    // Demo fallback so the storefront looks complete before the owner adds real links
+    if (socialLinks.length === 0) {
+      return c.json(DEMO_SOCIAL_LINKS);
+    }
     return c.json(socialLinks);
   } catch (error) {
     console.error('Error fetching public social links:', error);
@@ -724,14 +775,16 @@ app.get('/site-settings', authMiddleware, async (c) => {
         data: {
           brandName: 'Niwelry',
           tagline: 'เครื่องประดับเพชรพลอยคุณภาพสูง',
-          address: '123 ถนนสุขุมวิท ซอย 11\nแขวคลองตียเหนือ เขตวัฒณา\nกรุงเทพมหานคร 10110',
-          openingHours: 'จันร์ - เสาร์  10:00 - 19:00 น.',
-          heroTitle: 'เครื่องประดับที่สะท้อนความเป็นคุณ',
-          heroSubtitle: 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ',
+          address: '123 ถนนสุขุมวิท ซอย 11\nแขวงคลองเตยเหนือ เขตวัฒนา\nกรุงเทพมหานคร 10110',
+          openingHours: 'จันทร์ - เสาร์  10:00 - 19:00 น.',
+          phone: '02-123-4567',
+          email: 'contact@niwelry.example',
+          heroTitle: 'เครื่องประดับที่สะท้อน',
+          heroSubtitle: 'ความเป็นคุณ\nเครื่องประดับเพชรพลอยคุณภาพสูง คัดสรรความพิเศษเพื่อคุณ',
           heroButtonText: 'ดูสินค้าทั้งหมด',
           heroTextStrokeColor: '#ffffff',
           heroTextStrokeWidth: 0.5,
-          heroBorderColor: '#6b4c9a',
+          heroBorderColor: '#d4af37',
           heroShowBorder: false,
           newsletterTitle: 'รับข่าวสารและโปรโมชั่นพิเศษ',
           newsletterDescription: 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด',
@@ -743,7 +796,7 @@ app.get('/site-settings', authMiddleware, async (c) => {
           contactPageDescription: 'เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง',
           contactTextStrokeColor: '#ffffff',
           contactTextStrokeWidth: 0.5,
-          contactBorderColor: '#6b4c9a',
+          contactBorderColor: '#d4af37',
           contactShowBorder: false,
         },
       });
@@ -881,17 +934,17 @@ app.get('/public/site-settings', async (c) => {
         updatedAt: new Date(),
         brandName: 'Niwelry',
         tagline: 'เครื่องประดับเพชรพลอยคุณภาพสูง',
-        address: '123 ถนนสุขุมวิท ซอย 11\nแขวคลองตียเหนือ เขตวัฒณา\nกรุงเทพมหานคร 10110',
-        openingHours: 'จันร์ - เสาร์  10:00 - 19:00 น.',
-        phone: '',
-        email: '',
-        heroTitle: 'เครื่องประดับที่สะท้อนความเป็นคุณ',
-        heroSubtitle: 'เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ',
+        address: '123 ถนนสุขุมวิท ซอย 11\nแขวงคลองเตยเหนือ เขตวัฒนา\nกรุงเทพมหานคร 10110',
+        openingHours: 'จันทร์ - เสาร์  10:00 - 19:00 น.',
+        phone: '02-123-4567',
+        email: 'contact@niwelry.example',
+        heroTitle: 'เครื่องประดับที่สะท้อน',
+        heroSubtitle: 'ความเป็นคุณ\nเครื่องประดับเพชรพลอยคุณภาพสูง คัดสรรความพิเศษเพื่อคุณ',
         heroButtonText: 'ดูสินค้าทั้งหมด',
         heroBackgroundImage: null,
         heroTextStrokeColor: '#ffffff',
         heroTextStrokeWidth: 0.5,
-        heroBorderColor: '#6b4c9a',
+        heroBorderColor: '#d4af37',
         heroShowBorder: false,
         newsletterTitle: 'รับข่าวสารและโปรโมชั่นพิเศษ',
         newsletterDescription: 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด',
@@ -905,7 +958,7 @@ app.get('/public/site-settings', async (c) => {
         contactBackgroundImage: null,
         contactTextStrokeColor: '#ffffff',
         contactTextStrokeWidth: 0.5,
-        contactBorderColor: '#6b4c9a',
+        contactBorderColor: '#d4af37',
         contactShowBorder: false,
       };
     }

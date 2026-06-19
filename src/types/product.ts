@@ -11,6 +11,8 @@ export interface Product {
   fullDescription: string;
   material: string;
   materials: string[];
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   specifications: {
     size?: string;
     [key: string]: string | undefined;

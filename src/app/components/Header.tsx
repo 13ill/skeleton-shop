@@ -110,7 +110,7 @@ export function Header() {
         <div className="py-6 text-center">
           <Link to="/" className="inline-block">
             <h1
-              className="text-3xl sm:text-4xl font-bold tracking-[0.2em] uppercase font-swarovski text-swarovski-black hover:text-swarovski-purple transition-colors duration-300"
+              className="text-3xl sm:text-4xl font-bold tracking-[0.2em] uppercase font-swarovski text-swarovski-black hover:text-swarovski-gold transition-colors duration-300"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
               {siteSettings.brandName}
@@ -121,24 +121,26 @@ export function Header() {
         {/* Navigation */}
         <nav className="pb-6">
           <div className="flex justify-center gap-4 sm:gap-8 text-xs sm:text-sm tracking-wider font-medium">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => handleCategoryClick(category)}
-                className={`uppercase transition-all duration-300 hover:text-swarovski-purple ${!isContactPage && activeCategory === category
-                    ? "text-swarovski-black border-b-2 border-swarovski-purple pb-1"
+            {categories
+              .filter((category) => category === 'all' || (categoryCounts[category] || 0) > 0)
+              .map((category) => (
+                <button
+                  key={category}
+                  onClick={() => handleCategoryClick(category)}
+                  className={`uppercase transition-all duration-300 hover:text-swarovski-gold ${!isContactPage && activeCategory === category
+                    ? "text-swarovski-black border-b-2 border-swarovski-gold pb-1"
                     : "text-gray-500"
-                  }`}
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              >
-                {categoryMap[category]} ({categoryCounts[category] || 0})
-              </button>
-            ))}
+                    }`}
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  {categoryMap[category]} ({categoryCounts[category] || 0})
+                </button>
+              ))}
             <button
               onClick={handleContactClick}
-              className={`uppercase transition-all duration-300 hover:text-swarovski-purple ${isContactPage
-                  ? "text-swarovski-black border-b-2 border-swarovski-purple pb-1"
-                  : "text-gray-500"
+              className={`uppercase transition-all duration-300 hover:text-swarovski-gold ${isContactPage
+                ? "text-swarovski-black border-b-2 border-swarovski-gold pb-1"
+                : "text-gray-500"
                 }`}
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >

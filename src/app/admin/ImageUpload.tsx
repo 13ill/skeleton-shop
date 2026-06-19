@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { env } from '../../config/env';
+import { ResponsiveImage } from '../components/ResponsiveImage';
 
 interface ImageUploadProps {
   onImagesChange: (images: string[]) => void;
@@ -118,6 +119,9 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
           disabled={uploading}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e] disabled:opacity-50"
         />
+        <p className="text-xs text-gray-500 mt-1">
+          แนะนำรูปสัดส่วน 3:4 (เช่น 1200×1600px) เพื่อให้พอดีกับการ์ดสินค้า — ระบบจะย่อเป็นหลายขนาด (WebP) ให้อัตโนมัติเพื่อลดการโหลดและค่าใช้จ่าย
+        </p>
         {uploading && (
           <p className="text-sm text-gray-500 mt-1">Uploading...</p>
         )}
@@ -138,11 +142,10 @@ export function ImageUpload({ onImagesChange, initialImages = [] }: ImageUploadP
               <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded z-10">
                 {index + 1}
               </div>
-              <img
-                src={image.startsWith('http')
-                  ? image
-                  : image}
+              <ResponsiveImage
+                src={image}
                 alt={`Product image ${index + 1}`}
+                sizes="160px"
                 className="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-move"
               />
               <button

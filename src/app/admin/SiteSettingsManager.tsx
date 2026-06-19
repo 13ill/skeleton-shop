@@ -51,7 +51,7 @@ export function SiteSettingsManager() {
     heroBackgroundImage: null,
     heroTextStrokeColor: '#ffffff',
     heroTextStrokeWidth: 0.5,
-    heroBorderColor: '#6b4c9a',
+    heroBorderColor: '#d4af37',
     heroShowBorder: false,
     newsletterTitle: '',
     newsletterDescription: '',
@@ -65,7 +65,7 @@ export function SiteSettingsManager() {
     contactBackgroundImage: null,
     contactTextStrokeColor: '#ffffff',
     contactTextStrokeWidth: 0.5,
-    contactBorderColor: '#6b4c9a',
+    contactBorderColor: '#d4af37',
     contactShowBorder: false,
   });
   const [loading, setLoading] = useState(true);
@@ -205,7 +205,7 @@ export function SiteSettingsManager() {
             <p className="text-sm text-gray-500 mb-4">No image uploaded</p>
           </div>
         )}
-        <label className="flex items-center justify-center gap-2 px-4 py-2 bg-swarovski-purple text-white rounded-lg hover:bg-swarovski-purple-light transition-colors cursor-pointer">
+        <label className="flex items-center justify-center gap-2 px-4 py-2 bg-swarovski-black text-white rounded-lg hover:bg-swarovski-gold transition-colors cursor-pointer">
           <Upload size={18} />
           {uploading === field ? 'Uploading...' : 'Upload Image'}
           <input
@@ -241,7 +241,7 @@ export function SiteSettingsManager() {
           onClick={() => onShowBorderChange(!showBorder)}
           className="flex items-center gap-2"
         >
-          {showBorder ? <ToggleRight size={24} className="text-swarovski-purple" /> : <ToggleLeft size={24} className="text-gray-400" />}
+          {showBorder ? <ToggleRight size={24} className="text-swarovski-gold" /> : <ToggleLeft size={24} className="text-gray-400" />}
         </button>
       </div>
 
@@ -253,14 +253,14 @@ export function SiteSettingsManager() {
           <div className="flex gap-2">
             <input
               type="text"
-              value={borderColor || '#6b4c9a'}
+              value={borderColor || '#d4af37'}
               onChange={(e) => onBorderColorChange(e.target.value)}
-              placeholder="#6b4c9a"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+              placeholder="#d4af37"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
             />
             <input
               type="color"
-              value={borderColor || '#6b4c9a'}
+              value={borderColor || '#d4af37'}
               onChange={(e) => onBorderColorChange(e.target.value)}
               className="w-12 h-10 rounded cursor-pointer"
             />
@@ -292,7 +292,7 @@ export function SiteSettingsManager() {
             value={strokeColor || '#ffffff'}
             onChange={(e) => onStrokeColorChange(e.target.value)}
             placeholder="#ffffff"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
           />
           <input
             type="color"
@@ -314,7 +314,7 @@ export function SiteSettingsManager() {
           min="0"
           max="5"
           step="0.1"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
         />
         <p className="text-xs text-gray-500 mt-1">Recommended: 1-3px</p>
       </div>
@@ -340,7 +340,7 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('brand')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'brand'
-            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            ? 'text-swarovski-gold border-b-2 border-swarovski-gold'
             : 'text-gray-500 hover:text-gray-700'
             }`}
         >
@@ -349,7 +349,7 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('hero')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'hero'
-            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            ? 'text-swarovski-gold border-b-2 border-swarovski-gold'
             : 'text-gray-500 hover:text-gray-700'
             }`}
         >
@@ -358,7 +358,7 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('newsletter')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'newsletter'
-            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            ? 'text-swarovski-gold border-b-2 border-swarovski-gold'
             : 'text-gray-500 hover:text-gray-700'
             }`}
         >
@@ -367,7 +367,7 @@ export function SiteSettingsManager() {
         <button
           onClick={() => setActiveTab('contact')}
           className={`px-4 py-2 font-medium transition-colors ${activeTab === 'contact'
-            ? 'text-swarovski-purple border-b-2 border-swarovski-purple'
+            ? 'text-swarovski-gold border-b-2 border-swarovski-gold'
             : 'text-gray-500 hover:text-gray-700'
             }`}
         >
@@ -387,7 +387,7 @@ export function SiteSettingsManager() {
                 type="text"
                 value={settings.brandName}
                 onChange={(e) => setSettings({ ...settings, brandName: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
                 required
               />
             </div>
@@ -401,7 +401,7 @@ export function SiteSettingsManager() {
                 value={settings.tagline || ''}
                 onChange={(e) => setSettings({ ...settings, tagline: e.target.value })}
                 placeholder="เครื่องประดับเพชรพลอยคุณภาพสูง"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -413,8 +413,8 @@ export function SiteSettingsManager() {
                 value={settings.address || ''}
                 onChange={(e) => setSettings({ ...settings, address: e.target.value })}
                 rows={4}
-                placeholder="123 ถนนสุขุมวิท ซอย 11&#10;แขวคลองตียเหนือ เขตวัฒณา&#10;กรุงเทพมหานคร 10110"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                placeholder="123 ถนนสุขุมวิท ซอย 11&#10;แขวงคลองเตยเหนือ เขตวัฒนา&#10;กรุงเทพมหานคร 10110"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -426,8 +426,8 @@ export function SiteSettingsManager() {
                 type="text"
                 value={settings.openingHours || ''}
                 onChange={(e) => setSettings({ ...settings, openingHours: e.target.value })}
-                placeholder="จันร์ - เสาร์  10:00 - 19:00 น."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                placeholder="จันทร์ - เสาร์  10:00 - 19:00 น."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -440,7 +440,7 @@ export function SiteSettingsManager() {
                 value={settings.phone || ''}
                 onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
                 placeholder="+66xxxxxxxxx"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -453,7 +453,7 @@ export function SiteSettingsManager() {
                 value={settings.email || ''}
                 onChange={(e) => setSettings({ ...settings, email: e.target.value })}
                 placeholder="contact@niwelry.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
           </div>
@@ -471,7 +471,7 @@ export function SiteSettingsManager() {
                 value={settings.heroTitle || ''}
                 onChange={(e) => setSettings({ ...settings, heroTitle: e.target.value })}
                 placeholder="เครื่องประดับที่สะท้อนความเป็นคุณ"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -484,7 +484,7 @@ export function SiteSettingsManager() {
                 onChange={(e) => setSettings({ ...settings, heroSubtitle: e.target.value })}
                 rows={3}
                 placeholder="เครื่องประดับเพชรพลอยคุณภาพสูง ที่คัดสรรความพิเศษให้คุณ"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -497,7 +497,7 @@ export function SiteSettingsManager() {
                 value={settings.heroButtonText || ''}
                 onChange={(e) => setSettings({ ...settings, heroButtonText: e.target.value })}
                 placeholder="ดูสินค้าทั้งหมด"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -577,7 +577,7 @@ export function SiteSettingsManager() {
                 value={settings.newsletterTitle || ''}
                 onChange={(e) => setSettings({ ...settings, newsletterTitle: e.target.value })}
                 placeholder="รับข่าวสารและโปรโมชั่นพิเศษ"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -590,7 +590,7 @@ export function SiteSettingsManager() {
                 onChange={(e) => setSettings({ ...settings, newsletterDescription: e.target.value })}
                 rows={3}
                 placeholder="สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -625,7 +625,7 @@ export function SiteSettingsManager() {
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   border: settings.newsletterShowBorder ? `4px solid ${settings.newsletterBorderColor}` : 'none',
-                  backgroundColor: !settings.newsletterBackgroundImage ? '#6b4c9a' : undefined,
+                  backgroundColor: !settings.newsletterBackgroundImage ? '#1f1b18' : undefined,
                 }}
               >
                 <div className="relative z-10">
@@ -664,7 +664,7 @@ export function SiteSettingsManager() {
                 value={settings.contactPageTitle || ''}
                 onChange={(e) => setSettings({ ...settings, contactPageTitle: e.target.value })}
                 placeholder="ติดต่อเรา"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -677,7 +677,7 @@ export function SiteSettingsManager() {
                 onChange={(e) => setSettings({ ...settings, contactPageDescription: e.target.value })}
                 rows={3}
                 placeholder="เราพร้อมให้บริการคุณตลอด 24 ชั่วโมง"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
               />
             </div>
 
@@ -712,7 +712,7 @@ export function SiteSettingsManager() {
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   border: settings.contactShowBorder ? `4px solid ${settings.contactBorderColor}` : 'none',
-                  backgroundColor: !settings.contactBackgroundImage ? '#6b4c9a' : undefined,
+                  backgroundColor: !settings.contactBackgroundImage ? '#1f1b18' : undefined,
                 }}
               >
                 <div className="relative z-10">
@@ -743,7 +743,7 @@ export function SiteSettingsManager() {
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2 bg-swarovski-purple text-white rounded-md hover:bg-swarovski-purple-light disabled:opacity-50 transition-colors"
+            className="px-6 py-2 bg-swarovski-black text-white rounded-md hover:bg-swarovski-gold disabled:opacity-50 transition-colors"
           >
             {saving ? 'Saving...' : 'Save Settings'}
           </button>

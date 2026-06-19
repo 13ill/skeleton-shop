@@ -101,7 +101,7 @@ export function Contact() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-swarovski-purple border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-12 h-12 border-4 border-swarovski-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-500">กำลังโหลด...</p>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function Contact() {
           backgroundImage: siteSettings.contactBackgroundImage ? `url(${siteSettings.contactBackgroundImage})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundColor: !siteSettings.contactBackgroundImage ? 'linear-gradient(to right, #6b4c9a, #000000)' : undefined,
+          backgroundColor: !siteSettings.contactBackgroundImage ? 'linear-gradient(to right, #1f1b18, #000000)' : undefined,
           border: siteSettings.contactShowBorder ? `4px solid ${siteSettings.contactBorderColor}` : 'none',
         }}
       >
@@ -161,7 +161,7 @@ export function Contact() {
                 transition={{ duration: 0.6 }}
                 className="bg-swarovski-gray p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300"
               >
-                <div className="w-12 h-12 bg-swarovski-purple rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-swarovski-black rounded-full flex items-center justify-center mb-4">
                   <MapPin size={24} className="text-white" />
                 </div>
                 <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>ที่อยู่</h3>
@@ -177,11 +177,11 @@ export function Contact() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="bg-swarovski-gray p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300"
               >
-                <div className="w-12 h-12 bg-swarovski-purple rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-swarovski-black rounded-full flex items-center justify-center mb-4">
                   <Phone size={24} className="text-white" />
                 </div>
                 <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>โทรศัพท์</h3>
-                <a href={`tel:${siteSettings.phone}`} className="text-gray-600 hover:text-swarovski-purple transition-colors">
+                <a href={`tel:${siteSettings.phone}`} className="text-gray-600 hover:text-swarovski-gold transition-colors">
                   {siteSettings.phone}
                 </a>
               </motion.div>
@@ -195,11 +195,11 @@ export function Contact() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="bg-swarovski-gray p-8 rounded-xl shadow-card hover:shadow-card-hover transition-all duration-300"
               >
-                <div className="w-12 h-12 bg-swarovski-purple rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-swarovski-black rounded-full flex items-center justify-center mb-4">
                   <Mail size={24} className="text-white" />
                 </div>
                 <h3 className="text-lg font-bold mb-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>อีเมล</h3>
-                <a href={`mailto:${siteSettings.email}`} className="text-gray-600 hover:text-swarovski-purple transition-colors">
+                <a href={`mailto:${siteSettings.email}`} className="text-gray-600 hover:text-swarovski-gold transition-colors">
                   {siteSettings.email}
                 </a>
               </motion.div>
@@ -234,7 +234,7 @@ export function Contact() {
                       transition={{ duration: 0.4 }}
                       className="bg-white p-8 rounded-xl shadow-card text-center"
                     >
-                      <div className="w-16 h-16 bg-swarovski-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="w-16 h-16 bg-swarovski-black rounded-full flex items-center justify-center mx-auto mb-4">
                         <Icon size={32} className="text-white" />
                       </div>
                       <h3 className="font-bold mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>{info.label}</h3>
@@ -296,7 +296,7 @@ export function Contact() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">ชื่อ</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
                   placeholder="ชื่อของคุณ"
                 />
               </div>
@@ -304,7 +304,7 @@ export function Contact() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
                 <input
                   type="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
                   placeholder="อีเมลของคุณ"
                 />
               </div>
@@ -312,13 +312,13 @@ export function Contact() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">ข้อความ</label>
                 <textarea
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-purple"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
                   placeholder="ข้อความของคุณ"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-swarovski-purple text-white font-semibold rounded-lg hover:bg-swarovski-purple-light transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full px-6 py-3 bg-swarovski-black text-white font-semibold rounded-lg hover:bg-swarovski-gold transition-all duration-300 flex items-center justify-center gap-2"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
                 <Send size={20} />

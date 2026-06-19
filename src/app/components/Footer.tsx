@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapPin, X, Mail, Phone, Facebook, Instagram, MessageCircle, CreditCard, ArrowRight } from "lucide-react";
+import { MapPin, X, Mail, Phone, Facebook, Instagram, MessageCircle, ArrowRight } from "lucide-react";
 import { env } from "../../config/env";
 
 interface SocialLink {
@@ -136,7 +136,7 @@ export function Footer() {
 
   return (
     <>
-      <footer className="bg-gradient-to-br from-swarovski-black via-swarovski-purple to-swarovski-black text-white mt-16">
+      <footer className="bg-gradient-to-br from-swarovski-black via-swarovski-dark to-swarovski-black text-white mt-16">
         {/* Decorative Pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -377,15 +377,15 @@ export function Footer() {
           <div className="mt-12 pt-8 border-t border-white/10">
             <div className="flex flex-col items-center gap-4">
               <p className="text-xs text-gray-400">วิธีชำระเงินที่รองรับ</p>
-              <div className="flex gap-4">
-                <div className="w-12 h-8 bg-white/10 rounded flex items-center justify-center">
-                  <CreditCard size={20} className="text-gray-400" />
+              <div className="flex flex-wrap gap-3 justify-center">
+                <div className="h-8 px-3 bg-white rounded flex items-center justify-center shadow-sm">
+                  <span className="text-[#1a1f71] font-extrabold italic text-sm tracking-tight">VISA</span>
                 </div>
-                <div className="w-12 h-8 bg-white/10 rounded flex items-center justify-center">
-                  <CreditCard size={20} className="text-gray-400" />
+                <div className="h-8 px-3 bg-white rounded flex items-center justify-center shadow-sm text-sm font-bold">
+                  <span className="text-[#eb001b]">Master</span><span className="text-[#f79e1b]">card</span>
                 </div>
-                <div className="w-12 h-8 bg-white/10 rounded flex items-center justify-center">
-                  <CreditCard size={20} className="text-gray-400" />
+                <div className="h-8 px-3 bg-white rounded flex items-center justify-center shadow-sm">
+                  <span className="text-[#003d6a] font-extrabold text-sm">Prompt</span><span className="text-[#1cb5a3] font-extrabold text-sm">Pay</span>
                 </div>
               </div>
             </div>
@@ -444,7 +444,7 @@ export function Footer() {
               >
                 LINE Official
               </h3>
-              <p className="text-swarovski-purple text-lg tracking-widest font-semibold">@niwelry</p>
+              <p className="text-swarovski-gold text-lg tracking-widest font-semibold">@niwelry</p>
               <p className="text-gray-600 text-sm mt-4 text-center">สแกน QR Code เพื่อติดต่อเราผ่าน LINE</p>
             </div>
           </div>

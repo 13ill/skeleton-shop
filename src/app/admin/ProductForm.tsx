@@ -41,6 +41,8 @@ export function ProductForm() {
     material: '',
     specifications: '',
     images: '',
+    metaTitle: '',
+    metaDescription: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -86,6 +88,8 @@ export function ProductForm() {
         material: data.material || '',
         specifications: data.specifications ? JSON.stringify(data.specifications, null, 2) : '',
         images: data.images ? JSON.stringify(data.images) : '',
+        metaTitle: data.metaTitle || '',
+        metaDescription: data.metaDescription || '',
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch product');
@@ -117,6 +121,8 @@ export function ProductForm() {
         material: formData.material || null,
         specifications: formData.specifications ? JSON.parse(formData.specifications) : null,
         images: formData.images ? JSON.parse(formData.images) : [],
+        metaTitle: formData.metaTitle || null,
+        metaDescription: formData.metaDescription || null,
       };
 
       const url = isEditing
@@ -303,6 +309,45 @@ export function ProductForm() {
             initialImages={parsedImages}
             onImagesChange={(images) => setFormData({ ...formData, images: JSON.stringify(images) })}
           />
+        </div>
+
+        <div className="border-t border-gray-200 pt-6">
+          <h2 className="text-sm font-semibold text-gray-900 mb-1">SEO (สำหรับ Google)</h2>
+          <p className="text-xs text-gray-500 mb-4">เว้นว่างได้ ระบบจะใช้ชื่อ/คำอธิบายสินค้าโดยอัตโนมัติ</p>
+
+          <div className="mb-4">
+            <label htmlFor="metaTitle" className="block text-sm font-medium text-gray-700 mb-1">
+              Meta Title
+            </label>
+            <input
+              id="metaTitle"
+              name="metaTitle"
+              type="text"
+              maxLength={60}
+              value={formData.metaTitle}
+              onChange={handleChange}
+              placeholder="ชื่อที่จะแสดงบนผลการค้นหา Google"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
+            />
+            <p className="text-xs text-gray-400 mt-1">{(formData.metaTitle || '').length}/60</p>
+          </div>
+
+          <div>
+            <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700 mb-1">
+              Meta Description
+            </label>
+            <textarea
+              id="metaDescription"
+              name="metaDescription"
+              rows={2}
+              maxLength={160}
+              value={formData.metaDescription}
+              onChange={handleChange}
+              placeholder="คำอธิบายสั้น ๆ ที่จะแสดงใต้ชื่อบน Google"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
+            />
+            <p className="text-xs text-gray-400 mt-1">{(formData.metaDescription || '').length}/160</p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-3">
