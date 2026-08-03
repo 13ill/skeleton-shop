@@ -1,0 +1,28 @@
+# render.yaml — Render Blueprint (optional, ทำให้ deploy ง่ายขึ้น)
+# ใช้ไฟล์นี้เมื่อเลือก "Deploy from Blueprint" ใน Render dashboard
+
+services:
+  - type: web
+    name: jump-1-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate
+    startCommand: npx tsx src/index.ts
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false  # ตั้งใน dashboard (ค่าจาก Supabase)
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        value: jump-1-images
+      - key: R2_PUBLIC_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false

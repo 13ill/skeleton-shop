@@ -1,0 +1,127 @@
+// Prisma schema for MySQL (สำรองสำหรับอนาคตย้ายไป hostatom)
+// ใช้เมื่อต้องการย้ายจาก PostgreSQL (Supabase) → MySQL (hostatom)
+//
+// วิธีใช้:
+// 1. สำรอง schema.prisma เดิม: cp schema.prisma schema.postgresql.prisma
+// 2. คัดลอกไฟล์นี้: cp schema.mysql.prisma schema.prisma
+// 3. ตั้ง DATABASE_URL เป็น MySQL connection string
+// 4. รัน: npx prisma migrate dev --name init_mysql
+// 5. import ข้อมูล: node scripts/import-postgres.cjs (ใช้ data-export.json)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.Text
+  name      String?  @db.VarChar(255)
+  role      String   @default("admin") @db.VarChar(50)
+  project   String   @default("jump1") @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jump1_users")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  priority  Int      @default(0)
+  isActive  Boolean  @default(true)
+  project   String   @default("jump1") @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+
+  @@map("jump1_categories")
+}
+
+model Product {
+  id              String   @id @db.VarChar(255)
+  name            String   @db.VarChar(255)
+  category        String   @db.VarChar(255)
+  categoryId      String?  @db.VarChar(255)
+  globalOrder     Int?
+  categoryOrder   Int?
+  price           Int?
+  description     String   @db.Text
+  fullDescription String   @db.LongText
+  material        String?  @db.VarChar(255)
+  specifications  Json?
+  images          Json
+  metaTitle       String?  @db.VarChar(255)
+  metaDescription String?  @db.Text
+  project         String   @default("jump1") @db.VarChar(50)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  categoryRelation Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([category])
+  @@map("jump1_products")
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String   @db.VarChar(50)
+  url       String   @db.Text
+  isActive  Boolean  @default(true)
+  project   String   @default("jump1") @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jump1_social_links")
+}
+
+model SiteSettings {
+  id              String   @id @default(cuid())
+  brandName       String   @default("Niwelry") @db.VarChar(255)
+  tagline         String?  @db.VarChar(255)
+  address         String?  @db.Text
+  openingHours    String?  @db.VarChar(255)
+  phone           String?  @db.VarChar(50)
+  email           String?  @db.VarChar(255)
+  project         String   @default("jump1") @db.VarChar(50)
+
+  // Hero Section
+  heroTitle       String?  @db.VarChar(255)
+  heroSubtitle    String?  @db.Text
+  heroButtonText  String?  @db.VarChar(100)
+  heroBackgroundImage String? @db.Text
+  heroTextStrokeColor String? @db.VarChar(50)
+  heroTextStrokeWidth Float @default(0.5)
+  heroBorderColor String?  @db.VarChar(50)
+  heroShowBorder Boolean  @default(false)
+
+  // Newsletter Section
+  newsletterTitle       String?  @db.VarChar(255)
+  newsletterDescription String?  @db.Text
+  newsletterBackgroundImage String? @db.Text
+  newsletterTextStrokeColor String? @db.VarChar(50)
+  newsletterTextStrokeWidth Float @default(0.5)
+  newsletterBorderColor String?  @db.VarChar(50)
+  newsletterShowBorder Boolean  @default(false)
+
+  // Contact Page
+  contactPageTitle       String?  @db.VarChar(255)
+  contactPageDescription String?  @db.Text
+  contactBackgroundImage String?  @db.Text
+  contactTextStrokeColor String?  @db.VarChar(50)
+  contactTextStrokeWidth Float @default(0.5)
+  contactBorderColor     String?  @db.VarChar(50)
+  contactShowBorder      Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("jump1_site_settings")
+}
