@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResponsiveImage } from './ResponsiveImage';
@@ -13,6 +13,15 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(false);
+  // ตรวจว่าอุปกรณ์รองรับ hover จริงไหม (ทัชและจอแนวตั้งไม่มี hover)
+  const [canHover, setCanHover] = useState(true);
+  useEffect(() => {
+    const mql = window.matchMedia('(hover: hover) and (pointer: fine)');
+    setCanHover(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setCanHover(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
@@ -34,8 +43,9 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
     <div className="space-y-4">
       {/* Main Image with Zoom */}
       <div
-        className="relative aspect-[3/4] bg-swarovski-gray rounded-lg overflow-hidden cursor-zoom-in"
-        onMouseEnter={() => setIsZoomed(true)}
+        className={`relative aspect-[3/4] bg-swarovski-gray rounded-lg overflow-hidden ${canHover ? 'cursor-zoom-in' : 'cursor-pointer'}`}
+        style={{ touchAction: 'manipulation' }}
+        onMouseEnter={() => canHover && setIsZoomed(true)}
         onMouseLeave={() => setIsZoomed(false)}
         onMouseMove={handleMouseMove}
         onClick={() => setIsLightboxOpen(true)}
@@ -48,9 +58,9 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           style={
             isZoomed
               ? {
-                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                  transform: 'scale(2)',
-                }
+                transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                transform: 'scale(2)',
+              }
               : {}
           }
         />
@@ -66,11 +76,11 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
             <button
               key={index}
               onClick={() => setSelectedIndex(index)}
-              className={`relative aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all ${
-                selectedIndex === index
-                  ? 'border-swarovski-gold'
-                  : 'border-transparent hover:border-swarovski-gold/50'
-              }`}
+              style={{ touchAction: 'manipulation' }}
+              className={`relative aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all ${selectedIndex === index
+                ? 'border-swarovski-gold'
+                : 'border-transparent hover:border-swarovski-gold/50'
+                }`}
             >
               <ResponsiveImage
                 src={image}
@@ -139,9 +149,8 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                     <button
                       key={index}
                       onClick={() => setSelectedIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        selectedIndex === index ? 'bg-swarovski-gold' : 'bg-white/50'
-                      }`}
+                      className={`w-2 h-2 rounded-full transition-all ${selectedIndex === index ? 'bg-swarovski-gold' : 'bg-white/50'
+                        }`}
                       aria-label={`Go to image ${index + 1}`}
                     />
                   ))}

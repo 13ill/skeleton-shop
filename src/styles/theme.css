@@ -135,6 +135,14 @@
 
   html {
     font-size: var(--font-size);
+    /* กัน sticky header บังเนื้อหาตอน scroll/anchor link */
+    scroll-padding-top: 5rem;
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-top: 8rem;
+    }
   }
 
   h1 {
