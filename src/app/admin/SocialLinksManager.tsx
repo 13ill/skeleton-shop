@@ -32,6 +32,39 @@ export function SocialLinksManager() {
     url: '',
     isActive: true,
   });
+  const [qrUploading, setQrUploading] = useState(false);
+
+  // อัพโหลดรูป QR code ไปยัง /upload (ใช้ logic เดียวกับ ImageUpload)
+  const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+
+    setQrUploading(true);
+    try {
+      const reader = new FileReader();
+      await new Promise<void>((resolve) => {
+        reader.onload = () => resolve();
+        reader.readAsDataURL(file);
+      });
+      const base64 = (reader.result as string).split(',')[1];
+
+      const response = await fetch(`${env.API_BASE_URL}/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ filename: file.name, data: base64 }),
+      });
+      if (!response.ok) throw new Error('Failed to upload QR image');
+      const result = await response.json();
+      setFormData((prev) => ({ ...prev, url: result.url }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload QR image');
+    } finally {
+      setQrUploading(false);
+    }
+  };
 
   useEffect(() => {
     fetchSocialLinks();
@@ -167,14 +200,42 @@ export function SocialLinksManager() {
             {formData.platform === 'qrcode' ? 'QR Code Image' : 'URL / Contact Info'} *
           </label>
           {formData.platform === 'qrcode' ? (
-            <input
-              type="text"
-              value={formData.url}
-              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              placeholder="Enter image URL for QR code"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
-              required
-            />
+            <div className="space-y-3">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleQrUpload}
+                disabled={qrUploading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e] disabled:opacity-50"
+              />
+              {qrUploading && (
+                <p className="text-sm text-gray-500">กำลังอัพโหลด...</p>
+              )}
+              {formData.url && !qrUploading && (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={formData.url}
+                    alt="QR code preview"
+                    className="w-24 h-24 object-contain border border-gray-200 rounded-lg bg-white"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-gray-500 break-all">{formData.url}</p>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, url: '' })}
+                      className="text-xs text-red-600 hover:underline mt-1"
+                    >
+                      ลบรูป
+                    </button>
+                  </div>
+                </div>
+              )}
+              {!formData.url && !qrUploading && (
+                <p className="text-xs text-gray-500">
+                  อัพโหลดรูป QR Code (เช่น QR LINE) — ระบบจะเก็บไว้บน R2 อัตโนมัติ
+                </p>
+              )}
+            </div>
           ) : (
             <input
               type="text"
@@ -184,8 +245,8 @@ export function SocialLinksManager() {
                 formData.platform === 'phone'
                   ? '+66xxxxxxxxx'
                   : formData.platform === 'email'
-                  ? 'email@example.com'
-                  : 'https://...'
+                    ? 'email@example.com'
+                    : 'https://...'
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
               required
@@ -235,20 +296,27 @@ export function SocialLinksManager() {
           socialLinks.map((link) => (
             <div
               key={link.id}
-              className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                link.isActive ? 'border-gray-200' : 'border-gray-200 opacity-50'
-              }`}
+              className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${link.isActive ? 'border-gray-200' : 'border-gray-200 opacity-50'
+                }`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">
-                  {PLATFORMS.find((p) => p.value === link.platform)?.icon}
-                </span>
+                {link.platform === 'qrcode' && link.url ? (
+                  <img
+                    src={link.url}
+                    alt="QR code"
+                    className="w-12 h-12 object-contain border border-gray-200 rounded bg-white"
+                  />
+                ) : (
+                  <span className="text-2xl">
+                    {PLATFORMS.find((p) => p.value === link.platform)?.icon}
+                  </span>
+                )}
                 <div>
                   <div className="font-medium">
                     {PLATFORMS.find((p) => p.value === link.platform)?.label}
                   </div>
                   <div className="text-sm text-gray-500 truncate max-w-xs">
-                    {link.url}
+                    {link.platform === 'qrcode' ? 'รูป QR Code' : link.url}
                   </div>
                 </div>
               </div>

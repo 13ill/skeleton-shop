@@ -149,9 +149,12 @@ export async function getProductsWithMode(mode: 'interleaved' | 'grouped'): Prom
 }
 
 // Get product counts by category
+// ใช้ getProductsWithMode('interleaved') ให้ตรงกับที่หน้า Home แสดงจริง
+// (backend /products คนละผลลัพธ์กับ /products?mode=interleaved เพราะ
+// grouped mode กรองตาม categoryId ที่มีในตาราง category)
 export async function getCategoryCounts(): Promise<Record<Category, number>> {
-  const allProducts = await getAllProducts();
-  
+  const allProducts = await getProductsWithMode('interleaved');
+
   const counts: Record<Category, number> = {
     all: allProducts.length,
     necklace: 0,
@@ -160,12 +163,12 @@ export async function getCategoryCounts(): Promise<Record<Category, number>> {
     earring: 0,
     pendant: 0,
   };
-  
+
   for (const product of allProducts) {
     if (product.category in counts) {
       counts[product.category as Category]++;
     }
   }
-  
+
   return counts;
 }
