@@ -1,0 +1,14 @@
+Backup Summary — 2026-08-08T15:29:35.485Z
+Database: Supabase (Production)
+File: F:\Programming\AI-native\AI-Native-Operational-System-Blueprint\Owner-OS-v2\doing-projects\Jump-1\backend\backups\backup-supabase-2026-08-08T15-29-34.json
+Size: 72.62 KB
+Total rows: 20
+
+Tables:
+  users: 1 rows
+  categories: 3 rows
+  products: 8 rows
+  socialLinks: 6 rows
+  siteSettings: 2 rows
+
+Restore: npx tsx scripts/restore.ts F:\Programming\AI-native\AI-Native-Operational-System-Blueprint\Owner-OS-v2\doing-projects\Jump-1\backend\backups\backup-supabase-2026-08-08T15-29-34.json

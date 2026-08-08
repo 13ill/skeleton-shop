@@ -9,11 +9,20 @@ const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 async function importData() {
   console.log('📥 Importing data to PostgreSQL...');
 
+  // Map table names (snake_case plural) to Prisma model names (camelCase singular)
+  const tableToModel = {
+    'users': 'user',
+    'categories': 'category',
+    'products': 'product',
+    'social_links': 'socialLink',
+    'site_settings': 'siteSettings',
+  };
+
   // Skip _prisma_migrations table
   const tablesToImport = Object.keys(data).filter(table => table !== '_prisma_migrations');
 
   for (const table of tablesToImport) {
-    const modelName = table.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase()); // Convert snake_case to camelCase
+    const modelName = tableToModel[table] || table.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
     const model = prisma[modelName];
 
     if (!model) {
@@ -28,10 +37,14 @@ async function importData() {
 
     console.log(`📥 Importing ${data[table].length} rows to ${table}...`);
 
+    let successCount = 0;
     for (const row of data[table]) {
       try {
-        // Remove SQLite-specific fields if any
+        // Product model has no @default(cuid()) on id, so we must keep it
+        // Other models have @default(cuid()), so we strip id to let Prisma generate new ones
+        const stripId = table !== 'products';
         const { id, createdAt, updatedAt, ...rowData } = row;
+        if (!stripId && id) rowData.id = id;
 
         // Handle date fields
         if (createdAt) rowData.createdAt = new Date(createdAt);
@@ -54,14 +67,23 @@ async function importData() {
           }
         }
 
+        // Convert SQLite integers (0/1) to booleans for known Boolean fields
+        const booleanFields = ['isActive', 'heroShowBorder', 'newsletterShowBorder', 'contactShowBorder'];
+        for (const field of booleanFields) {
+          if (field in rowData && typeof rowData[field] === 'number') {
+            rowData[field] = rowData[field] === 1;
+          }
+        }
+
         await model.create({ data: rowData });
+        successCount++;
       } catch (error) {
         console.error(`❌ Error importing row to ${table}:`, error.message);
         // Continue with next row
       }
     }
 
-    console.log(`✅ Imported ${data[table].length} rows to ${table}`);
+    console.log(`✅ Imported ${successCount}/${data[table].length} rows to ${table}`);
   }
 
   console.log('\n✅ Import complete');

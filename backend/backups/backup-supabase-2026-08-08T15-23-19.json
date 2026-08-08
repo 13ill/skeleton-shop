@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "timestamp": "2026-08-08T15:23:19.333Z",
+    "database": "supabase",
+    "url": "postgresql://postgres:***@db.nnhohnfjmzarkopoebqr.supabase.co:5432/postgres",
+    "errors": [
+      {
+        "table": "users",
+        "error": "PrismaClientInitializationError: \nInvalid `prisma.user.findMany()` invocation in\nF:\\Programming\\AI-native\\AI-Native-Operational-System-Blueprint\\Owner-OS-v2\\doing-projects\\Jump-1\\backend\\scripts\\backup.ts:45:47\n\n  42 \n  43 // ดึงข้อมูลทุก table\n  44 const tables = [\n→ 45   { name: 'users', fetch: () => prisma.user.findMany(\nCan't reach database server at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`\n\nPlease make sure your database server is running at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`."
+      },
+      {
+        "table": "categories",
+        "error": "PrismaClientInitializationError: \nInvalid `prisma.category.findMany()` invocation in\nF:\\Programming\\AI-native\\AI-Native-Operational-System-Blueprint\\Owner-OS-v2\\doing-projects\\Jump-1\\backend\\scripts\\backup.ts:46:56\n\n  43 // ดึงข้อมูลทุก table\n  44 const tables = [\n  45   { name: 'users', fetch: () => prisma.user.findMany() },\n→ 46   { name: 'categories', fetch: () => prisma.category.findMany(\nCan't reach database server at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`\n\nPlease make sure your database server is running at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`."
+      },
+      {
+        "table": "products",
+        "error": "PrismaClientInitializationError: \nInvalid `prisma.product.findMany()` invocation in\nF:\\Programming\\AI-native\\AI-Native-Operational-System-Blueprint\\Owner-OS-v2\\doing-projects\\Jump-1\\backend\\scripts\\backup.ts:47:53\n\n  44 const tables = [\n  45   { name: 'users', fetch: () => prisma.user.findMany() },\n  46   { name: 'categories', fetch: () => prisma.category.findMany({ include: { products: true } }) },\n→ 47   { name: 'products', fetch: () => prisma.product.findMany(\nCan't reach database server at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`\n\nPlease make sure your database server is running at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`."
+      },
+      {
+        "table": "socialLinks",
+        "error": "PrismaClientInitializationError: \nInvalid `prisma.socialLink.findMany()` invocation in\nF:\\Programming\\AI-native\\AI-Native-Operational-System-Blueprint\\Owner-OS-v2\\doing-projects\\Jump-1\\backend\\scripts\\backup.ts:48:59\n\n  45 { name: 'users', fetch: () => prisma.user.findMany() },\n  46 { name: 'categories', fetch: () => prisma.category.findMany({ include: { products: true } }) },\n  47 { name: 'products', fetch: () => prisma.product.findMany() },\n→ 48 { name: 'socialLinks', fetch: () => prisma.socialLink.findMany(\nCan't reach database server at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`\n\nPlease make sure your database server is running at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`."
+      },
+      {
+        "table": "siteSettings",
+        "error": "PrismaClientInitializationError: \nInvalid `prisma.siteSettings.findMany()` invocation in\nF:\\Programming\\AI-native\\AI-Native-Operational-System-Blueprint\\Owner-OS-v2\\doing-projects\\Jump-1\\backend\\scripts\\backup.ts:49:62\n\n  46 { name: 'categories', fetch: () => prisma.category.findMany({ include: { products: true } }) },\n  47 { name: 'products', fetch: () => prisma.product.findMany() },\n  48 { name: 'socialLinks', fetch: () => prisma.socialLink.findMany() },\n→ 49 { name: 'siteSettings', fetch: () => prisma.siteSettings.findMany(\nCan't reach database server at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`\n\nPlease make sure your database server is running at `db.nnhohnfjmzarkopoebqr.supabase.co:5432`."
+      }
+    ]
+  },
+  "users": null,
+  "categories": null,
+  "products": null,
+  "socialLinks": null,
+  "siteSettings": null
+}

@@ -33,6 +33,12 @@ interface SiteSettings {
   contactTextStrokeWidth: number | null;
   contactBorderColor: string | null;
   contactShowBorder: boolean;
+  domain: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeywords: string | null;
+  ogImageUrl: string | null;
+  seoIndexable: boolean;
 }
 
 export function SiteSettingsManager() {
@@ -67,11 +73,17 @@ export function SiteSettingsManager() {
     contactTextStrokeWidth: 0.5,
     contactBorderColor: '#d4af37',
     contactShowBorder: false,
+    domain: null,
+    seoTitle: null,
+    seoDescription: null,
+    seoKeywords: null,
+    ogImageUrl: null,
+    seoIndexable: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'brand' | 'hero' | 'newsletter' | 'contact'>('brand');
+  const [activeTab, setActiveTab] = useState<'brand' | 'hero' | 'newsletter' | 'contact' | 'seo'>('brand');
   const [uploading, setUploading] = useState<string | null>(null);
 
   useEffect(() => {
@@ -372,6 +384,15 @@ export function SiteSettingsManager() {
             }`}
         >
           Contact Page
+        </button>
+        <button
+          onClick={() => setActiveTab('seo')}
+          className={`px-4 py-2 font-medium transition-colors ${activeTab === 'seo'
+            ? 'text-swarovski-gold border-b-2 border-swarovski-gold'
+            : 'text-gray-500 hover:text-gray-700'
+            }`}
+        >
+          🔍 SEO
         </button>
       </div>
 
@@ -735,6 +756,119 @@ export function SiteSettingsManager() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* SEO Tab */}
+        {activeTab === 'seo' && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500">
+              ตั้งค่าให้ Google ค้นหาเว็บร้านของคุณเจอง่ายขึ้น — ใช้ข้อมูลนี้สร้าง meta tags และ sitemap อัตโนมัติ
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Domain (Custom Domain)
+              </label>
+              <input
+                type="text"
+                value={settings.domain || ''}
+                onChange={(e) => setSettings({ ...settings, domain: e.target.value || null })}
+                placeholder="เช่น niwelry.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                กรอก domain ของร้าน (ไม่มี https://) — ใช้สำหรับสร้าง sitemap และ robots.txt
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                SEO Title (ชื่อเว็บสำหรับ Google)
+              </label>
+              <input
+                type="text"
+                value={settings.seoTitle || ''}
+                onChange={(e) => setSettings({ ...settings, seoTitle: e.target.value || null })}
+                maxLength={255}
+                placeholder="เช่น ร้านเครื่องประดับนิวเลอรี่ — แหวน สร้อย กำไล"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                ปล่อยว่าง = ใช้ Brand Name อัตโนมัติ (แนะนำ 50-60 ตัวอักษร)
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                SEO Description (คำอธิบายเว็บ)
+              </label>
+              <textarea
+                value={settings.seoDescription || ''}
+                onChange={(e) => setSettings({ ...settings, seoDescription: e.target.value || null })}
+                rows={3}
+                maxLength={500}
+                placeholder="เช่น ร้านเครื่องประดับนิวเลอรี่ จำหน่ายแหวน สร้อยคอ กำไล นาฬิกา คุณภาพดี ราคาสมเหตุผล"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                ปล่อยว่าง = ใช้ Tagline อัตโนมัติ (แนะนำ 150-160 ตัวอักษร)
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                SEO Keywords (คำค้นหา)
+              </label>
+              <input
+                type="text"
+                value={settings.seoKeywords || ''}
+                onChange={(e) => setSettings({ ...settings, seoKeywords: e.target.value || null })}
+                maxLength={500}
+                placeholder="เช่น เครื่องประดับ, แหวน, สร้อยคอ, กำไล, นาฬิกา, ร้านเครื่องประดับ"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                คั่นด้วยจุลภาค (,) — คำที่ลูกค้าค้นหาแล้วอยากให้เจอร้านคุณ
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                OG Image URL (รูปปกสำหรับแชร์)
+              </label>
+              <input
+                type="text"
+                value={settings.ogImageUrl || ''}
+                onChange={(e) => setSettings({ ...settings, ogImageUrl: e.target.value || null })}
+                maxLength={500}
+                placeholder="https://niwelry.com/og-image.jpg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                รูปที่แสดงตอนแชร์ลิงก์บน Facebook/Line (แนะนำ 1200x630px)
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  อนุญาตให้ Google เก็บเว็บนี้ไว้ในผลการค้นหา
+                </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  ถ้าปิด Google จะไม่แสดงเว็บนี้ในผลการค้นหา (เหมาะสำหรับร้านที่ยังไม่พร้อม)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, seoIndexable: !settings.seoIndexable })}
+                className="flex items-center gap-2"
+              >
+                {settings.seoIndexable
+                  ? <ToggleRight size={24} className="text-swarovski-gold" />
+                  : <ToggleLeft size={24} className="text-gray-400" />}
+              </button>
             </div>
           </div>
         )}
