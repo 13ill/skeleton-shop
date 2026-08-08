@@ -1,4 +1,6 @@
 {
+  "buildCommand": "node scripts/build-products.cjs && vite build",
+  "outputDirectory": "dist",
   "functions": {
     "api/seo.js": {
       "maxDuration": 10
