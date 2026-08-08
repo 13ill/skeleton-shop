@@ -1,4 +1,15 @@
 {
+  "functions": {
+    "api/seo.js": {
+      "maxDuration": 10
+    },
+    "api/robots.js": {
+      "maxDuration": 10
+    },
+    "api/sitemap.js": {
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     {
       "source": "/robots.txt",
