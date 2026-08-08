@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { getAllProducts, getProductsByCategory, getProductsWithMode } from "../../services/productService";
-import { categoryMap, type Category, type ProductWithImages } from "../../types/product";
+import { type Category, type ProductWithImages } from "../../types/product";
 import { motion, AnimatePresence } from "motion/react";
 import { useSiteSettings } from "../context/SiteSettingsContext";
+import { useCategories } from "../context/CategoriesContext";
 import { ResponsiveImage } from "./ResponsiveImage";
 import { Heart, Eye } from "lucide-react";
 
@@ -16,6 +17,7 @@ export function Home() {
   const itemsPerPage = 12;
   const location = useLocation();
   const { siteSettings } = useSiteSettings();
+  const { categoryMap } = useCategories();
 
   // Parallax effect
   useEffect(() => {
@@ -214,7 +216,7 @@ export function Home() {
               className="text-2xl font-bold"
               style={{ fontFamily: 'Montserrat, sans-serif' }}
             >
-              {selectedCategory === 'all' ? 'สินค้าทั้งหมด' : categoryMap[selectedCategory]}
+              {selectedCategory === 'all' ? 'สินค้าทั้งหมด' : (categoryMap[selectedCategory] || selectedCategory)}
             </h2>
 
             {/* Display Mode Toggle */}

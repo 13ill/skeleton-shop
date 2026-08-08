@@ -73,6 +73,12 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
   const { token } = useAuth();
   const tokenRef = useRef(token);
 
+  // CRUD form state
+  const [showForm, setShowForm] = useState(false);
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({ name: '', slug: '', isActive: true });
+  const [formError, setFormError] = useState('');
+
   // Update token ref when token changes
   useEffect(() => {
     tokenRef.current = token;
@@ -170,6 +176,86 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
     }
   };
 
+  // ===== CRUD handlers =====
+  const resetForm = () => {
+    setFormData({ name: '', slug: '', isActive: true });
+    setEditingCatId(null);
+    setShowForm(false);
+    setFormError('');
+  };
+
+  const handleAddClick = () => {
+    setFormData({ name: '', slug: '', isActive: true });
+    setEditingCatId(null);
+    setShowForm(true);
+    setFormError('');
+  };
+
+  const handleEditClick = (cat: Category) => {
+    setFormData({ name: cat.name, slug: cat.slug, isActive: cat.isActive });
+    setEditingCatId(cat.id);
+    setShowForm(true);
+    setFormError('');
+  };
+
+  const handleDeleteClick = async (cat: Category) => {
+    if (!token) return;
+    if (!confirm(`ลบหมวด "${cat.name}" ใช่ไหม?`)) return;
+    try {
+      const res = await fetch(`${env.API_BASE_URL}/categories/${cat.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to delete');
+      }
+      fetchCategories();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete category');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    setFormError('');
+
+    if (!formData.name.trim() || !formData.slug.trim()) {
+      setFormError('กรอก name และ slug ให้ครบ');
+      return;
+    }
+
+    try {
+      const url = editingCatId
+        ? `${env.API_BASE_URL}/categories/${editingCatId}`
+        : `${env.API_BASE_URL}/categories`;
+      const method = editingCatId ? 'PUT' : 'POST';
+      const body = editingCatId
+        ? { name: formData.name, slug: formData.slug, isActive: formData.isActive }
+        : { name: formData.name, slug: formData.slug, priority: categories.length + 1 };
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to save');
+      }
+
+      resetForm();
+      fetchCategories();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Failed to save category');
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -204,19 +290,95 @@ export function CategoryPriority({ onCategorySelect, selectedCategoryId }: Categ
 
       <div className="space-y-2">
         {categories.map((category, index) => (
-          <CategoryItem
-            key={category.id}
-            category={category}
-            index={index}
-            isDragging={draggedIndex === index}
-            isSelected={selectedCategoryId === category.id}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onSelect={(id) => onCategorySelect?.(id)}
-          />
+          <div key={category.id} className="flex items-center gap-2">
+            <div className="flex-1">
+              <CategoryItem
+                category={category}
+                index={index}
+                isDragging={draggedIndex === index}
+                isSelected={selectedCategoryId === category.id}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onSelect={(id) => onCategorySelect?.(id)}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => handleEditClick(category)}
+              className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
+            >
+              แก้
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDeleteClick(category)}
+              className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100"
+            >
+              ลบ
+            </button>
+          </div>
         ))}
       </div>
+
+      {/* CRUD Form */}
+      {showForm ? (
+        <form onSubmit={handleSubmit} className="mt-4 p-4 bg-gray-50 rounded-lg space-y-3">
+          <h4 className="font-medium">{editingCatId ? 'แก้ไขหมวด' : 'เพิ่มหมวดใหม่'}</h4>
+          {formError && (
+            <div className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded">{formError}</div>
+          )}
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">ชื่อ (ไทย) *</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="เช่น แหวน, สร้อยคอ"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Slug (อังกฤษ) *</label>
+            <input
+              type="text"
+              value={formData.slug}
+              onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+              placeholder="เช่น ring, necklace"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
+              required
+            />
+          </div>
+          {editingCatId && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={formData.isActive}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                className="w-4 h-4"
+              />
+              Active
+            </label>
+          )}
+          <div className="flex gap-2">
+            <button type="submit" className="px-4 py-2 bg-[#c8a96e] text-white rounded-md hover:bg-[#b89a5e]">
+              {editingCatId ? 'บันทึก' : 'เพิ่ม'}
+            </button>
+            <button type="button" onClick={resetForm} className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100">
+              ยกเลิก
+            </button>
+          </div>
+        </form>
+      ) : (
+        <button
+          type="button"
+          onClick={handleAddClick}
+          className="mt-4 w-full py-2 px-4 border-2 border-dashed border-gray-300 rounded-md text-gray-600 hover:border-[#c8a96e] hover:text-[#c8a96e] transition-colors"
+        >
+          + เพิ่มหมวดใหม่
+        </button>
+      )}
 
       <div className="mt-4 pt-4 border-t border-gray-200">
         <button

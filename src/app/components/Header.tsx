@@ -1,27 +1,25 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { getCategoryCounts, getProductById } from "../../services/productService";
-import { categoryMap, type Category } from "../../types/product";
+import { type Category } from "../../types/product";
 import { useSiteSettings } from "../context/SiteSettingsContext";
+import { useCategories } from "../context/CategoriesContext";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-const categories: Category[] = ["all", "ring", "necklace", "bracelet", "earring"];
-
 export function Header() {
-  const [categoryCounts, setCategoryCounts] = useState<Record<Category, number>>({
-    all: 0,
-    ring: 0,
-    necklace: 0,
-    bracelet: 0,
-    earring: 0,
-    pendant: 0,
-  });
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({ all: 0 });
   const { siteSettings } = useSiteSettings();
+  const { categories, categoryMap } = useCategories();
   const location = useLocation();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // รายการ categories สำหรับ nav: "all" + ทุก category ที่ active
+  const navCategories: Category[] = ['all', ...categories
+    .filter(c => c.slug !== 'all')
+    .map(c => c.slug as Category)];
 
   // Scroll effect for header
   useEffect(() => {
@@ -139,7 +137,7 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:block pb-6">
           <div className="flex justify-center gap-8 text-sm tracking-wider font-medium">
-            {categories
+            {navCategories
               .filter((category) => category === 'all' || (categoryCounts[category] || 0) > 0)
               .map((category) => (
                 <button
@@ -151,7 +149,7 @@ export function Header() {
                     }`}
                   style={{ fontFamily: 'Montserrat, sans-serif' }}
                 >
-                  {categoryMap[category]} ({categoryCounts[category] || 0})
+                  {categoryMap[category] || category} ({categoryCounts[category] || 0})
                 </button>
               ))}
             <button
@@ -193,20 +191,20 @@ export function Header() {
               </div>
 
               <nav className="space-y-4">
-                {categories
+                {navCategories
                   .filter((category) => category === 'all' || (categoryCounts[category] || 0) > 0)
                   .map((category) => (
                     <button
                       key={category}
                       onClick={() => handleMobileCategoryClick(category)}
                       className={`w-full text-left py-3 px-4 rounded-lg transition-all duration-300 ${!isContactPage && activeCategory === category
-                          ? 'bg-swarovski-gold text-white'
-                          : 'bg-swarovski-gray text-swarovski-black hover:bg-swarovski-gold hover:text-white'
+                        ? 'bg-swarovski-gold text-white'
+                        : 'bg-swarovski-gray text-swarovski-black hover:bg-swarovski-gold hover:text-white'
                         }`}
                       style={{ fontFamily: 'Montserrat, sans-serif' }}
                     >
                       <div className="flex justify-between items-center">
-                        <span className="uppercase tracking-wider">{categoryMap[category]}</span>
+                        <span className="uppercase tracking-wider">{categoryMap[category] || category}</span>
                         <span className="text-sm opacity-75">({categoryCounts[category] || 0})</span>
                       </div>
                     </button>
@@ -214,8 +212,8 @@ export function Header() {
                 <button
                   onClick={handleContactClick}
                   className={`w-full text-left py-3 px-4 rounded-lg transition-all duration-300 ${isContactPage
-                      ? 'bg-swarovski-gold text-white'
-                      : 'bg-swarovski-gray text-swarovski-black hover:bg-swarovski-gold hover:text-white'
+                    ? 'bg-swarovski-gold text-white'
+                    : 'bg-swarovski-gray text-swarovski-black hover:bg-swarovski-gold hover:text-white'
                     }`}
                   style={{ fontFamily: 'Montserrat, sans-serif' }}
                 >

@@ -422,6 +422,66 @@ app.put('/categories/:id/priority', authMiddleware, async (c) => {
   }
 });
 
+// Update category (requires auth) — แก้ไข name/slug/isActive
+app.put('/categories/:id', authMiddleware, async (c) => {
+  const id = c.req.param('id');
+  try {
+    const { name, slug, isActive } = await c.req.json();
+
+    // ตรวจว่า slug ซ้ำกับ category อื่นไหม (ถ้ามีการเปลี่ยน slug)
+    if (slug) {
+      const existing = await prisma.category.findFirst({
+        where: { slug, NOT: { id } },
+      });
+      if (existing) {
+        return c.json({ error: 'Slug already exists' }, 400);
+      }
+    }
+
+    const data: any = {};
+    if (name !== undefined) data.name = name;
+    if (slug !== undefined) data.slug = slug;
+    if (isActive !== undefined) data.isActive = isActive;
+
+    const category = await prisma.category.update({
+      where: { id },
+      data,
+    });
+
+    return c.json(category);
+  } catch (error) {
+    console.error('Error updating category:', error);
+    return c.json({ error: 'Failed to update category' }, 500);
+  }
+});
+
+// Delete category (requires auth) — กันลบถ้ามีสินค้าอยู่
+app.delete('/categories/:id', authMiddleware, async (c) => {
+  const id = c.req.param('id');
+  try {
+    // ตรวจว่ามีสินค้าอยู่ใน category นี้ไหม
+    const productCount = await prisma.product.count({
+      where: { categoryId: id },
+    });
+
+    if (productCount > 0) {
+      return c.json({
+        error: `Cannot delete category with ${productCount} product(s). Please move or delete the products first.`,
+        productCount,
+      }, 400);
+    }
+
+    await prisma.category.delete({
+      where: { id },
+    });
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    return c.json({ error: 'Failed to delete category' }, 500);
+  }
+});
+
 // Update product global order (requires auth)
 app.put('/products/:id/globalOrder', authMiddleware, async (c) => {
   const id = c.req.param('id');

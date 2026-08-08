@@ -28,9 +28,13 @@ export interface ProductWithImages extends Product {
   updatedAt?: string;
 }
 
-export type Category = 'necklace' | 'ring' | 'bracelet' | 'earring' | 'pendant' | 'all';
+// Category ตอนนี้เป็น string (dynamic) เพราะดึงจาก API
+// ค่าที่ใช้บ่อยยังคงเป็น union เพื่อช่วย autocomplete ตอนเขียนโค้ด
+export type Category = string;
 
-export const categoryMap: Record<Category, string> = {
+// Fallback category map (ใช้ถ้า CategoriesContext ยังไม่พร้อม)
+// ห้ามใช้โดยตรง — ใช้ useCategories().categoryMap แทน
+export const fallbackCategoryMap: Record<string, string> = {
   all: 'ทั้งหมด',
   necklace: 'สร้อยคอ',
   ring: 'แหวน',
@@ -38,3 +42,7 @@ export const categoryMap: Record<Category, string> = {
   earring: 'ต่างหู',
   pendant: 'จี้',
 };
+
+// @deprecated ใช้ useCategories().categoryMap แทน
+// (เก็บไว้ชั่วคราวเพื่อ backward compatibility — จะ remove ในอนาคต)
+export const categoryMap: Record<string, string> = fallbackCategoryMap;

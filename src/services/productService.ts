@@ -148,26 +148,17 @@ export async function getProductsWithMode(mode: 'interleaved' | 'grouped'): Prom
   return allProducts;
 }
 
-// Get product counts by category
+// Get product counts by category (dynamic — รองรับ category ใหม่ที่เพิ่มจาก admin)
 // ใช้ getProductsWithMode('interleaved') ให้ตรงกับที่หน้า Home แสดงจริง
-// (backend /products คนละผลลัพธ์กับ /products?mode=interleaved เพราะ
-// grouped mode กรองตาม categoryId ที่มีในตาราง category)
-export async function getCategoryCounts(): Promise<Record<Category, number>> {
+export async function getCategoryCounts(): Promise<Record<string, number>> {
   const allProducts = await getProductsWithMode('interleaved');
 
-  const counts: Record<Category, number> = {
-    all: allProducts.length,
-    necklace: 0,
-    ring: 0,
-    bracelet: 0,
-    earring: 0,
-    pendant: 0,
-  };
+  const counts: Record<string, number> = { all: allProducts.length };
 
   for (const product of allProducts) {
-    if (product.category in counts) {
-      counts[product.category as Category]++;
-    }
+    const cat = product.category;
+    if (!cat) continue;
+    counts[cat] = (counts[cat] || 0) + 1;
   }
 
   return counts;

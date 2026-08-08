@@ -4,6 +4,7 @@ import { useAuth } from './authContext';
 import { ImageUpload } from './ImageUpload';
 import { env } from '../../config/env';
 import type { ProductWithImages } from '../../types/product';
+import { useCategories } from '../context/CategoriesContext';
 
 // Import SpecificationsEditor
 import { SpecificationsEditor } from './SpecificationsEditor';
@@ -29,6 +30,7 @@ export function ProductForm() {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const { token } = useAuth();
+  const { categories } = useCategories();
   const isEditing = !!id;
 
   const [formData, setFormData] = useState({
@@ -227,11 +229,11 @@ export function ProductForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#c8a96e]"
             required
           >
-            <option value="ring">Ring</option>
-            <option value="necklace">Necklace</option>
-            <option value="bracelet">Bracelet</option>
-            <option value="earring">Earring</option>
-            <option value="pendant">Pendant</option>
+            {categories
+              .filter(c => c.slug !== 'all')
+              .map(c => (
+                <option key={c.id} value={c.slug}>{c.name} ({c.slug})</option>
+              ))}
           </select>
         </div>
 
