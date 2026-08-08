@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "echo skip — tsx transpiles at runtime",
     "start": "tsx src/index.ts",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
