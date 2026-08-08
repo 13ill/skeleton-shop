@@ -17,18 +17,25 @@ export default async function handler(req, res) {
   const pathname = url.pathname
   const productMatch = pathname.match(/^\/product\/(.+)$/)
 
-  // อ่าน index.html ที่ build แล้ว (Vite output = dist/)
-  const htmlPath = path.join(process.cwd(), 'dist', 'index.html')
+  // อ่าน index.html ที่ build แล้ว — ลองหลายตำแหน่งเพราะ outputDirectory อาจเปลี่ยน root
   let html
-  try {
-    html = fs.readFileSync(htmlPath, 'utf-8')
-  } catch {
+  const possiblePaths = [
+    path.join(process.cwd(), 'index.html'),        // ถ้า outputDirectory = dist (Vercel ใช้ dist เป็น root)
+    path.join(process.cwd(), 'dist', 'index.html'), // ถ้า root ยังเป็น project root
+    path.join(__dirname, '..', 'dist', 'index.html'), // จาก api/ folder
+    path.join(__dirname, '..', 'index.html'),
+  ]
+  for (const p of possiblePaths) {
     try {
-      html = fs.readFileSync(path.join(process.cwd(), 'index.html'), 'utf-8')
+      html = fs.readFileSync(p, 'utf-8')
+      break
     } catch {
-      res.status(500).send('index.html not found')
-      return
+      // ลองตำแหน่งถัดไป
     }
+  }
+  if (!html) {
+    res.status(500).send('index.html not found')
+    return
   }
 
   const apiUrl = process.env.VITE_API_BASE_URL || ''
