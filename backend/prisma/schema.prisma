@@ -111,6 +111,14 @@ model SiteSettings {
   contactBorderColor String?
   contactShowBorder Boolean @default(false)
 
+  // SEO Settings
+  domain          String?  // Custom domain สำหรับ multi-tenant (เช่น niwelry.com)
+  seoTitle        String?
+  seoDescription  String?
+  seoKeywords     String?
+  ogImageUrl      String?
+  seoIndexable    Boolean  @default(true) // true = Google เก็บได้, false = noindex
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -10,6 +10,7 @@ dist
 .env.production
 
 backend/uploads
+backend/backups
 
 # Owner-OS: Session logs ห้ามเข้า git ของโปรเจกต์ย่อย (กฎข้อ 8)
 # Compact context ที่ push ไป Core เป็นสิ่งเดียวที่ออกจากโปรเจกต์

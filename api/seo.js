@@ -126,9 +126,19 @@ function buildMetaTags(seo, origin) {
 }
 
 function buildStructuredDataScript(seo) {
-  if (!seo.structuredData) return ''
-  const json = JSON.stringify(seo.structuredData)
-  return `<script type="application/ld+json">${json}</script>`
+  const scripts = []
+
+  // Store structured data (Store schema)
+  if (seo.structuredData) {
+    scripts.push(`<script type="application/ld+json">${JSON.stringify(seo.structuredData)}</script>`)
+  }
+
+  // ItemList — ฝังรายการสินค้าทั้งหมดให้ Google เห็น
+  if (seo.itemList && seo.itemList.itemListElement && seo.itemList.itemListElement.length > 0) {
+    scripts.push(`<script type="application/ld+json">${JSON.stringify(seo.itemList)}</script>`)
+  }
+
+  return scripts.join('\n    ')
 }
 
 function escapeHtml(str) {

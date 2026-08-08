@@ -924,7 +924,13 @@ app.put('/site-settings', authMiddleware, async (c) => {
       contactTextStrokeColor,
       contactTextStrokeWidth,
       contactBorderColor,
-      contactShowBorder
+      contactShowBorder,
+      domain,
+      seoTitle,
+      seoDescription,
+      seoKeywords,
+      ogImageUrl,
+      seoIndexable
     } = await c.req.json();
     
     let settings = await prisma.siteSettings.findFirst();
@@ -961,6 +967,12 @@ app.put('/site-settings', authMiddleware, async (c) => {
           contactTextStrokeWidth,
           contactBorderColor,
           contactShowBorder,
+          domain,
+          seoTitle,
+          seoDescription,
+          seoKeywords,
+          ogImageUrl,
+          seoIndexable,
         },
       });
     } else {
@@ -994,6 +1006,12 @@ app.put('/site-settings', authMiddleware, async (c) => {
           contactTextStrokeWidth,
           contactBorderColor,
           contactShowBorder,
+          domain,
+          seoTitle,
+          seoDescription,
+          seoKeywords,
+          ogImageUrl,
+          seoIndexable,
         },
       });
     }
@@ -1045,6 +1063,12 @@ app.get('/public/site-settings', async (c) => {
         contactTextStrokeWidth: 0.5,
         contactBorderColor: '#d4af37',
         contactShowBorder: false,
+        domain: null,
+        seoTitle: null,
+        seoDescription: null,
+        seoKeywords: null,
+        ogImageUrl: null,
+        seoIndexable: true,
       };
     }
     
@@ -1052,6 +1076,262 @@ app.get('/public/site-settings', async (c) => {
   } catch (error) {
     console.error('Error fetching public site settings:', error);
     return c.json({ error: 'Failed to fetch site settings' }, 500);
+  }
+});
+
+// ── Public SEO endpoints (no auth — สำหรับ Google bot และ Vercel serverless) ──
+
+// Helper: ดึง domain จาก query param หรือ headers
+function resolveDomain(c: any): string {
+  const queryDomain = c.req.query('domain');
+  if (queryDomain) return queryDomain;
+
+  const origin = c.req.header('Origin');
+  if (origin) {
+    try { return new URL(origin).hostname; } catch { /* ignore */ }
+  }
+
+  const referer = c.req.header('Referer');
+  if (referer) {
+    try { return new URL(referer).hostname; } catch { /* ignore */ }
+  }
+
+  return c.req.header('Host') || '';
+}
+
+// Helper: หา SiteSettings จาก domain
+async function findSettingsByDomain(domain: string) {
+  const cleanDomain = domain.replace(/^www\./, '');
+  return prisma.siteSettings.findFirst({
+    where: { domain: cleanDomain },
+  });
+}
+
+// GET /public/seo — ดึงข้อมูล SEO ตาม domain (รวมสินค้าสำหรับ ItemList)
+app.get('/public/seo', async (c) => {
+  try {
+    const domain = resolveDomain(c);
+    const settings = await findSettingsByDomain(domain);
+
+    if (!settings) {
+      return c.json({
+        title: 'Jewelry Showcase',
+        description: 'Displays a stylish catalog of jewelry for easy browsing.',
+        robots: 'noindex, nofollow',
+        domain,
+      });
+    }
+
+    const title = settings.seoTitle || settings.brandName;
+    const description = settings.seoDescription || settings.tagline || `${settings.brandName} — ${settings.address || ''}`.trim();
+    const robots = settings.seoIndexable ? 'index, follow' : 'noindex, nofollow';
+    const baseUrl = `https://${settings.domain}`;
+
+    // Store structured data
+    const storeData: Record<string, any> = {
+      '@context': 'https://schema.org',
+      '@type': 'Store',
+      name: settings.brandName,
+    };
+    if (settings.phone) storeData.telephone = settings.phone;
+    if (settings.address) storeData.address = { '@type': 'PostalAddress', streetAddress: settings.address };
+    if (settings.domain) storeData.url = baseUrl;
+    if (settings.email) storeData.email = settings.email;
+
+    // ดึงสินค้าทั้งหมดสำหรับ ItemList (ฝังในหน้าแรกให้ Google เห็น)
+    const products = await prisma.product.findMany({
+      orderBy: { updatedAt: 'desc' },
+      take: 100, // จำกัด 100 ชิ้น เพื่อไม่ให้ HTML ใหญ่เกินไป
+    });
+
+    const itemListElements = products.map((p, i) => {
+      const item: Record<string, any> = {
+        '@type': 'ListItem',
+        position: i + 1,
+        name: p.name,
+        url: `${baseUrl}/product/${p.id}`,
+      };
+      // ใช้รูปแรกเป็น image ถ้ามี
+      const images = typeof p.images === 'string' ? JSON.parse(p.images) : p.images;
+      if (Array.isArray(images) && images.length > 0) {
+        const firstImage = images[0];
+        item.image = firstImage.startsWith('http') ? firstImage : `${baseUrl}${firstImage}`;
+      }
+      if (p.description) item.description = p.description;
+      if (p.price) {
+        item.price = p.price;
+        item.priceCurrency = 'THB';
+      }
+      return item;
+    });
+
+    const itemList: Record<string, any> = {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: `${settings.brandName} — สินค้าทั้งหมด`,
+      numberOfItems: products.length,
+      itemListElement: itemListElements,
+    };
+
+    return c.json({
+      title,
+      description,
+      keywords: settings.seoKeywords,
+      ogImageUrl: settings.ogImageUrl,
+      robots,
+      storeName: settings.brandName,
+      domain: settings.domain,
+      phone: settings.phone,
+      address: settings.address,
+      email: settings.email,
+      structuredData: storeData,
+      itemList,
+      productCount: products.length,
+    });
+  } catch (error) {
+    console.error('Error fetching SEO:', error);
+    return c.json({ error: 'Failed to fetch SEO' }, 500);
+  }
+});
+
+// GET /public/robots — สร้าง robots.txt ตาม domain
+app.get('/public/robots', async (c) => {
+  try {
+    const domain = resolveDomain(c);
+    const settings = await findSettingsByDomain(domain);
+    const baseUrl = settings?.domain ? `https://${settings.domain}` : `https://${domain}`;
+
+    let content: string;
+    if (settings && !settings.seoIndexable) {
+      content = 'User-agent: *\nDisallow: /\n';
+    } else {
+      content = `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
+    }
+
+    c.header('Content-Type', 'text/plain');
+    c.header('Cache-Control', 'public, max-age=3600');
+    return c.body(content);
+  } catch (error) {
+    console.error('Error generating robots.txt:', error);
+    return c.body('User-agent: *\nAllow: /\n', 200, { 'Content-Type': 'text/plain' });
+  }
+});
+
+// GET /public/sitemap — สร้าง sitemap.xml ตาม domain (ดึงสินค้า + หมวดหมู่)
+app.get('/public/sitemap', async (c) => {
+  try {
+    const domain = resolveDomain(c);
+    const settings = await findSettingsByDomain(domain);
+
+    if (!settings || !settings.seoIndexable) {
+      c.header('Content-Type', 'application/xml');
+      return c.body('<?xml version="1.0" encoding="UTF-8"?>\n<urlset></urlset>');
+    }
+
+    const baseUrl = `https://${settings.domain}`;
+    const urls: string[] = [];
+
+    // หน้าหลัก
+    urls.push(`  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`);
+
+    // หมวดหมู่
+    const categories = await prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: { priority: 'asc' },
+    });
+    for (const cat of categories) {
+      urls.push(`  <url>\n    <loc>${baseUrl}/?category=${cat.slug}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>`);
+    }
+
+    // สินค้า
+    const products = await prisma.product.findMany({
+      orderBy: { updatedAt: 'desc' },
+    });
+    for (const prod of products) {
+      const lastmod = prod.updatedAt.toISOString();
+      urls.push(`  <url>\n    <loc>${baseUrl}/product/${prod.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`);
+    }
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+
+    c.header('Content-Type', 'application/xml');
+    c.header('Cache-Control', 'public, max-age=3600');
+    return c.body(xml);
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    c.header('Content-Type', 'application/xml');
+    return c.body('<?xml version="1.0" encoding="UTF-8"?>\n<urlset></urlset>');
+  }
+});
+
+// ── Admin Backup endpoint (ต้อง login — สำหรับ super admin backup ได้เอง) ──
+
+// GET /admin/backup — ดาวน์โหลดข้อมูลทั้งหมดเป็น JSON
+app.get('/admin/backup', authMiddleware, async (c) => {
+  try {
+    const backup: Record<string, any> = {
+      _meta: {
+        timestamp: new Date().toISOString(),
+        exportedBy: (c as any).get('email') || 'unknown',
+        version: '1.0',
+      },
+    };
+
+    const tables = [
+      { name: 'users', fetch: () => prisma.user.findMany() },
+      { name: 'categories', fetch: () => prisma.category.findMany() },
+      { name: 'products', fetch: () => prisma.product.findMany() },
+      { name: 'socialLinks', fetch: () => prisma.socialLink.findMany() },
+      { name: 'siteSettings', fetch: () => prisma.siteSettings.findMany() },
+    ];
+
+    let totalRows = 0;
+    for (const table of tables) {
+      const data = await table.fetch();
+      backup[table.name] = data;
+      totalRows += Array.isArray(data) ? data.length : (data ? 1 : 0);
+    }
+
+    backup._meta.totalRows = totalRows;
+
+    const json = JSON.stringify(backup, null, 2);
+    const filename = `backup-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.json`;
+
+    c.header('Content-Type', 'application/json');
+    c.header('Content-Disposition', `attachment; filename="${filename}"`);
+    c.header('Cache-Control', 'no-store');
+    return c.body(json);
+  } catch (error) {
+    console.error('Error creating backup:', error);
+    return c.json({ error: 'Failed to create backup' }, 500);
+  }
+});
+
+// GET /admin/backup/info — ดูสรุปข้อมูลใน DB (ไม่ดาวน์โหลด)
+app.get('/admin/backup/info', authMiddleware, async (c) => {
+  try {
+    const [users, categories, products, socialLinks, siteSettings] = await Promise.all([
+      prisma.user.count(),
+      prisma.category.count(),
+      prisma.product.count(),
+      prisma.socialLink.count(),
+      prisma.siteSettings.count(),
+    ]);
+
+    return c.json({
+      timestamp: new Date().toISOString(),
+      tables: {
+        users,
+        categories,
+        products,
+        socialLinks,
+        siteSettings,
+      },
+      total: users + categories + products + socialLinks + siteSettings,
+    });
+  } catch (error) {
+    console.error('Error getting backup info:', error);
+    return c.json({ error: 'Failed to get backup info' }, 500);
   }
 });
 
