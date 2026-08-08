@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import { hashPassword, verifyPassword, generateToken, verifyToken } from './auth';
+import { uploadToR2 } from './r2';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
 import { join, dirname, extname } from 'path';
 import sharp from 'sharp';
@@ -702,6 +703,7 @@ app.get('/products', async (c) => {
 const IMAGE_WIDTHS = [400, 800, 1200];
 
 // Upload image (requires auth) - accepts base64 encoded image
+// Uploads original + responsive WebP variants to Cloudflare R2
 app.post('/upload', authMiddleware, async (c) => {
   try {
     const { filename, data } = await c.req.json();
@@ -713,20 +715,22 @@ app.post('/upload', authMiddleware, async (c) => {
     // Decode base64
     const buffer = Buffer.from(data, 'base64');
 
-    // Use the filename as-is (preserve directory structure)
-    const filepath = join(uploadsDir, filename);
+    // Determine content type based on file extension
+    const ext = extname(filename).slice(1).toLowerCase() || '';
+    const mimeTypes: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
+    };
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
 
-    // Ensure directory exists
-    const dir = dirname(filepath);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
+    // Upload original to R2
+    const r2Key = `Product/${filename}`;
+    const originalUrl = await uploadToR2(r2Key, buffer, contentType);
 
-    // Keep the original (full quality) file for the lightbox / downloads
-    writeFileSync(filepath, buffer);
-
-    // Generate responsive WebP variants: "<path-without-ext>-<width>.webp"
-    const ext = extname(filename);
+    // Generate responsive WebP variants and upload to R2
     const base = ext ? filename.slice(0, -ext.length) : filename;
     const variants: { width: number; url: string }[] = [];
     try {
@@ -735,17 +739,13 @@ app.post('/upload', authMiddleware, async (c) => {
         // Skip variants larger than the source (avoid duplicate upscaled files)
         if (meta.width && meta.width < width && variants.length > 0) continue;
         const variantName = `${base}-${width}.webp`;
-        const variantPath = join(uploadsDir, variantName);
-        const variantDir = dirname(variantPath);
-        if (!existsSync(variantDir)) {
-          mkdirSync(variantDir, { recursive: true });
-        }
-        await sharp(buffer)
+        const variantBuffer = await sharp(buffer)
           .rotate() // respect EXIF orientation
           .resize({ width, withoutEnlargement: true })
           .webp({ quality: 80 })
-          .toFile(variantPath);
-        variants.push({ width, url: `/${variantName}` });
+          .toBuffer();
+        const variantUrl = await uploadToR2(`Product/${variantName}`, variantBuffer, 'image/webp');
+        variants.push({ width, url: variantUrl });
       }
     } catch (variantError) {
       console.error('Failed to generate image variants:', variantError);
@@ -753,10 +753,10 @@ app.post('/upload', authMiddleware, async (c) => {
 
     // Default url = the 800px variant (good for product cards); fall back to original
     const medium = variants.find((v) => v.width === 800) || variants[variants.length - 1];
-    const fileUrl = medium ? medium.url : `/${filename}`;
+    const fileUrl = medium ? medium.url : originalUrl;
     const srcset = variants.map((v) => `${v.url} ${v.width}w`).join(', ');
 
-    return c.json({ url: fileUrl, srcset, variants, original: `/${filename}` });
+    return c.json({ url: fileUrl, srcset, variants, original: originalUrl });
   } catch (error) {
     console.error('Error uploading file:', error);
     return c.json({ error: 'Failed to upload file' }, 500);
