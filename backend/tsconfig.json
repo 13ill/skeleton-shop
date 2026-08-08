@@ -5,6 +5,9 @@
     "lib": [
       "ES2022"
     ],
+    "types": [
+      "node"
+    ],
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowJs": true,
@@ -20,6 +23,8 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "src/seed.ts",
+    "src/seed-categories.ts"
   ]
 }
