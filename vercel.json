@@ -1,21 +1,17 @@
 {
-  "version": 2,
-  "buildCommand": "node scripts/build-products.cjs && vite build",
+  "buildCommand": "node scripts/build-products.cjs && vite build && cp -r api dist/api",
   "outputDirectory": "dist",
-  "builds": [
-    {
-      "src": "api/seo.js",
-      "use": "@vercel/node"
+  "functions": {
+    "api/seo.js": {
+      "maxDuration": 10
     },
-    {
-      "src": "api/robots.js",
-      "use": "@vercel/node"
+    "api/robots.js": {
+      "maxDuration": 10
     },
-    {
-      "src": "api/sitemap.js",
-      "use": "@vercel/node"
+    "api/sitemap.js": {
+      "maxDuration": 10
     }
-  ],
+  },
   "rewrites": [
     {
       "source": "/robots.txt",
