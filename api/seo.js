@@ -35,6 +35,11 @@ export default async function handler(req, res) {
   let seo = null
   let isProductPage = false
 
+  // Debug headers — ดูว่า seo.js ทำงานไหม
+  res.setHeader('X-Seo-Debug', 'active')
+  res.setHeader('X-Seo-Api-Url', apiUrl ? 'set' : 'empty')
+  res.setHeader('X-Seo-Host', host)
+
   if (apiUrl) {
     try {
       if (productMatch) {
@@ -60,9 +65,13 @@ export default async function handler(req, res) {
           seo = await seoRes.json()
         }
       }
-    } catch {
+      res.setHeader('X-Seo-Result', seo ? 'fetched' : 'null')
+    } catch (e) {
+      res.setHeader('X-Seo-Result', 'error')
       // ถ้า backend ไม่ตอบ ใช้ default meta tags ใน index.html
     }
+  } else {
+    res.setHeader('X-Seo-Result', 'no-api-url')
   }
 
   if (!seo) {
