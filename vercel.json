@@ -20,7 +20,11 @@
       "destination": "/api/sitemap"
     },
     {
-      "source": "/((?!assets/|api/|Product/|uploads/|vite.svg|manifest.json|sw.js).*)",
+      "source": "/",
+      "destination": "/api/seo"
+    },
+    {
+      "source": "/((?!assets/|api/|Product/|uploads/|vite.svg|manifest.json|sw.js|favicon.ico|robots.txt|sitemap.xml).*)",
       "destination": "/api/seo"
     }
   ]
