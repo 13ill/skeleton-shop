@@ -1194,6 +1194,66 @@ app.get('/public/seo', async (c) => {
   }
 });
 
+// GET /public/seo/product/:id — ดึง SEO เฉพาะสินค้า + Product structured data
+app.get('/public/seo/product/:id', async (c) => {
+  try {
+    const productId = c.req.param('id');
+    const domain = resolveDomain(c);
+    const settings = await findSettingsByDomain(domain);
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return c.json({ error: 'Product not found' }, 404);
+    }
+
+    const baseUrl = settings?.domain ? `https://${settings.domain}` : `https://${domain}`;
+    const storeName = settings?.brandName || '';
+    const title = product.metaTitle || `${product.name} — ${storeName}`.trim();
+    const description = product.metaDescription || product.description || product.fullDescription || '';
+    const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+    const firstImage = Array.isArray(images) && images.length > 0
+      ? (images[0].startsWith('http') ? images[0] : `${baseUrl}${images[0]}`)
+      : null;
+
+    // Product structured data (schema.org/Product)
+    const productData: Record<string, any> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description: product.description || product.fullDescription || '',
+      url: `${baseUrl}/product/${product.id}`,
+    };
+    if (firstImage) productData.image = firstImage;
+    if (product.price) {
+      productData.offers = {
+        '@type': 'Offer',
+        price: product.price,
+        priceCurrency: 'THB',
+        availability: 'https://schema.org/InStock',
+      };
+    }
+    if (product.material) productData.material = product.material;
+    if (storeName) productData.brand = { '@type': 'Brand', name: storeName };
+
+    return c.json({
+      title,
+      description,
+      robots: settings?.seoIndexable ? 'index, follow' : 'noindex, nofollow',
+      ogImageUrl: firstImage,
+      productName: product.name,
+      storeName,
+      domain: settings?.domain || domain,
+      structuredData: productData,
+    });
+  } catch (error) {
+    console.error('Error fetching product SEO:', error);
+    return c.json({ error: 'Failed to fetch product SEO' }, 500);
+  }
+});
+
 // GET /public/robots — สร้าง robots.txt ตาม domain
 app.get('/public/robots', async (c) => {
   try {

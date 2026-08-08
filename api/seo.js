@@ -12,6 +12,11 @@ export default async function handler(req, res) {
   const protocol = req.headers['x-forwarded-proto'] || 'https'
   const origin = `${protocol}://${host}`
 
+  // อ่าน path เพื่อตรวจสอบว่าเป็นหน้าสินค้าหรือไม่
+  const url = new URL(req.url, origin)
+  const pathname = url.pathname
+  const productMatch = pathname.match(/^\/product\/(.+)$/)
+
   // อ่าน index.html ที่ build แล้ว (Vite output = dist/)
   const htmlPath = path.join(process.cwd(), 'dist', 'index.html')
   let html
@@ -26,17 +31,34 @@ export default async function handler(req, res) {
     }
   }
 
-  // ดึง SEO จาก Hono backend
   const apiUrl = process.env.VITE_API_BASE_URL || ''
   let seo = null
+  let isProductPage = false
+
   if (apiUrl) {
     try {
-      const seoRes = await fetch(`${apiUrl}/public/seo?domain=${encodeURIComponent(host)}`, {
-        headers: { Origin: origin },
-        signal: AbortSignal.timeout(3000),
-      })
-      if (seoRes.ok) {
-        seo = await seoRes.json()
+      if (productMatch) {
+        // หน้าสินค้า — ดึง SEO เฉพาะของสินค้านั้น
+        const productId = productMatch[1]
+        const productRes = await fetch(`${apiUrl}/public/seo/product/${encodeURIComponent(productId)}?domain=${encodeURIComponent(host)}`, {
+          headers: { Origin: origin },
+          signal: AbortSignal.timeout(3000),
+        })
+        if (productRes.ok) {
+          seo = await productRes.json()
+          isProductPage = true
+        }
+      }
+
+      // ถ้าไม่ใช่หน้าสินค้า หรือดึงสินค้าไม่สำเร็จ → ดึง store-level SEO
+      if (!seo) {
+        const seoRes = await fetch(`${apiUrl}/public/seo?domain=${encodeURIComponent(host)}`, {
+          headers: { Origin: origin },
+          signal: AbortSignal.timeout(3000),
+        })
+        if (seoRes.ok) {
+          seo = await seoRes.json()
+        }
       }
     } catch {
       // ถ้า backend ไม่ตอบ ใช้ default meta tags ใน index.html
@@ -50,8 +72,8 @@ export default async function handler(req, res) {
   }
 
   // แทรก meta tags ลงใน <head>
-  const metaTags = buildMetaTags(seo, origin)
-  const structuredData = buildStructuredDataScript(seo)
+  const metaTags = buildMetaTags(seo, origin, isProductPage ? pathname : null)
+  const structuredData = buildStructuredDataScript(seo, isProductPage)
 
   // แทนที่ title
   if (seo.title) {
@@ -82,10 +104,11 @@ export default async function handler(req, res) {
     }
   }
 
-  // แทนที่ canonical
+  // แทนที่ canonical — ใช้ path จริงสำหรับหน้าสินค้า
+  const canonicalUrl = isProductPage ? `${origin}${pathname}` : `${origin}/`
   html = html.replace(
     /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/,
-    `<link rel="canonical" href="${escapeAttr(origin + '/')}" />`
+    `<link rel="canonical" href="${escapeAttr(canonicalUrl)}" />`
   )
 
   // แทรก meta tags ทั้งหมด + structured data ก่อน </head>
@@ -97,14 +120,16 @@ export default async function handler(req, res) {
   res.status(200).send(html)
 }
 
-function buildMetaTags(seo, origin) {
+function buildMetaTags(seo, origin, productPath = null) {
   const tags = []
+  const ogUrl = productPath ? `${origin}${productPath}` : `${origin}/`
+  const ogType = productPath ? 'product' : 'website'
 
   // Open Graph
   tags.push(`<meta property="og:title" content="${escapeAttr(seo.title || '')}" />`)
   tags.push(`<meta property="og:description" content="${escapeAttr(seo.description || '')}" />`)
-  tags.push(`<meta property="og:type" content="website" />`)
-  tags.push(`<meta property="og:url" content="${escapeAttr(origin + '/')}" />`)
+  tags.push(`<meta property="og:type" content="${ogType}" />`)
+  tags.push(`<meta property="og:url" content="${escapeAttr(ogUrl)}" />`)
   if (seo.ogImageUrl) {
     tags.push(`<meta property="og:image" content="${escapeAttr(seo.ogImageUrl)}" />`)
   }
@@ -117,7 +142,7 @@ function buildMetaTags(seo, origin) {
     tags.push(`<meta name="twitter:image" content="${escapeAttr(seo.ogImageUrl)}" />`)
   }
 
-  // Keywords
+  // Keywords (store-level only)
   if (seo.keywords) {
     tags.push(`<meta name="keywords" content="${escapeAttr(seo.keywords)}" />`)
   }
@@ -125,16 +150,16 @@ function buildMetaTags(seo, origin) {
   return tags
 }
 
-function buildStructuredDataScript(seo) {
+function buildStructuredDataScript(seo, isProductPage = false) {
   const scripts = []
 
-  // Store structured data (Store schema)
+  // Product structured data (หน้าสินค้า) หรือ Store structured data (หน้าแรก)
   if (seo.structuredData) {
     scripts.push(`<script type="application/ld+json">${JSON.stringify(seo.structuredData)}</script>`)
   }
 
-  // ItemList — ฝังรายการสินค้าทั้งหมดให้ Google เห็น
-  if (seo.itemList && seo.itemList.itemListElement && seo.itemList.itemListElement.length > 0) {
+  // ItemList — ฝังรายการสินค้าทั้งหมดในหน้าแรกเท่านั้น (ไม่ฝังในหน้าสินค้า)
+  if (!isProductPage && seo.itemList && seo.itemList.itemListElement && seo.itemList.itemListElement.length > 0) {
     scripts.push(`<script type="application/ld+json">${JSON.stringify(seo.itemList)}</script>`)
   }
 
