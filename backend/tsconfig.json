@@ -5,9 +5,6 @@
     "lib": [
       "ES2022"
     ],
-    "types": [
-      "node"
-    ],
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "allowJs": true,
@@ -19,7 +16,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/**/*"
+    "src/index.ts"
   ],
   "exclude": [
     "node_modules",
