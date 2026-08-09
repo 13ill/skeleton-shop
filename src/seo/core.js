@@ -105,6 +105,10 @@ export function injectSeoIntoHtml(html, seo, origin, productPath = null) {
     `<link rel="canonical" href="${escapeAttr(canonicalUrl)}" />`
   )
 
+  // ลบ OG tags เก่าทั้งหมดจาก index.html เพื่อไม่ให้ซ้ำกับที่จะแทรกใหม่
+  html = html.replace(/<meta\s+property="og:[^"]*"\s+content="[^"]*"\s*\/?>/g, '')
+  html = html.replace(/<meta\s+name="twitter:[^"]*"\s+content="[^"]*"\s*\/?>/g, '')
+
   // แทรก meta tags ทั้งหมด + structured data ก่อน </head>
   const injection = metaTags.join('\n    ') + '\n    ' + structuredData
   html = html.replace('</head>', `    ${injection}\n  </head>`)
