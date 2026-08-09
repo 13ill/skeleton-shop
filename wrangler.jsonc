@@ -1,0 +1,10 @@
+{
+  "name": "jump-1",
+  "compatibility_date": "2024-09-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": true
+  },
+  "main": "./src/worker.js"
+}
