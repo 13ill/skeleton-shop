@@ -1,0 +1,26 @@
+name: Keep Supabase Alive
+
+# กัน Supabase Free tier pause (หยุดถ้าไม่มี query 1 สัปดาห์)
+# ยิง query เบาๆ ผ่าน backend ทุกวัน
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # ทุกวัน 03:00 UTC (10:00 น.เวลาไทย)
+  workflow_dispatch: {}  # กดรันเองได้
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend (keeps Render + Supabase alive)
+        run: |
+          echo "Pinging Jump-1 backend..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jump-1-backend.onrender.com/public/seo?domain=niwelry.com")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "⚠️ Backend did not return 200 — retrying in 30s..."
+            sleep 30
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://jump-1-backend.onrender.com/public/seo?domain=niwelry.com")
+            echo "Retry HTTP status: $STATUS"
+          fi
+          echo "✅ Done"
