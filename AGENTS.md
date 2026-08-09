@@ -23,6 +23,7 @@ curl -s -I https://niwelry.com/ | grep -i server
 | **Repo** | `13ill/skeleton-shop` |
 | **Frontend root** | `/` (root directory) |
 | **Backend root** | `backend/` |
+| **Default branch** | `ui-enhancements-review` (เปลี่ยนจาก `deployment-plan` เมื่อ 2026-08-09) |
 | **Production branch** | `ui-enhancements-review` |
 
 ## Cloudflare Pages Settings
@@ -71,3 +72,12 @@ npm run dev                # tsx watch
 npm run build              # skip (tsx transpiles at runtime)
 npm start                  # tsx src/index.ts
 ```
+
+## Keep-Alive (กัน Free Tier sleep/pause)
+
+| กลไก | ทำอะไร | ความถี่ |
+|---|---|---|
+| **GitHub Actions** (`.github/workflows/keep-supabase-alive.yml`) | ping backend → ทำให้ Render ไม่ sleep + Supabase ไม่ pause | ทุกวัน 10:00 น. (เวลาไทย) |
+| **UptimeRobot** (ตั้งเองผ่านเว็บ) | ping `https://jump-1-backend.onrender.com/` | ทุก 10 นาที — **ยังไม่ได้ตั้ง ต้องสมัครและเพิ่ม** |
+
+> ⚠️ GitHub Actions schedule ทำงานได้ก็ต่อเมื่อไฟล์อยู่ใน default branch (ปัจจุบัน = `ui-enhancements-review`)
