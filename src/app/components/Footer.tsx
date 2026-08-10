@@ -136,9 +136,9 @@ export function Footer() {
 
   return (
     <>
-      <footer className="bg-gradient-to-br from-swarovski-black via-swarovski-dark to-swarovski-black text-white mt-16">
+      <footer className="relative overflow-hidden bg-gradient-to-br from-swarovski-black via-swarovski-dark to-swarovski-black text-white mt-16">
         {/* Decorative Pattern */}
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-5 pointer-events-none">
           <div className="absolute inset-0" style={{
             backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%)',
             backgroundSize: '100% 100%'

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResponsiveImage } from './ResponsiveImage';
@@ -64,7 +65,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               : {}
           }
         />
-        <div className="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full opacity-0 hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full pointer-events-none">
           <ZoomIn size={20} />
         </div>
       </div>

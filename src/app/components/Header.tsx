@@ -166,10 +166,25 @@ export function Header() {
         </nav>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Menu — Overlay (sibling ของ drawer, ไม่ใช่ลูก) */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
+            key="mobile-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu — Drawer Panel */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            key="mobile-drawer"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -221,15 +236,6 @@ export function Header() {
                 </button>
               </nav>
             </div>
-
-            {/* Overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            />
           </motion.div>
         )}
       </AnimatePresence>

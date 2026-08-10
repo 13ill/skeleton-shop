@@ -44,6 +44,8 @@ interface ResponsiveImageProps {
   eager?: boolean;
   draggable?: boolean;
   onClick?: () => void;
+  /** Inline style forwarded to the underlying <img> (e.g. for hover zoom transform). */
+  style?: React.CSSProperties;
 }
 
 /**
@@ -62,6 +64,7 @@ export function ResponsiveImage({
   eager = false,
   draggable,
   onClick,
+  style,
 }: ResponsiveImageProps) {
   const [useVariants, setUseVariants] = useState(true);
 
@@ -79,6 +82,7 @@ export function ResponsiveImage({
       sizes={srcSet ? sizes : undefined}
       alt={alt}
       className={className}
+      style={style}
       loading={eager ? "eager" : "lazy"}
       decoding="async"
       draggable={draggable}
