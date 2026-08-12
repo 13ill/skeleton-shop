@@ -44,6 +44,16 @@ export async function onRequest(context) {
     return new Response('index.html not found', { status: 500 })
   }
 
+  // Google Search Console site verification (optional env var)
+  // ค่า content ของ <meta name="google-site-verification" content="...">
+  // ตั้งใน Cloudflare Pages → Settings → Environment Variables
+  if (env.GOOGLE_SITE_VERIFICATION) {
+    const tag = `<meta name="google-site-verification" content="${env.GOOGLE_SITE_VERIFICATION}">`
+    if (!html.includes('google-site-verification')) {
+      html = html.replace('</head>', `    ${tag}\n  </head>`)
+    }
+  }
+
   // ดึง SEO จาก backend
   const apiUrl = env.VITE_API_BASE_URL || ''
   const { seo, isProductPage } = await fetchSeo({
