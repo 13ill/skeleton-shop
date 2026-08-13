@@ -94,6 +94,7 @@ model SiteSettings {
   heroShowBorder Boolean @default(false)
 
   // Newsletter Section
+  newsletterEnabled     Boolean @default(false) // ซ่อน/แสดง section (ซ่อนเป็นค่าเริ่มต้น เพราะยังไม่มีระบบเมล)
   newsletterTitle       String?
   newsletterDescription String?
   newsletterBackgroundImage String?

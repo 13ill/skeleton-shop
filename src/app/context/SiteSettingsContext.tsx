@@ -16,6 +16,7 @@ interface SiteSettings {
   heroTextStrokeWidth: number | null;
   heroBorderColor: string | null;
   heroShowBorder: boolean;
+  newsletterEnabled: boolean;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
   newsletterBackgroundImage: string | null;
@@ -54,6 +55,7 @@ const defaultSettings: SiteSettings = {
   heroTextStrokeWidth: null,
   heroBorderColor: null,
   heroShowBorder: false,
+  newsletterEnabled: false,
   newsletterTitle: null,
   newsletterDescription: null,
   newsletterBackgroundImage: null,

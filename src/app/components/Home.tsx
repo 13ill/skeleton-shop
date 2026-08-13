@@ -359,58 +359,60 @@ export function Home() {
       </section>
 
       {/* Newsletter Section */}
-      <section
-        className="py-16 relative"
-        style={{
-          backgroundImage: siteSettings.newsletterBackgroundImage ? `url(${siteSettings.newsletterBackgroundImage})` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundColor: !siteSettings.newsletterBackgroundImage ? '#1f1b18' : undefined,
-          border: siteSettings.newsletterShowBorder ? `4px solid ${siteSettings.newsletterBorderColor}` : 'none',
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h2
-              className="text-3xl font-bold mb-4 text-white"
-              style={{
-                fontFamily: 'Montserrat, sans-serif',
-                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 1}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
-              }}
+      {siteSettings.newsletterEnabled && (
+        <section
+          className="py-16 relative"
+          style={{
+            backgroundImage: siteSettings.newsletterBackgroundImage ? `url(${siteSettings.newsletterBackgroundImage})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: !siteSettings.newsletterBackgroundImage ? '#1f1b18' : undefined,
+            border: siteSettings.newsletterShowBorder ? `4px solid ${siteSettings.newsletterBorderColor}` : 'none',
+          }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
             >
-              {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
-            </h2>
-            <p
-              className="text-white/80 mb-8 max-w-xl mx-auto"
-              style={{
-                WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 1}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
-              }}
-            >
-              {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="อีเมลของคุณ"
-                className="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
-              />
-              <button
-                className="px-6 py-3 bg-swarovski-gold text-white font-semibold rounded-lg hover:bg-swarovski-gold-light transition-all duration-300"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
+              <h2
+                className="text-3xl font-bold mb-4 text-white"
+                style={{
+                  fontFamily: 'Montserrat, sans-serif',
+                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 1}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                }}
               >
-                สมัคร
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+                {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
+              </h2>
+              <p
+                className="text-white/80 mb-8 max-w-xl mx-auto"
+                style={{
+                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 1}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                }}
+              >
+                {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                <input
+                  type="email"
+                  placeholder="อีเมลของคุณ"
+                  className="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                />
+                <button
+                  className="px-6 py-3 bg-swarovski-gold text-white font-semibold rounded-lg hover:bg-swarovski-gold-light transition-all duration-300"
+                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  สมัคร
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -16,6 +16,7 @@ interface SiteSettings {
   openingHours: string | null;
   phone: string | null;
   email: string | null;
+  newsletterEnabled: boolean;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
   newsletterBackgroundImage: string | null;
@@ -44,6 +45,7 @@ export function Footer() {
     openingHours: null,
     phone: null,
     email: null,
+    newsletterEnabled: false,
     newsletterTitle: null,
     newsletterDescription: null,
     newsletterBackgroundImage: null,
@@ -325,53 +327,55 @@ export function Footer() {
           </div>
 
           {/* Newsletter Section */}
-          <div
-            className="mt-16 pt-8 border-t border-white/10 relative"
-            style={{
-              backgroundImage: siteSettings.newsletterBackgroundImage ? `url(${siteSettings.newsletterBackgroundImage})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              border: siteSettings.newsletterShowBorder ? `4px solid ${siteSettings.newsletterBorderColor}` : 'none',
-            }}
-          >
-            <div className="max-w-2xl mx-auto relative z-10">
-              <h3
-                className="text-xl font-bold mb-2 text-center"
-                style={{
-                  fontFamily: 'Montserrat, sans-serif',
-                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 0.5}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
-                }}
-              >
-                {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
-              </h3>
-              <p
-                className="text-gray-300 text-sm text-center mb-6"
-                style={{
-                  WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 0.5}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
-                }}
-              >
-                {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
-              </p>
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="อีเมลของคุณ"
-                  className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-swarovski-gold text-white font-semibold rounded-lg hover:bg-swarovski-gold-light transition-all duration-300 flex items-center gap-2"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+          {siteSettings.newsletterEnabled && (
+            <div
+              className="mt-16 pt-8 border-t border-white/10 relative"
+              style={{
+                backgroundImage: siteSettings.newsletterBackgroundImage ? `url(${siteSettings.newsletterBackgroundImage})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                border: siteSettings.newsletterShowBorder ? `4px solid ${siteSettings.newsletterBorderColor}` : 'none',
+              }}
+            >
+              <div className="max-w-2xl mx-auto relative z-10">
+                <h3
+                  className="text-xl font-bold mb-2 text-center"
+                  style={{
+                    fontFamily: 'Montserrat, sans-serif',
+                    WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 0.5}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                  }}
                 >
-                  สมัคร
-                  <ArrowRight size={18} />
-                </button>
-              </form>
+                  {siteSettings.newsletterTitle || 'รับข่าวสารและโปรโมชั่นพิเศษ'}
+                </h3>
+                <p
+                  className="text-gray-300 text-sm text-center mb-6"
+                  style={{
+                    WebkitTextStroke: `${siteSettings.newsletterTextStrokeWidth || 0.5}px ${siteSettings.newsletterTextStrokeColor || '#ffffff'}`,
+                  }}
+                >
+                  {siteSettings.newsletterDescription || 'สมัครรับจดหมายข่าวสารเพื่อไม่พลาดโปรโมชั่นและสินค้าใหม่ล่าสุด'}
+                </p>
+                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="อีเมลของคุณ"
+                    className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-swarovski-gold"
+                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  />
+                  <button
+                    type="submit"
+                    className="px-6 py-3 bg-swarovski-gold text-white font-semibold rounded-lg hover:bg-swarovski-gold-light transition-all duration-300 flex items-center gap-2"
+                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    สมัคร
+                    <ArrowRight size={18} />
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Payment Icons */}
           <div className="mt-12 pt-8 border-t border-white/10">

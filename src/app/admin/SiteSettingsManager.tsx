@@ -19,6 +19,7 @@ interface SiteSettings {
   heroTextStrokeWidth: number | null;
   heroBorderColor: string | null;
   heroShowBorder: boolean;
+  newsletterEnabled: boolean;
   newsletterTitle: string | null;
   newsletterDescription: string | null;
   newsletterBackgroundImage: string | null;
@@ -59,6 +60,7 @@ export function SiteSettingsManager() {
     heroTextStrokeWidth: 0.5,
     heroBorderColor: '#d4af37',
     heroShowBorder: false,
+    newsletterEnabled: false,
     newsletterTitle: '',
     newsletterDescription: '',
     newsletterBackgroundImage: null,
@@ -589,6 +591,26 @@ export function SiteSettingsManager() {
         {/* Newsletter Tab */}
         {activeTab === 'newsletter' && (
           <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-swarovski-gray rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  แสดงส่วน Newsletter
+                </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  ถ้าปิด ส่วน "รับข่าวสารและโปรโมชั่นพิเศษ" จะถูกซ่อนจากหน้าแรกและ footer ทุกหน้า (เหมาะสำหรับร้านที่ยังไม่มีระบบอีเมล)
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, newsletterEnabled: !settings.newsletterEnabled })}
+                className="flex items-center gap-2"
+              >
+                {settings.newsletterEnabled
+                  ? <ToggleRight size={24} className="text-swarovski-gold" />
+                  : <ToggleLeft size={24} className="text-gray-400" />}
+              </button>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Newsletter Title
