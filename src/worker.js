@@ -100,7 +100,11 @@ export default {
 
     if (!seo) {
       return new Response(html, {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'X-Debug-GSV': gsv ? `yes:${gsv.slice(0, 8)}...` : 'no',
+          'X-Debug-Worker': 'v3',
+        },
       })
     }
 
@@ -112,6 +116,8 @@ export default {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'public, max-age=300, s-maxage=600',
+        'X-Debug-GSV': gsv ? `yes:${gsv.slice(0, 8)}...` : 'no',
+        'X-Debug-Worker': 'v3',
       },
     })
   },
