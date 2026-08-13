@@ -47,8 +47,9 @@ export async function onRequest(context) {
   // Google Search Console site verification (optional env var)
   // ค่า content ของ <meta name="google-site-verification" content="...">
   // ตั้งใน Cloudflare Pages → Settings → Environment Variables
-  if (env.GOOGLE_SITE_VERIFICATION) {
-    const tag = `<meta name="google-site-verification" content="${env.GOOGLE_SITE_VERIFICATION}">`
+  const gsv = env.GOOGLE_SITE_VERIFICATION
+  if (gsv) {
+    const tag = `<meta name="google-site-verification" content="${gsv}">`
     if (!html.includes('google-site-verification')) {
       html = html.replace('</head>', `    ${tag}\n  </head>`)
     }
@@ -63,9 +64,15 @@ export async function onRequest(context) {
     origin,
   })
 
+  const debugHeaders = {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'public, max-age=300, s-maxage=600',
+    'X-Debug-GSV': gsv ? `yes:${gsv.slice(0, 8)}...` : 'no',
+  }
+
   if (!seo) {
     return new Response(html, {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      headers: debugHeaders,
     })
   }
 
@@ -74,9 +81,6 @@ export async function onRequest(context) {
   const finalHtml = injectSeoIntoHtml(html, seo, origin, productPath)
 
   return new Response(finalHtml, {
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'public, max-age=300, s-maxage=600',
-    },
+    headers: debugHeaders,
   })
 }
