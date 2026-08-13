@@ -68,6 +68,7 @@ export async function onRequest(context) {
     'Content-Type': 'text/html; charset=utf-8',
     'Cache-Control': 'public, max-age=300, s-maxage=600',
     'X-Debug-GSV': gsv ? `yes:${gsv.slice(0, 8)}...` : 'no',
+    'X-Debug-Worker': 'v2',
   }
 
   if (!seo) {
