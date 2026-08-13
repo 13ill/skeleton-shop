@@ -88,6 +88,13 @@ export default {
       return new Response('index.html not found', { status: 500 })
     }
 
+    // Google Search Console site verification (optional env var)
+    const gsv = env.GOOGLE_SITE_VERIFICATION
+    if (gsv && !html.includes('google-site-verification')) {
+      const tag = `<meta name="google-site-verification" content="${gsv}">`
+      html = html.replace('</head>', `    ${tag}\n  </head>`)
+    }
+
     // ดึง SEO จาก backend
     const { seo, isProductPage } = await fetchSeo({ apiUrl, host, pathname, origin })
 
